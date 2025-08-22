@@ -1,6 +1,7 @@
 package br.com.monesol.dao;
 
 import br.com.monesol.model.Contrato;
+import br.com.monesol.model.Contrato.StatusContrato;
 import br.com.monesol.model.UnidadeGeradora;
 import br.com.monesol.model.Usuario;
 import br.com.monesol.util.Conexao;
@@ -12,29 +13,20 @@ import java.util.List;
 public class ContratoDAO {
 
     public void cadastrar(Contrato contrato) throws SQLException {
-    	String sql = "INSERT INTO Contrato (vigenciaInicio, vigenciaFim, reajustePeriodicoMeses, limiteMinimoEnergiaKWh, precoPorKWh, modeloComercial, observacoes, regraAlocacao, qtdcontratada, unidadeGeradora, usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Contrato (statusContrato, vigenciaInicio, vigenciaFim, reajustePeriodico, observacoes, regrasExcecoes, quantidadecontratada, unidadeGeradora, usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-      
-            stmt.setDate(1, Date.valueOf(contrato.getVigenciaInicio()));
-            stmt.setDate(2, Date.valueOf(contrato.getVigenciaFim()));
-            stmt.setInt(3, contrato.getReajustePeriodicoMeses());
-
-            if (contrato.getLimiteMinimoEnergiaKWh() != null) {
-                stmt.setDouble(4, contrato.getLimiteMinimoEnergiaKWh());
-            } else {
-                stmt.setNull(4, Types.DOUBLE);
-            }
-
-            stmt.setDouble(5, contrato.getPrecoPorKWh());
-            stmt.setString(6, contrato.getModeloComercial());
-            stmt.setString(7, contrato.getObservacoes());
-            stmt.setString(8, contrato.getRegraAlocacao());
-            stmt.setDouble(9, contrato.getQtdContratada());
-            stmt.setInt(10, contrato.getUnidadeGeradora().getId());
-            stmt.setString(11, contrato.getUsuario().getCpfCnpj());
+            stmt.setString(1, contrato.getStatusContrato().name());
+            stmt.setDate(2, Date.valueOf(contrato.getVigenciaInicio()));
+            stmt.setDate(3, Date.valueOf(contrato.getVigenciaFim()));
+            stmt.setInt(4, contrato.getReajustePeriodico());
+            stmt.setString(5, contrato.getObservacoes());
+            stmt.setString(6, contrato.getRegrasExcecoes());
+            stmt.setDouble(7, contrato.getQuantidadeContratada());
+            stmt.setInt(8, contrato.getUnidadeGeradora().getId());
+            stmt.setString(9, contrato.getUsuario().getCpfCnpj());
 
             stmt.executeUpdate();
 
@@ -42,7 +34,6 @@ public class ContratoDAO {
             if (rs.next()) {
                 contrato.setId(rs.getInt(1));
             }
-            stmt.close();
         }
     }
 
@@ -60,7 +51,6 @@ public class ContratoDAO {
                 contrato.setId(id);
                 return contrato;
             }
-            stmt.close();
         }
 
         return null;
@@ -81,7 +71,6 @@ public class ContratoDAO {
                 contrato.setId(rs.getInt("id"));
                 lista.add(contrato);
             }
-            stmt.close();
         }
 
         return lista;
@@ -102,40 +91,29 @@ public class ContratoDAO {
                 contrato.setId(rs.getInt("id"));
                 lista.add(contrato);
             }
-            stmt.close();
         }
 
         return lista;
     }
 
     public void atualizar(Contrato contrato) throws SQLException {
-        String sql = "UPDATE Contrato SET vigenciaInicio = ?, vigenciaFim = ?, reajustePeriodicoMeses = ?, limiteMinimoEnergiaKWh = ?, precoPorKWh = ?, modeloComercial = ?, observacoes = ?, regraAlocacao = ?, qtdcontratada = ?, unidadeGeradora = ?, usuario = ? WHERE id = ?";
+        String sql = "UPDATE Contrato SET statusContrato = ?, vigenciaInicio = ?, vigenciaFim = ?, reajustePeriodico = ?, observacoes = ?, regrasExcecoes = ?, quantidadecontratada = ?, unidadeGeradora = ?, usuario = ? WHERE id = ?";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            
-            stmt.setDate(1, Date.valueOf(contrato.getVigenciaInicio()));
-            stmt.setDate(2, Date.valueOf(contrato.getVigenciaFim()));
-            stmt.setInt(3, contrato.getReajustePeriodicoMeses());
-
-            if (contrato.getLimiteMinimoEnergiaKWh() != null) {
-                stmt.setDouble(4, contrato.getLimiteMinimoEnergiaKWh());
-            } else {
-                stmt.setNull(4, Types.DOUBLE);
-            }
-
-            stmt.setDouble(5, contrato.getPrecoPorKWh());
-            stmt.setString(6, contrato.getModeloComercial());
-            stmt.setString(7, contrato.getObservacoes());
-            stmt.setString(8, contrato.getRegraAlocacao());
-            stmt.setDouble(9, contrato.getQtdContratada());
-            stmt.setInt(10, contrato.getUnidadeGeradora().getId());
-            stmt.setString(11, contrato.getUsuario().getCpfCnpj());
-            stmt.setInt(12, contrato.getId());
+            stmt.setString(1, contrato.getStatusContrato().name());
+            stmt.setDate(2, Date.valueOf(contrato.getVigenciaInicio()));
+            stmt.setDate(3, Date.valueOf(contrato.getVigenciaFim()));
+            stmt.setInt(4, contrato.getReajustePeriodico());
+            stmt.setString(5, contrato.getObservacoes());
+            stmt.setString(6, contrato.getRegrasExcecoes());
+            stmt.setDouble(7, contrato.getQuantidadeContratada());
+            stmt.setInt(8, contrato.getUnidadeGeradora().getId());
+            stmt.setString(9, contrato.getUsuario().getCpfCnpj());
+            stmt.setInt(10, contrato.getId());
 
             stmt.executeUpdate();
-            stmt.close();
         }
     }
 
@@ -146,30 +124,27 @@ public class ContratoDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
-            stmt.close();
         }
     }
 
-  
     private Contrato preencherContrato(ResultSet rs) throws SQLException {
-        UnidadeGeradora unidade = new UnidadeGeradora("", 0.0, 0.0);
+        UnidadeGeradora unidade = new UnidadeGeradora("", 0.0, 0.0, "", 0.0, 0.0);
         unidade.setId(rs.getInt("unidadeGeradora"));
 
         Usuario usuario = new Usuario(null, null, null, null, null, null, null);
         usuario.setCpfCnpj(rs.getString("usuario"));
 
-        return new Contrato(
-            rs.getDate("vigenciaInicio").toLocalDate(),
-            rs.getDate("vigenciaFim").toLocalDate(),
-            rs.getInt("reajustePeriodicoMeses"),
-            rs.getObject("limiteMinimoEnergiaKWh") != null ? rs.getDouble("limiteMinimoEnergiaKWh") : null,
-            rs.getDouble("precoPorKWh"),
-            rs.getString("modeloComercial"),
-            rs.getString("observacoes"),
-            rs.getString("regraAlocacao"),
-            rs.getDouble("qtdcontratada"),
-            unidade,
-            usuario
-        );
+        Contrato contrato = new Contrato();
+        contrato.setStatusContrato(StatusContrato.valueOf(rs.getString("statusContrato")));
+        contrato.setVigenciaInicio(rs.getDate("vigenciaInicio").toLocalDate());
+        contrato.setVigenciaFim(rs.getDate("vigenciaFim").toLocalDate());
+        contrato.setReajustePeriodico(rs.getInt("reajustePeriodico"));
+        contrato.setObservacoes(rs.getString("observacoes"));
+        contrato.setRegrasExcecoes(rs.getString("regrasExcecoes"));
+        contrato.setQuantidadeContratada(rs.getDouble("quantidadecontratada"));
+        contrato.setUnidadeGeradora(unidade);
+        contrato.setUsuario(usuario);
+
+        return contrato;
     }
 }

@@ -172,45 +172,36 @@
     </a>
 </div>
 
-    <div class="container">
-        <h1>Fechar Contrato - Unidade: <%= unidade.getLocalizacao() %> (ID: <%= unidade.getId() %>)</h1>
+	    <div class="container">
+	    <h1>Fechar Contrato - Unidade: <%= unidade.getLocalizacao() %> (ID: <%= unidade.getId() %>)</h1>
+	
+	    <form action="<%=request.getContextPath()%>/ContratoController" method="post">
+	        <input type="hidden" name="action" value="adicionar" />
+	        <input type="hidden" name="unidadeGeradoraId" value="<%= unidade.getId() %>" />
+	        <input type="hidden" name="usuarioCpfCnpj" value="<%= cpfCnpj %>" />
+	
+	        <label for="vigenciaInicio">Vigência Início:</label>
+	        <input type="date" id="vigenciaInicio" name="vigenciaInicio" value="<%= hoje %>" required />
+	
+	        <label for="vigenciaFim">Vigência Fim:</label>
+	        <input type="date" id="vigenciaFim" name="vigenciaFim" value="<%= dataFim %>" required />
+	
+	        <label for="reajustePeriodico">Reajuste Periódico (meses):</label>
+	        <input type="number" id="reajustePeriodico" name="reajustePeriodico" min="1" value="12" required />
+	
+			<input type="hidden" id="statusContrato" name="statusContrato" value="PENDENTE" />
 
-        <form action="<%=request.getContextPath()%>/ContratoController" method="post">
-            <input type="hidden" name="action" value="adicionar" />
-            <input type="hidden" name="unidadeGeradoraId" value="<%= unidade.getId() %>" />
-            <input type="hidden" name="usuarioCpfCnpj" value="<%= cpfCnpj %>" />
-
-            <label for="vigenciaInicio">Vigência Início:</label>
-            <input type="date" id="vigenciaInicio" name="vigenciaInicio" value="<%= hoje %>" required />
-
-            <label for="vigenciaFim">Vigência Fim:</label>
-            <input type="date" id="vigenciaFim" name="vigenciaFim" value="<%= dataFim %>" required />
-
-            <label for="reajustePeriodicoMeses">Reajuste Periódico (meses):</label>
-            <input type="number" id="reajustePeriodicoMeses" name="reajustePeriodicoMeses" min="1" value="12" required />
-
-            <label for="limiteMinimoEnergiaKWh">Limite Mínimo Energia (kWh) (opcional):</label>
-            <input type="number" id="limiteMinimoEnergiaKWh" name="limiteMinimoEnergiaKWh" step="0.01" min="0" />
-
-            <label for="precoPorKWh">Preço por kWh (R$):</label>
-            <input type="number" id="precoPorKWh" name="precoPorKWh" step="0.01" min="0" required />
-
-            <label for="modeloComercial">Modelo Comercial:</label>
-            <input type="text" id="modeloComercial" name="modeloComercial" maxlength="100" required />
-
-            <label for="observacoes">Observações:</label>
-            <textarea id="observacoes" name="observacoes" rows="3" maxlength="500"></textarea>
-
-            <label for="regraAlocacao">Regra de Alocação:</label>
-            <textarea id="regraAlocacao" name="regraAlocacao" rows="3" maxlength="500" required></textarea>
-
-            <label for="qtdContratada">Quantidade Contratada (kWh):</label>
-            <input type="number" id="qtdContratada" name="qtdContratada" step="0.01" min="0.01" required />
-
-            <button type="submit">Fechar Contrato</button>
-            
-            
-        </form>
-    </div>
+	        <label for="regrasExcecoes">Regras e Exceções:</label>
+	        <textarea id="regrasExcecoes" name="regrasExcecoes" rows="3" maxlength="500" required></textarea>
+	
+	        <label for="observacoes">Observações:</label>
+	        <textarea id="observacoes" name="observacoes" rows="3" maxlength="500"></textarea>
+	
+	        <label for="quantidadeContratada">Quantidade Contratada (kWh):</label>
+	        <input type="number" id="quantidadeContratada" name="quantidadeContratada" step="0.01" min="0.01" required />
+	
+	        <button type="submit">Fechar Contrato</button>
+	    </form>
+	</div>
 </body>
 </html>

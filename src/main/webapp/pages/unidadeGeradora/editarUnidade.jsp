@@ -139,6 +139,12 @@ main h1 {
         <label for="eficienciaMedia">Eficiência Média (%)</label>
         <input type="number" id="eficienciaMedia" name="eficienciaMedia" step="0.01" min="0" max="100" value="<%= unidade.getEficienciaMedia() * 100 %>" required />
 
+        <label for="precoPorKWh">Preço por kWh (R$)</label>
+        <input type="number" id="precoPorKWh" name="precoPorKWh" step="0.01" min="0" value="<%= unidade.getPrecoPorKWh() %>" required />
+
+        <label for="quantidadeMinimaAceita">Quantidade Mínima Aceita (kWh)</label>
+        <input type="number" id="quantidadeMinimaAceita" name="quantidadeMinimaAceita" step="0.01" min="0" value="<%= unidade.getQuantidadeMinimaAceita() %>" />
+
         <button type="submit">Salvar Alterações</button>
     </form>
 

@@ -10,7 +10,7 @@ import java.util.List;
 public class UnidadeGeradoraDAO {
 
     public void cadastrar(UnidadeGeradora unidade) throws SQLException {
-        String sql = "INSERT INTO UnidadeGeradora (localizacao, potenciaInstalada, eficienciaMedia, usuario) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO UnidadeGeradora (localizacao, potenciaInstalada, eficienciaMedia, usuario, precoPorKWh, quantidadeMinimaAceita) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -18,7 +18,9 @@ public class UnidadeGeradoraDAO {
             stmt.setString(1, unidade.getLocalizacao());
             stmt.setDouble(2, unidade.getPotenciaInstalada());
             stmt.setDouble(3, unidade.getEficienciaMedia());
-            stmt.setString(4, unidade.getCpfCnpjUsuario()); 
+            stmt.setString(4, unidade.getCpfCnpjUsuario());
+            stmt.setDouble(5, unidade.getPrecoPorKWh());
+            stmt.setDouble(6, unidade.getQuantidadeMinimaAceita());
 
             stmt.executeUpdate();
 
@@ -26,8 +28,6 @@ public class UnidadeGeradoraDAO {
             if (rs.next()) {
                 unidade.setId(rs.getInt(1));
             }
-
-            stmt.close();
         }
     }
 
@@ -41,19 +41,10 @@ public class UnidadeGeradoraDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                UnidadeGeradora unidade = new UnidadeGeradora(
-                    rs.getString("localizacao"),
-                    rs.getDouble("potenciaInstalada"),
-                    rs.getDouble("eficienciaMedia")
-                );
-                unidade.setId(rs.getInt("id"));
-                unidade.setCpfCnpjUsuario(rs.getString("usuario"));
+                UnidadeGeradora unidade = mapResultSet(rs);
                 return unidade;
             }
-
-            stmt.close();
         }
-
         return null;
     }
 
@@ -66,19 +57,9 @@ public class UnidadeGeradoraDAO {
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                UnidadeGeradora unidade = new UnidadeGeradora(
-                    rs.getString("localizacao"),
-                    rs.getDouble("potenciaInstalada"),
-                    rs.getDouble("eficienciaMedia")
-                );
-                unidade.setId(rs.getInt("id"));
-                unidade.setCpfCnpjUsuario(rs.getString("usuario"));
-                lista.add(unidade);
+                lista.add(mapResultSet(rs));
             }
-
-            stmt.close();
         }
-
         return lista;
     }
 
@@ -93,19 +74,9 @@ public class UnidadeGeradoraDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                UnidadeGeradora unidade = new UnidadeGeradora(
-                    rs.getString("localizacao"),
-                    rs.getDouble("potenciaInstalada"),
-                    rs.getDouble("eficienciaMedia")
-                );
-                unidade.setId(rs.getInt("id"));
-                unidade.setCpfCnpjUsuario(rs.getString("usuario"));
-                lista.add(unidade);
+                lista.add(mapResultSet(rs));
             }
-
-            stmt.close();
         }
-
         return lista;
     }
 
@@ -120,23 +91,14 @@ public class UnidadeGeradoraDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                UnidadeGeradora unidade = new UnidadeGeradora(
-                    rs.getString("localizacao"),
-                    rs.getDouble("potenciaInstalada"),
-                    rs.getDouble("eficienciaMedia")
-                );
-                unidade.setId(rs.getInt("id"));
-                unidade.setCpfCnpjUsuario(rs.getString("usuario"));
-                lista.add(unidade);
+                lista.add(mapResultSet(rs));
             }
-            stmt.close();
         }
-
         return lista;
     }
 
     public void atualizar(UnidadeGeradora unidade) throws SQLException {
-        String sql = "UPDATE UnidadeGeradora SET localizacao = ?, potenciaInstalada = ?, eficienciaMedia = ?, usuario = ? WHERE id = ?";
+        String sql = "UPDATE UnidadeGeradora SET localizacao = ?, potenciaInstalada = ?, eficienciaMedia = ?, usuario = ?, precoPorKWh = ?, quantidadeMinimaAceita = ? WHERE id = ?";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -145,10 +107,11 @@ public class UnidadeGeradoraDAO {
             stmt.setDouble(2, unidade.getPotenciaInstalada());
             stmt.setDouble(3, unidade.getEficienciaMedia());
             stmt.setString(4, unidade.getCpfCnpjUsuario());
-            stmt.setInt(5, unidade.getId());
+            stmt.setDouble(5, unidade.getPrecoPorKWh());
+            stmt.setDouble(6, unidade.getQuantidadeMinimaAceita());
+            stmt.setInt(7, unidade.getId());
 
             stmt.executeUpdate();
-            stmt.close();
         }
     }
 
@@ -160,7 +123,19 @@ public class UnidadeGeradoraDAO {
 
             stmt.setInt(1, id);
             stmt.executeUpdate();
-            stmt.close();
         }
+    }
+
+    // 🔹 Método auxiliar para reduzir duplicação de código
+    private UnidadeGeradora mapResultSet(ResultSet rs) throws SQLException {
+        UnidadeGeradora unidade = new UnidadeGeradora();
+        unidade.setId(rs.getInt("id"));
+        unidade.setLocalizacao(rs.getString("localizacao"));
+        unidade.setPotenciaInstalada(rs.getDouble("potenciaInstalada"));
+        unidade.setEficienciaMedia(rs.getDouble("eficienciaMedia"));
+        unidade.setCpfCnpjUsuario(rs.getString("usuario"));
+        unidade.setPrecoPorKWh(rs.getDouble("precoPorKWh"));
+        unidade.setQuantidadeMinimaAceita(rs.getDouble("quantidadeMinimaAceita"));
+        return unidade;
     }
 }

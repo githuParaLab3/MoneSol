@@ -3,133 +3,120 @@ package br.com.monesol.model;
 import java.time.LocalDate;
 
 public class Contrato {
-	private int id; 
+
+    public enum StatusContrato {
+        PENDENTE,
+        ATIVO,
+        CANCELADO,
+        ENCERRADO
+    }
+
+    private int id;
+    private StatusContrato statusContrato;
     private LocalDate vigenciaInicio;
-    private LocalDate vigenciaFim;   
-    private int reajustePeriodicoMeses;
-    private Double limiteMinimoEnergiaKWh;
-    private double precoPorKWh;
-    private String modeloComercial;
+    private LocalDate vigenciaFim;
+    private int reajustePeriodico;
     private String observacoes;
-    private String regraAlocacao;
-    private double qtdContratada;
+    private String regrasExcecoes;
+    private double quantidadeContratada;
     private UnidadeGeradora unidadeGeradora;
     private Usuario usuario;
-    
-	public Contrato(LocalDate vigenciaInicio, LocalDate vigenciaFim, int reajustePeriodicoMeses,
-			Double limiteMinimoEnergiaKWh, double precoPorKWh, String modeloComercial, String observacoes,
-			String regraAlocacao, double qtdContratada, UnidadeGeradora unidadeGeradora, Usuario usuario) {
-		this.vigenciaInicio = vigenciaInicio;
-		this.vigenciaFim = vigenciaFim;
-		this.reajustePeriodicoMeses = reajustePeriodicoMeses;
-		this.limiteMinimoEnergiaKWh = limiteMinimoEnergiaKWh;
-		this.precoPorKWh = precoPorKWh;
-		this.modeloComercial = modeloComercial;
-		this.observacoes = observacoes;
-		this.regraAlocacao = regraAlocacao;
-		this.qtdContratada = qtdContratada;
-		this.unidadeGeradora = unidadeGeradora;
-		this.usuario = usuario;
-	}
-	
-	public Contrato() {}
-	
 
-	public int getId() {
-		return id;
-	}
+    public Contrato() {
+        this.statusContrato = StatusContrato.PENDENTE;
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public Contrato(LocalDate vigenciaInicio, LocalDate vigenciaFim, int reajustePeriodico,
+                    String observacoes, String regrasExcecoes, double quantidadeContratada,
+                    UnidadeGeradora unidadeGeradora, Usuario usuario) {
+        this.vigenciaInicio = vigenciaInicio;
+        this.vigenciaFim = vigenciaFim;
+        this.reajustePeriodico = reajustePeriodico;
+        this.observacoes = observacoes;
+        this.regrasExcecoes = regrasExcecoes;
+        this.quantidadeContratada = quantidadeContratada;
+        this.unidadeGeradora = unidadeGeradora;
+        this.usuario = usuario;
+        this.statusContrato = StatusContrato.PENDENTE;
+    }
 
-	public LocalDate getVigenciaInicio() {
-		return vigenciaInicio;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public void setVigenciaInicio(LocalDate vigenciaInicio) {
-		this.vigenciaInicio = vigenciaInicio;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	public LocalDate getVigenciaFim() {
-		return vigenciaFim;
-	}
+    public StatusContrato getStatusContrato() {
+        return statusContrato;
+    }
 
-	public void setVigenciaFim(LocalDate vigenciaFim) {
-		this.vigenciaFim = vigenciaFim;
-	}
+    public void setStatusContrato(StatusContrato statusContrato) {
+        this.statusContrato = statusContrato;
+    }
 
-	public int getReajustePeriodicoMeses() {
-		return reajustePeriodicoMeses;
-	}
+    public LocalDate getVigenciaInicio() {
+        return vigenciaInicio;
+    }
 
-	public void setReajustePeriodicoMeses(int reajustePeriodicoMeses) {
-		this.reajustePeriodicoMeses = reajustePeriodicoMeses;
-	}
+    public void setVigenciaInicio(LocalDate vigenciaInicio) {
+        this.vigenciaInicio = vigenciaInicio;
+    }
 
-	public Double getLimiteMinimoEnergiaKWh() {
-		return limiteMinimoEnergiaKWh;
-	}
+    public LocalDate getVigenciaFim() {
+        return vigenciaFim;
+    }
 
-	public void setLimiteMinimoEnergiaKWh(Double limiteMinimoEnergiaKWh) {
-		this.limiteMinimoEnergiaKWh = limiteMinimoEnergiaKWh;
-	}
+    public void setVigenciaFim(LocalDate vigenciaFim) {
+        this.vigenciaFim = vigenciaFim;
+    }
 
-	public double getPrecoPorKWh() {
-		return precoPorKWh;
-	}
+    public int getReajustePeriodico() {
+        return reajustePeriodico;
+    }
 
-	public void setPrecoPorKWh(double precoPorKWh) {
-		this.precoPorKWh = precoPorKWh;
-	}
+    public void setReajustePeriodico(int reajustePeriodico) {
+        this.reajustePeriodico = reajustePeriodico;
+    }
 
-	public String getModeloComercial() {
-		return modeloComercial;
-	}
+    public String getObservacoes() {
+        return observacoes;
+    }
 
-	public void setModeloComercial(String modeloComercial) {
-		this.modeloComercial = modeloComercial;
-	}
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
+    }
 
-	public String getObservacoes() {
-		return observacoes;
-	}
+    public String getRegrasExcecoes() {
+        return regrasExcecoes;
+    }
 
-	public void setObservacoes(String observacoes) {
-		this.observacoes = observacoes;
-	}
+    public void setRegrasExcecoes(String regrasExcecoes) {
+        this.regrasExcecoes = regrasExcecoes;
+    }
 
-	public String getRegraAlocacao() {
-		return regraAlocacao;
-	}
+    public double getQuantidadeContratada() {
+        return quantidadeContratada;
+    }
 
-	public void setRegraAlocacao(String regraAlocacao) {
-		this.regraAlocacao = regraAlocacao;
-	}
+    public void setQuantidadeContratada(double quantidadeContratada) {
+        this.quantidadeContratada = quantidadeContratada;
+    }
 
-	public double getQtdContratada() {
-		return qtdContratada;
-	}
+    public UnidadeGeradora getUnidadeGeradora() {
+        return unidadeGeradora;
+    }
 
-	public void setQtdContratada(double qtdContratada) {
-		this.qtdContratada = qtdContratada;
-	}
+    public void setUnidadeGeradora(UnidadeGeradora unidadeGeradora) {
+        this.unidadeGeradora = unidadeGeradora;
+    }
 
-	public UnidadeGeradora getUnidadeGeradora() {
-		return unidadeGeradora;
-	}
+    public Usuario getUsuario() {
+        return usuario;
+    }
 
-	public void setUnidadeGeradora(UnidadeGeradora unidadeGeradora) {
-		this.unidadeGeradora = unidadeGeradora;
-	}
-
-	public Usuario getUsuario() {
-		return usuario;
-	}
-
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
-	}
-    
-    
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 }

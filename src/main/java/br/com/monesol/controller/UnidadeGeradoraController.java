@@ -97,10 +97,16 @@ public class UnidadeGeradoraController extends HttpServlet {
 
         String localizacao = request.getParameter("localizacao");
         double potencia = Double.parseDouble(request.getParameter("potenciaInstalada"));
-        double eficienciaPercent = Double.parseDouble(request.getParameter("eficienciaMedia"));
-        double eficiencia = eficienciaPercent / 100.0; 
+        double eficiencia = Double.parseDouble(request.getParameter("eficienciaMedia"));
+        double precoPorKWh = Double.parseDouble(request.getParameter("precoPorKWh"));
+        double quantidadeMinima = Double.parseDouble(request.getParameter("quantidadeMinimaAceita"));
 
-        UnidadeGeradora unidade = new UnidadeGeradora(localizacao, potencia, eficiencia);
+        UnidadeGeradora unidade = new UnidadeGeradora();
+        unidade.setLocalizacao(localizacao);
+        unidade.setPotenciaInstalada(potencia);
+        unidade.setEficienciaMedia(eficiencia);
+        unidade.setPrecoPorKWh(precoPorKWh);
+        unidade.setQuantidadeMinimaAceita(quantidadeMinima);
 
         if (usuario.getTipo() == TipoUsuario.DONO_GERADORA) {
             unidade.setCpfCnpjUsuario(usuario.getCpfCnpj());
@@ -118,13 +124,9 @@ public class UnidadeGeradoraController extends HttpServlet {
 
         unidadeDAO.cadastrar(unidade);
 
-     
         HttpSession session = request.getSession();
         session.setAttribute("msgSucesso", "Unidade Geradora cadastrada com sucesso!");
-
-        
         response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-
     }
 
     private void editarUnidade(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
@@ -137,8 +139,9 @@ public class UnidadeGeradoraController extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         String localizacao = request.getParameter("localizacao");
         double potencia = Double.parseDouble(request.getParameter("potenciaInstalada"));
-        double eficienciaPercent = Double.parseDouble(request.getParameter("eficienciaMedia"));
-        double eficiencia = eficienciaPercent / 100.0;
+        double eficiencia = Double.parseDouble(request.getParameter("eficienciaMedia"));
+        double precoPorKWh = Double.parseDouble(request.getParameter("precoPorKWh"));
+        double quantidadeMinima = Double.parseDouble(request.getParameter("quantidadeMinimaAceita"));
 
         UnidadeGeradora existente = unidadeDAO.buscarPorId(id);
         if (existente == null) {
@@ -151,8 +154,13 @@ public class UnidadeGeradoraController extends HttpServlet {
             return;
         }
 
-        UnidadeGeradora unidade = new UnidadeGeradora(localizacao, potencia, eficiencia);
+        UnidadeGeradora unidade = new UnidadeGeradora();
         unidade.setId(id);
+        unidade.setLocalizacao(localizacao);
+        unidade.setPotenciaInstalada(potencia);
+        unidade.setEficienciaMedia(eficiencia);
+        unidade.setPrecoPorKWh(precoPorKWh);
+        unidade.setQuantidadeMinimaAceita(quantidadeMinima);
 
         if (usuario.getTipo() == TipoUsuario.CONSUMIDOR_PARCEIRO) {
             unidade.setCpfCnpjUsuario(usuario.getCpfCnpj());
@@ -168,6 +176,7 @@ public class UnidadeGeradoraController extends HttpServlet {
         unidadeDAO.atualizar(unidade);
         response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + id);
     }
+
 
     private void deletarUnidade(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         Usuario usuario = getUsuarioLogado(request);

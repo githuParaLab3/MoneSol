@@ -6,20 +6,24 @@ public class UnidadeGeradora {
     private double potenciaInstalada;
     private double eficienciaMedia;
     private String cpfCnpjUsuario; 
+    private double precoPorKWh;
+    private double quantidadeMinimaAceita;
 
     public UnidadeGeradora() {
     }
 
-    public UnidadeGeradora(String localizacao, double potenciaInstalada, double eficienciaMedia) {
+    public UnidadeGeradora(String localizacao, double potenciaInstalada, double eficienciaMedia, String cpfCnpjUsuario, double precoPorKWh, double quantidadeMinimaAceita) {
         this.localizacao = localizacao;
         this.potenciaInstalada = potenciaInstalada;
         this.eficienciaMedia = eficienciaMedia;
+        this.cpfCnpjUsuario = cpfCnpjUsuario;
+        this.precoPorKWh = precoPorKWh;
+        this.quantidadeMinimaAceita = quantidadeMinimaAceita;
     }
 
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -27,7 +31,6 @@ public class UnidadeGeradora {
     public String getLocalizacao() {
         return localizacao;
     }
-
     public void setLocalizacao(String localizacao) {
         this.localizacao = localizacao;
     }
@@ -35,7 +38,6 @@ public class UnidadeGeradora {
     public double getPotenciaInstalada() {
         return potenciaInstalada;
     }
-
     public void setPotenciaInstalada(double potenciaInstalada) {
         this.potenciaInstalada = potenciaInstalada;
     }
@@ -43,7 +45,6 @@ public class UnidadeGeradora {
     public double getEficienciaMedia() {
         return eficienciaMedia;
     }
-
     public void setEficienciaMedia(double eficienciaMedia) {
         this.eficienciaMedia = eficienciaMedia;
     }
@@ -51,8 +52,21 @@ public class UnidadeGeradora {
     public String getCpfCnpjUsuario() {
         return cpfCnpjUsuario;
     }
-
     public void setCpfCnpjUsuario(String cpfCnpjUsuario) {
         this.cpfCnpjUsuario = cpfCnpjUsuario;
+    }
+
+    public double getPrecoPorKWh() {
+        return precoPorKWh;
+    }
+    public void setPrecoPorKWh(double precoPorKWh) {
+        this.precoPorKWh = precoPorKWh;
+    }
+
+    public double getQuantidadeMinimaAceita() {
+        return quantidadeMinimaAceita;
+    }
+    public void setQuantidadeMinimaAceita(double quantidadeMinimaAceita) {
+        this.quantidadeMinimaAceita = quantidadeMinimaAceita;
     }
 }

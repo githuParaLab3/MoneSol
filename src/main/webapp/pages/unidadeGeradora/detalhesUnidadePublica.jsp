@@ -239,15 +239,23 @@
     <div class="card">
         <div class="flex">
             <div class="info">
-                <div class="info-label">Localização</div>
-                <div class="info-value"><%= unidade.getLocalizacao() %></div>
-
-                <div class="info-label">Potência Instalada (kW)</div>
-                <div class="info-value"><%= String.format("%.2f", unidade.getPotenciaInstalada()) %></div>
-
-                <div class="info-label">Eficiência Média (%)</div>
-                <div class="info-value"><%= String.format("%.1f", unidade.getEficienciaMedia() * 100) %></div>
-            </div>
+			    <div class="info-label">Localização</div>
+			    <div class="info-value"><%= unidade.getLocalizacao() %></div>
+			
+			    <div class="info-label">Potência Instalada (kW)</div>
+			    <div class="info-value"><%= String.format("%.2f", unidade.getPotenciaInstalada()) %></div>
+			
+			    <div class="info-label">Eficiência Média (%)</div>
+			    <div class="info-value"><%= String.format("%.1f", unidade.getEficienciaMedia() * 100) %></div>
+			
+			    <div class="info-label">Preço por kWh (R$)</div>
+			    <div class="info-value"><%= String.format("%.2f", unidade.getPrecoPorKWh()) %></div>
+			
+			   <div class="info-label">Quantidade Mínima Aceita (kWh)</div>
+				<div class="info-value">
+				    <%= unidade.getQuantidadeMinimaAceita() > 0 ? String.format("%.2f", unidade.getQuantidadeMinimaAceita()) : "-" %>
+				</div>
+			</div>
             <div class="info">
                 <div class="info-label">Dono da Unidade</div>
                 <div class="info-value"><%= unidade.getCpfCnpjUsuario() != null ? unidade.getCpfCnpjUsuario() : "-" %></div>

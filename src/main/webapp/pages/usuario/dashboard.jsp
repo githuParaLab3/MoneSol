@@ -193,38 +193,38 @@
         </form>
     </div>
 
-    <!-- Contratos -->
-    <div class="section" aria-label="Contratos do usuário">
-        <h2>Meus Contratos</h2>
-        <% if (contratos == null || contratos.isEmpty()) { %>
-            <p>Você não possui contratos ativos.</p>
-        <% } else { %>
-            <ul class="units-list" role="list">
-                <% for (Contrato c : contratos) { %>
-                    <li>
-                        <div class="unit-card">
-                            <div class="unit-info">
-                                <div class="unit-title">Contrato ID: <%= c.getId() %></div>
-                                <div class="unit-sub"><strong>Vigência:</strong> 
-                                    <%= (c.getVigenciaInicio() != null ? c.getVigenciaInicio() : "-") %> até 
-                                    <%= (c.getVigenciaFim() != null ? c.getVigenciaFim() : "-") %>
-                                </div>
-                                <div class="unit-sub"><strong>Unidade:</strong> <%= c.getUnidadeGeradora() != null ? c.getUnidadeGeradora().getLocalizacao() : "-" %></div>
-                                <div class="unit-sub"><strong>Modelo:</strong> <%= c.getModeloComercial() != null ? c.getModeloComercial() : "-" %></div>
-                                <div class="unit-sub"><strong>Qtd. Contratada:</strong> <%= c.getQtdContratada() %> kWh</div>
-                                <div class="unit-sub"><strong>Preço:</strong> R$ <%= String.format("%.4f", c.getPrecoPorKWh()) %> / kWh</div>
+   <!-- Contratos -->
+<div class="section" aria-label="Contratos do usuário">
+    <h2>Meus Contratos</h2>
+    <% if (contratos == null || contratos.isEmpty()) { %>
+        <p>Você não possui contratos ativos.</p>
+    <% } else { %>
+        <ul class="units-list" role="list">
+            <% for (Contrato c : contratos) { %>
+                <li>
+                    <div class="unit-card">
+                        <div class="unit-info">
+                            <div class="unit-title">Contrato ID: <%= c.getId() %></div>
+                            <div class="unit-sub"><strong>Vigência:</strong> 
+                                <%= (c.getVigenciaInicio() != null ? c.getVigenciaInicio() : "-") %> até 
+                                <%= (c.getVigenciaFim() != null ? c.getVigenciaFim() : "-") %>
                             </div>
-                            <form method="post" action="<%= request.getContextPath() %>/ContratoController" style="margin:0; align-self:center;">
-                                <input type="hidden" name="action" value="buscarPorId" />
-                                <input type="hidden" name="id" value="<%= c.getId() %>" />
-                                <button type="submit" class="edit-button">Detalhes</button>
-                            </form>
+                            <div class="unit-sub"><strong>Unidade:</strong> <%= c.getUnidadeGeradora() != null ? c.getUnidadeGeradora().getLocalizacao() : "-" %></div>
+                            <!-- Linha de Modelo removida -->
+                            <div class="unit-sub"><strong>Qtd. Contratada:</strong> <%= c.getQuantidadeContratada() %> kWh</div>
+                            <div class="unit-sub"><strong>Preço:</strong> R$ <%= String.format("%.4f", c.getUnidadeGeradora().getPrecoPorKWh()) %> / kWh</div>
                         </div>
-                    </li>
-                <% } %>
-            </ul>
-        <% } %>
-    </div>
+                        <form method="post" action="<%= request.getContextPath() %>/ContratoController" style="margin:0; align-self:center;">
+                            <input type="hidden" name="action" value="buscarPorId" />
+                            <input type="hidden" name="id" value="<%= c.getId() %>" />
+                            <button type="submit" class="edit-button">Detalhes</button>
+                        </form>
+                    </div>
+                </li>
+            <% } %>
+        </ul>
+    <% } %>
+</div>
 
     <!-- Unidades Geradoras -->
     <% if (usuario.getTipo() == br.com.monesol.model.Usuario.TipoUsuario.DONO_GERADORA) { %>

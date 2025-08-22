@@ -159,24 +159,21 @@
 
     <h1>Detalhes do Contrato</h1>
 
-    <div class="card">
-        <div class="info"><span class="info-label">ID do Contrato:</span><span class="info-value"><%= contrato.getId() %></span></div>
-        <div class="info"><span class="info-label">Vigência:</span><span class="info-value"><%= dtf.format(contrato.getVigenciaInicio()) %> até <%= dtf.format(contrato.getVigenciaFim()) %></span></div>
-        <div class="info"><span class="info-label">Reajuste a cada:</span><span class="info-value"><%= contrato.getReajustePeriodicoMeses() %> meses</span></div>
-        <div class="info"><span class="info-label">Limite mínimo de energia:</span><span class="info-value"><%= contrato.getLimiteMinimoEnergiaKWh() %> kWh</span></div>
-        <div class="info"><span class="info-label">Preço por kWh:</span><span class="info-value">R$ <%= String.format("%.2f", contrato.getPrecoPorKWh()) %></span></div>
-        <div class="info"><span class="info-label">Quantidade contratada:</span><span class="info-value"><%= contrato.getQtdContratada() %> kWh</span></div>
-        <div class="info"><span class="info-label">Modelo comercial:</span><span class="info-value"><%= contrato.getModeloComercial() %></span></div>
-        <div class="info"><span class="info-label">Regra de alocação:</span><span class="info-value"><%= contrato.getRegraAlocacao() %></span></div>
-        <div class="info"><span class="info-label">Observações:</span><span class="info-value"><%= contrato.getObservacoes() != null ? contrato.getObservacoes() : "-" %></span></div>
-        <div class="info"><span class="info-label">CPF/CNPJ Usuário:</span><span class="info-value"><%= contrato.getUsuario().getCpfCnpj() %></span></div>
-        <div class="info"><span class="info-label">ID Unidade Geradora:</span><span class="info-value"><%= contrato.getUnidadeGeradora().getId() %></span></div>
-        <div class="info"><span class="info-label">Localização Unidade:</span><span class="info-value"><%= contrato.getUnidadeGeradora().getLocalizacao() %></span></div>
-    </div>
+   <div class="card">
+    <div class="info"><span class="info-label">ID do Contrato:</span><span class="info-value"><%= contrato.getId() %></span></div>
+    <div class="info"><span class="info-label">Vigência:</span><span class="info-value"><%= contrato.getVigenciaInicio() != null ? dtf.format(contrato.getVigenciaInicio()) : "-" %> até <%= contrato.getVigenciaFim() != null ? dtf.format(contrato.getVigenciaFim()) : "-" %></span></div>
+    <div class="info"><span class="info-label">Reajuste a cada:</span><span class="info-value"><%= contrato.getReajustePeriodico() %> meses</span></div>
+    <div class="info"><span class="info-label">Status do Contrato:</span><span class="info-value"><%= contrato.getStatusContrato() != null ? contrato.getStatusContrato() : "-" %></span></div>
+    <div class="info"><span class="info-label">Quantidade contratada:</span><span class="info-value"><%= contrato.getQuantidadeContratada() + " kWh" %></span></div>
+    <div class="info"><span class="info-label">Regras e Exceções:</span><span class="info-value"><%= contrato.getRegrasExcecoes() != null ? contrato.getRegrasExcecoes() : "-" %></span></div>
+    <div class="info"><span class="info-label">Observações:</span><span class="info-value"><%= contrato.getObservacoes() != null ? contrato.getObservacoes() : "-" %></span></div>
+    <div class="info"><span class="info-label">CPF/CNPJ Usuário:</span><span class="info-value"><%= contrato.getUsuario() != null ? contrato.getUsuario().getCpfCnpj() : "-" %></span></div>
+    <div class="info"><span class="info-label">ID Unidade Geradora:</span><span class="info-value"><%= contrato.getUnidadeGeradora() != null ? contrato.getUnidadeGeradora().getId() : "-" %></span></div>
+    <div class="info"><span class="info-label">Localização Unidade:</span><span class="info-value"><%= contrato.getUnidadeGeradora() != null ? contrato.getUnidadeGeradora().getLocalizacao() : "-" %></span></div>
+</div>
 
-    <!-- Documentos -->
+
     <h2>Documentos Associados</h2>
-
     <% if (usuario != null && usuario.getTipo() == br.com.monesol.model.Usuario.TipoUsuario.DONO_GERADORA) { %>
     <form action="<%= request.getContextPath() %>/pages/documento/cadastrarDocumento.jsp" method="get" style="margin-bottom: 15px;">
         <input type="hidden" name="contratoId" value="<%= contrato.getId() %>" />
@@ -188,9 +185,7 @@
         <% if (listaDocumentos != null && !listaDocumentos.isEmpty()) { %>
         <table class="documentos">
             <thead>
-                <tr>
-                    <th>ID</th><th>Tipo</th><th>Descrição</th><th>Data</th><th>Arquivo</th>
-                </tr>
+                <tr><th>ID</th><th>Tipo</th><th>Descrição</th><th>Data</th><th>Arquivo</th></tr>
             </thead>
             <tbody>
                 <% for (Documento doc : listaDocumentos) { %>
@@ -213,9 +208,7 @@
         <% } %>
     </div>
 
-    <!-- Histórico de Ocorrências -->
     <h2>Histórico de Ocorrências</h2>
-
     <% if (usuario != null && usuario.getTipo() == br.com.monesol.model.Usuario.TipoUsuario.DONO_GERADORA) { %>
     <form action="<%= request.getContextPath() %>/pages/historicoContrato/cadastrarHistorico.jsp" method="get" style="margin-bottom: 15px;">
         <input type="hidden" name="contratoId" value="<%= contrato.getId() %>" />
@@ -227,9 +220,7 @@
         <% if (listaHistoricos != null && !listaHistoricos.isEmpty()) { %>
         <table class="documentos">
             <thead>
-                <tr>
-                    <th>ID</th><th>Data</th><th>Título</th><th>Tipo</th><th>Descrição</th>
-                </tr>
+                <tr><th>ID</th><th>Data</th><th>Título</th><th>Tipo</th><th>Descrição</th></tr>
             </thead>
             <tbody>
                 <% for (HistoricoContrato hist : listaHistoricos) { %>

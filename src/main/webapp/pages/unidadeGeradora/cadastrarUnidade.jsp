@@ -126,6 +126,13 @@
             <input type="number" step="0.01" id="eficienciaMedia" name="eficienciaMedia" required placeholder="Ex: 85.5" />
             <div class="note">Informe em porcentagem; será convertido automaticamente.</div>
 
+            <label for="precoPorKWh">Preço por kWh (R$)</label>
+            <input type="number" step="0.01" id="precoPorKWh" name="precoPorKWh" required placeholder="Ex: 0.50" />
+
+            <label for="quantidadeMinimaAceita">Quantidade Mínima Aceita (kWh)</label>
+            <input type="number" step="0.01" id="quantidadeMinimaAceita" name="quantidadeMinimaAceita" placeholder="Ex: 100.00" />
+            <div class="note">Opcional; deixe em branco se não houver mínimo.</div>
+
             <button type="submit" class="btn-submit">Cadastrar Unidade</button>
         </form>
     </div>

@@ -4,10 +4,11 @@ import br.com.monesol.dao.ContratoDAO;
 import br.com.monesol.dao.UnidadeGeradoraDAO;
 import br.com.monesol.dao.UsuarioDAO;
 import br.com.monesol.dao.DocumentoDAO;
+import br.com.monesol.dao.HistoricoContratoDAO;
 import br.com.monesol.model.Contrato;
+import br.com.monesol.model.Contrato.StatusContrato;
 import br.com.monesol.model.Documento;
 import br.com.monesol.model.HistoricoContrato;
-import br.com.monesol.dao.HistoricoContratoDAO;
 import br.com.monesol.model.UnidadeGeradora;
 import br.com.monesol.model.Usuario;
 
@@ -32,7 +33,6 @@ public class ContratoController extends HttpServlet {
     private DocumentoDAO documentoDAO;  
     private HistoricoContratoDAO historicoContratoDAO;
 
-
     @Override
     public void init() throws ServletException {
         try {
@@ -41,7 +41,6 @@ public class ContratoController extends HttpServlet {
             usuarioDAO = new UsuarioDAO();
             documentoDAO = new DocumentoDAO(); 
             historicoContratoDAO = new HistoricoContratoDAO();
-
         } catch (Exception e) {
             throw new ServletException("Erro ao inicializar DAOs", e);
         }
@@ -113,14 +112,11 @@ public class ContratoController extends HttpServlet {
         try {
             LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
             LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
-            int reajustePeriodicoMeses = Integer.parseInt(request.getParameter("reajustePeriodicoMeses"));
-            String limiteMinimoStr = request.getParameter("limiteMinimoEnergiaKWh");
-            Double limiteMinimoEnergiaKWh = (limiteMinimoStr == null || limiteMinimoStr.isEmpty()) ? null : Double.parseDouble(limiteMinimoStr);
-            double precoPorKWh = Double.parseDouble(request.getParameter("precoPorKWh"));
-            String modeloComercial = request.getParameter("modeloComercial");
+            int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
+            StatusContrato status = StatusContrato.valueOf(request.getParameter("statusContrato"));
             String observacoes = request.getParameter("observacoes");
-            String regraAlocacao = request.getParameter("regraAlocacao");
-            double qtdContratada = Double.parseDouble(request.getParameter("qtdContratada"));
+            String regrasExcecoes = request.getParameter("regrasExcecoes");
+            double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
 
             int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
             UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
@@ -136,11 +132,18 @@ public class ContratoController extends HttpServlet {
                 return;
             }
 
-            Contrato contrato = new Contrato(vigenciaInicio, vigenciaFim, reajustePeriodicoMeses, limiteMinimoEnergiaKWh,
-                    precoPorKWh, modeloComercial, observacoes, regraAlocacao, qtdContratada, unidade, usuario);
+            Contrato contrato = new Contrato();
+            contrato.setVigenciaInicio(vigenciaInicio);
+            contrato.setVigenciaFim(vigenciaFim);
+            contrato.setReajustePeriodico(reajustePeriodico);
+            contrato.setStatusContrato(status);
+            contrato.setObservacoes(observacoes);
+            contrato.setRegrasExcecoes(regrasExcecoes);
+            contrato.setQuantidadeContratada(qtdContratada);
+            contrato.setUnidadeGeradora(unidade);
+            contrato.setUsuario(usuario);
 
             contratoDAO.cadastrar(contrato);
-
             response.sendRedirect("pages/usuario/dashboard.jsp");
         } catch (Exception e) {
             throw new ServletException(e);
@@ -152,14 +155,11 @@ public class ContratoController extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
             LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
-            int reajustePeriodicoMeses = Integer.parseInt(request.getParameter("reajustePeriodicoMeses"));
-            String limiteMinimoStr = request.getParameter("limiteMinimoEnergiaKWh");
-            Double limiteMinimoEnergiaKWh = (limiteMinimoStr == null || limiteMinimoStr.isEmpty()) ? null : Double.parseDouble(limiteMinimoStr);
-            double precoPorKWh = Double.parseDouble(request.getParameter("precoPorKWh"));
-            String modeloComercial = request.getParameter("modeloComercial");
+            int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
+            StatusContrato status = StatusContrato.valueOf(request.getParameter("statusContrato"));
             String observacoes = request.getParameter("observacoes");
-            String regraAlocacao = request.getParameter("regraAlocacao");
-            double qtdContratada = Double.parseDouble(request.getParameter("qtdContratada"));
+            String regrasExcecoes = request.getParameter("regrasExcecoes");
+            double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
 
             int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
             UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
@@ -175,12 +175,19 @@ public class ContratoController extends HttpServlet {
                 return;
             }
 
-            Contrato contrato = new Contrato(vigenciaInicio, vigenciaFim, reajustePeriodicoMeses, limiteMinimoEnergiaKWh,
-                    precoPorKWh, modeloComercial, observacoes, regraAlocacao, qtdContratada, unidade, usuario);
+            Contrato contrato = new Contrato();
             contrato.setId(id);
+            contrato.setVigenciaInicio(vigenciaInicio);
+            contrato.setVigenciaFim(vigenciaFim);
+            contrato.setReajustePeriodico(reajustePeriodico);
+            contrato.setStatusContrato(status);
+            contrato.setObservacoes(observacoes);
+            contrato.setRegrasExcecoes(regrasExcecoes);
+            contrato.setQuantidadeContratada(qtdContratada);
+            contrato.setUnidadeGeradora(unidade);
+            contrato.setUsuario(usuario);
 
             contratoDAO.atualizar(contrato);
-
             response.sendRedirect("pages/listaContratos.jsp?usuarioCpfCnpj=" + cpfCnpjUsuario);
         } catch (Exception e) {
             throw new ServletException(e);
@@ -193,9 +200,7 @@ public class ContratoController extends HttpServlet {
         response.sendRedirect("pages/listaContratos.jsp");
     }
 
-    private void buscarPorId(HttpServletRequest request, HttpServletResponse response) 
-            throws SQLException, ServletException, IOException {
-        
+    private void buscarPorId(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         Contrato contrato = contratoDAO.buscarPorId(id);
 
@@ -207,24 +212,19 @@ public class ContratoController extends HttpServlet {
             return;
         }
 
-     
         List<Documento> listaDocumentos = documentoDAO.listarPorContrato(id);
-
-     
         List<HistoricoContrato> listaHistoricos = historicoContratoDAO.listarPorContrato(id);
 
         request.setAttribute("contrato", contrato);
         request.setAttribute("listaDocumentos", listaDocumentos);
-        request.setAttribute("listaHistoricos", listaHistoricos); 
+        request.setAttribute("listaHistoricos", listaHistoricos);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("pages/contrato/detalhesContrato.jsp");
         dispatcher.forward(request, response);
     }
 
-
     private void listarPorUsuario(HttpServletRequest request, HttpServletResponse response, String cpfCnpj) throws SQLException, ServletException, IOException {
         List<Contrato> lista = contratoDAO.listarPorUsuario(cpfCnpj);
-
         request.setAttribute("listaContratos", lista);
         request.setAttribute("usuarioCpfCnpj", cpfCnpj);
         RequestDispatcher dispatcher = request.getRequestDispatcher("pages/contrato/detalhesContrato.jsp");
@@ -233,7 +233,6 @@ public class ContratoController extends HttpServlet {
 
     private void listarPorUnidade(HttpServletRequest request, HttpServletResponse response, int idUnidade) throws SQLException, ServletException, IOException {
         List<Contrato> lista = contratoDAO.listarPorUnidade(idUnidade);
-
         request.setAttribute("listaContratos", lista);
         request.setAttribute("unidadeGeradoraId", idUnidade);
         RequestDispatcher dispatcher = request.getRequestDispatcher("pages/listaContratos.jsp");

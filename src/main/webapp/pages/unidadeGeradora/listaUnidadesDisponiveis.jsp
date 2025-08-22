@@ -139,7 +139,8 @@
                                 <div class="unit-title"><%= unidade.getLocalizacao() %></div>
                                 <div class="unit-info"><strong>Potência Instalada:</strong> <%= String.format("%.2f", unidade.getPotenciaInstalada()) %> kW</div>
                                 <div class="unit-info"><strong>Eficiência Média:</strong> <%= (unidade.getEficienciaMedia() != 0.0) ? String.format("%.1f", unidade.getEficienciaMedia() * 100) + " %" : "N/A" %></div>
-                                <div class="unit-info"><strong>Proprietário:</strong> <%= unidade.getCpfCnpjUsuario() != null ? unidade.getCpfCnpjUsuario() : "-" %></div>
+                                <div class="unit-info"><strong>Preço por kWh:</strong> R$ <%= String.format("%.4f", unidade.getPrecoPorKWh()) %></div>
+								<div class="unit-info"><strong>Quantidade mínima aceita:</strong> <%= (unidade.getQuantidadeMinimaAceita() > 0) ? String.format("%.2f", unidade.getQuantidadeMinimaAceita()) + " kWh" : "Não definido" %></div>
                             </a>
                             <form action="<%= request.getContextPath() %>/pages/contrato/cadastrarContrato.jsp" method="get" style="margin-top: 12px;">
                                 <input type="hidden" name="unidadeGeradoraId" value="<%= unidade.getId() %>" />
