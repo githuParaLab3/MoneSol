@@ -9,6 +9,7 @@ import br.com.monesol.model.Contrato;
 import br.com.monesol.model.Contrato.StatusContrato;
 import br.com.monesol.model.Documento;
 import br.com.monesol.model.HistoricoContrato;
+import br.com.monesol.model.HistoricoContrato.TipoHistorico;
 import br.com.monesol.model.UnidadeGeradora;
 import br.com.monesol.model.Usuario;
 
@@ -17,9 +18,9 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -134,6 +135,13 @@ public class ContratoController extends HttpServlet {
             return;
         }
 
+        if (contratoDAO.existeContratoUsuarioUnidade(cpfCnpjUsuario, idUnidade)) {
+            request.getSession().setAttribute("erroContratoExistente", 
+                "Você já possui um contrato para esta unidade geradora.");
+            response.sendRedirect(request.getContextPath() + "/pages/unidadeGeradora/listaUnidadesDisponiveis.jsp");
+            return;
+        }
+
         Contrato contrato = new Contrato();
         contrato.setVigenciaInicio(vigenciaInicio);
         contrato.setVigenciaFim(vigenciaFim);
@@ -146,8 +154,19 @@ public class ContratoController extends HttpServlet {
         contrato.setUsuario(usuario);
 
         contratoDAO.cadastrar(contrato);
+
+        HistoricoContrato historico = new HistoricoContrato(
+            LocalDateTime.now(),
+            "Início do contrato",
+            "Contrato firmado com sucesso.",
+            HistoricoContrato.TipoHistorico.ALTERACAO_CONTRATUAL,
+            contrato
+        );
+        historicoContratoDAO.cadastrar(historico);
+
         response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + contrato.getId());
     }
+
 
     private void editarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
@@ -183,6 +202,17 @@ public class ContratoController extends HttpServlet {
         contrato.setUsuario(usuario);
 
         contratoDAO.atualizar(contrato);
+
+        // Histórico automático
+        HistoricoContrato historico = new HistoricoContrato(
+            LocalDateTime.now(),
+            "Alteração do contrato",
+            "Contrato atualizado. Status: " + status + ", Quantidade: " + qtdContratada,
+            TipoHistorico.ALTERACAO_CONTRATUAL,
+            contrato
+        );
+        historicoContratoDAO.cadastrar(historico);
+
         response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + id);
     }
 

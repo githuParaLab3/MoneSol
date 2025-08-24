@@ -147,4 +147,21 @@ public class ContratoDAO {
 
         return contrato;
     }
+    
+    public boolean existeContratoUsuarioUnidade(String cpfCnpj, int idUnidade) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Contrato WHERE usuario = ? AND unidadeGeradora = ?";
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, cpfCnpj);
+            stmt.setInt(2, idUnidade);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
 }

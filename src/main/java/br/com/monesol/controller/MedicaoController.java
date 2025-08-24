@@ -10,7 +10,6 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -79,78 +78,90 @@ public class MedicaoController extends HttpServlet {
                     break;
             }
         } catch (Exception e) {
-            throw new ServletException(e);
+            // Mensagem de erro global
+            request.getSession().setAttribute("mensagemErro", "Ocorreu um erro: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/pages/listaMedicoes.jsp");
         }
     }
 
     private void adicionarMedicao(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        String dataStr = request.getParameter("dataMedicao");
-        LocalDateTime dataMedicao = LocalDateTime.parse(dataStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        try {
+            String dataStr = request.getParameter("dataMedicao");
+            LocalDateTime dataMedicao = LocalDateTime.parse(dataStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-        double energiaGerada = Double.parseDouble(request.getParameter("energiaGerada"));
-        double energiaConsumida = Double.parseDouble(request.getParameter("energiaConsumidaLocalmente"));
-        double energiaInjetada = Double.parseDouble(request.getParameter("energiaInjetadaNaRede"));
-        int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
+            double energiaGerada = Double.parseDouble(request.getParameter("energiaGerada"));
+            double energiaConsumida = Double.parseDouble(request.getParameter("energiaConsumidaLocalmente"));
+            double energiaInjetada = Double.parseDouble(request.getParameter("energiaInjetadaNaRede"));
+            int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
 
-        UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
-        if (unidade == null) {
-            response.setContentType("text/html; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.println("<script>alert('Unidade Geradora não encontrada!'); window.location.href='pages/listaMedicoes.jsp';</script>");
-            out.close();
-            return;
+            UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
+            if (unidade == null) {
+                request.getSession().setAttribute("mensagemErro", "Unidade Geradora não encontrada!");
+                response.sendRedirect(request.getContextPath() + "/pages/listaMedicoes.jsp");
+                return;
+            }
+
+            Medicao medicao = new Medicao(dataMedicao, energiaGerada, energiaConsumida, energiaInjetada, unidade);
+            medicaoDAO.cadastrar(medicao);
+
+            request.getSession().setAttribute("mensagemSucesso", "Medição adicionada com sucesso!");
+            response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + idUnidade);
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", "Erro ao adicionar medição: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/pages/listaMedicoes.jsp");
         }
-
-        Medicao medicao = new Medicao(dataMedicao, energiaGerada, energiaConsumida, energiaInjetada, unidade);
-        medicaoDAO.cadastrar(medicao);
-
-        response.sendRedirect(request.getContextPath() 
-                + "/UnidadeGeradoraController?action=buscarPorId&id=" + idUnidade);
     }
 
     private void editarMedicao(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        String dataStr = request.getParameter("dataMedicao");
-        LocalDateTime dataMedicao = LocalDateTime.parse(dataStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            String dataStr = request.getParameter("dataMedicao");
+            LocalDateTime dataMedicao = LocalDateTime.parse(dataStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-        double energiaGerada = Double.parseDouble(request.getParameter("energiaGerada"));
-        double energiaConsumida = Double.parseDouble(request.getParameter("energiaConsumidaLocalmente"));
-        double energiaInjetada = Double.parseDouble(request.getParameter("energiaInjetadaNaRede"));
-        int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
+            double energiaGerada = Double.parseDouble(request.getParameter("energiaGerada"));
+            double energiaConsumida = Double.parseDouble(request.getParameter("energiaConsumidaLocalmente"));
+            double energiaInjetada = Double.parseDouble(request.getParameter("energiaInjetadaNaRede"));
+            int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
 
-        UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
-        if (unidade == null) {
-            response.setContentType("text/html; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.println("<script>alert('Unidade Geradora não encontrada!'); window.location.href='pages/listaMedicoes.jsp';</script>");
-            out.close();
-            return;
+            UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
+            if (unidade == null) {
+                request.getSession().setAttribute("mensagemErro", "Unidade Geradora não encontrada!");
+                response.sendRedirect(request.getContextPath() + "/pages/listaMedicoes.jsp");
+                return;
+            }
+
+            Medicao medicao = new Medicao(dataMedicao, energiaGerada, energiaConsumida, energiaInjetada, unidade);
+            medicao.setId(id);
+            medicaoDAO.atualizar(medicao);
+
+            request.getSession().setAttribute("mensagemSucesso", "Medição atualizada com sucesso!");
+            response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + idUnidade);
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", "Erro ao editar medição: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/pages/listaMedicoes.jsp");
         }
-
-        Medicao medicao = new Medicao(dataMedicao, energiaGerada, energiaConsumida, energiaInjetada, unidade);
-        medicao.setId(id);
-        medicaoDAO.atualizar(medicao);
-
-        response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + idUnidade);
     }
 
     private void deletarMedicao(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
 
-        Medicao medicao = medicaoDAO.buscarPorId(id);
-        if (medicao == null) {
-            response.setContentType("text/html; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.println("<script>alert('Medição não encontrada!'); window.history.back();</script>");
-            out.close();
-            return;
+            Medicao medicao = medicaoDAO.buscarPorId(id);
+            if (medicao == null) {
+                request.getSession().setAttribute("mensagemErro", "Medição não encontrada!");
+                response.sendRedirect(request.getContextPath() + "/pages/listaMedicoes.jsp");
+                return;
+            }
+
+            int idUnidade = medicao.getUnidadeGeradora().getId();
+            medicaoDAO.excluir(id);
+
+            request.getSession().setAttribute("mensagemSucesso", "Medição deletada com sucesso!");
+            response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + idUnidade);
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", "Erro ao deletar medição: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/pages/listaMedicoes.jsp");
         }
-
-        int idUnidade = medicao.getUnidadeGeradora().getId();
-        medicaoDAO.excluir(id);
-
-        // Redireciona via controller para detalhes da unidade
-        response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + idUnidade);
     }
 
     private void buscarPorId(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
@@ -158,10 +169,8 @@ public class MedicaoController extends HttpServlet {
         Medicao medicao = medicaoDAO.buscarPorId(id);
 
         if (medicao == null) {
-            response.setContentType("text/html; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.println("<script>alert('Medição não encontrada para ID: " + id + "'); window.location.href='pages/listaMedicoes.jsp';</script>");
-            out.close();
+            request.getSession().setAttribute("mensagemErro", "Medição não encontrada para ID: " + id);
+            response.sendRedirect(request.getContextPath() + "/pages/listaMedicoes.jsp");
             return;
         }
 
