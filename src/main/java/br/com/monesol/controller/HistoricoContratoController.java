@@ -42,7 +42,7 @@ public class HistoricoContratoController extends HttpServlet {
                 int idContrato = Integer.parseInt(idContratoStr);
                 listarPorContrato(request, response, idContrato);
             } else {
-                response.sendRedirect("pages/historicoContrato/cadastrarHistorico.jsp");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
             }
         } catch (Exception e) {
             throw new ServletException(e);
@@ -72,11 +72,11 @@ public class HistoricoContratoController extends HttpServlet {
                         int idContrato = Integer.parseInt(idContratoStr);
                         listarPorContrato(request, response, idContrato);
                     } else {
-                        response.sendRedirect("pages/listaHistoricos.jsp");
+                        response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                     }
                     break;
                 default:
-                    response.sendRedirect("pages/listaHistoricos.jsp");
+                    response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                     break;
             }
         } catch (Exception e) {
@@ -96,17 +96,14 @@ public class HistoricoContratoController extends HttpServlet {
         Contrato contrato = contratoDAO.buscarPorId(idContrato);
 
         if (contrato == null) {
-            response.setContentType("text/html; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.println("<script>alert('Contrato não encontrado!'); window.location.href='pages/contrato/detalhesContrato.jsp';</script>");
-            out.close();
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
             return;
         }
 
         HistoricoContrato historico = new HistoricoContrato(dataHistorico, titulo, descricao, tipo, contrato);
         historicoDAO.cadastrar(historico);
 
-        response.sendRedirect(request.getContextPath() + "/ContratoController?action=buscarPorId&id=" + idContrato);
+        response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + idContrato);
     }
 
     private void editarHistorico(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
@@ -122,10 +119,7 @@ public class HistoricoContratoController extends HttpServlet {
         Contrato contrato = contratoDAO.buscarPorId(idContrato);
 
         if (contrato == null) {
-            response.setContentType("text/html; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.println("<script>alert('Contrato não encontrado!'); window.location.href='pages/listaHistoricos.jsp';</script>");
-            out.close();
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
             return;
         }
 
@@ -133,13 +127,15 @@ public class HistoricoContratoController extends HttpServlet {
         historico.setId(id);
         historicoDAO.atualizar(historico);
 
-        response.sendRedirect("pages/listaHistoricos.jsp?contratoId=" + idContrato);
+        response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + idContrato);
     }
 
     private void deletarHistorico(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
+        int idContrato = Integer.parseInt(request.getParameter("contratoId"));
+
         historicoDAO.excluir(id);
-        response.sendRedirect("pages/listaHistoricos.jsp");
+        response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + idContrato);
     }
 
     private void buscarPorId(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
@@ -147,24 +143,20 @@ public class HistoricoContratoController extends HttpServlet {
         HistoricoContrato historico = historicoDAO.buscarPorId(id);
 
         if (historico == null) {
-            response.setContentType("text/html; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.println("<script>alert('Histórico não encontrado!'); window.location.href='pages/listaHistoricos.jsp';</script>");
-            out.close();
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
             return;
         }
 
         request.setAttribute("historico", historico);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("pages/historicoDetalhes.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/historicoDetalhes.jsp");
         dispatcher.forward(request, response);
     }
 
     private void listarPorContrato(HttpServletRequest request, HttpServletResponse response, int idContrato) throws SQLException, ServletException, IOException {
         List<HistoricoContrato> lista = historicoDAO.listarPorContrato(idContrato);
-
         request.setAttribute("listaHistoricos", lista);
         request.setAttribute("contratoId", idContrato);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("pages/listaHistoricos.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/listaHistoricos.jsp");
         dispatcher.forward(request, response);
     }
 }

@@ -1,107 +1,82 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%@ page import="br.com.monesol.model.Usuario" %>
+<%@ page import="javax.servlet.http.HttpSession" %>
+
+<%
+    HttpSession sessao = request.getSession(false);
+    Usuario usuarioLogado = (sessao != null) ? (Usuario) sessao.getAttribute("usuarioLogado") : null;
+%>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <title>Contato - MoneSol</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #fff8e1;
-            color: #212121;
-            min-height: 100vh;
-        }
-        main {
-            max-width: 600px;
-            margin: 30px auto;
-            padding: 40px 20px;
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(255, 214, 0, 0.3);
-        }
-        h1 {
-            font-weight: 900;
-            font-size: 2.2rem;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        input[type="text"],
-        input[type="email"],
-        textarea {
-            padding: 14px 18px;
-            font-size: 1rem;
-            border: 2px solid #ffd600;
-            border-radius: 12px;
-            font-family: inherit;
-            background: #fff;
-            color: #212121;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            resize: vertical;
-        }
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #212121;
-            box-shadow: 0 0 8px #ffd600cc;
-        }
-        button {
-            background: #212121;
-            color: #ffd600;
-            font-weight: 700;
-            padding: 16px 0;
-            font-size: 1.15rem;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 6px 15px rgba(33,33,33,0.4);
-            transition: background-color 0.3s ease;
-            user-select: none;
-        }
-        button:hover {
-            background: #000;
-        }
-        .btn-logout {
-    background: transparent;
-    border: 2px solid #212121;
-    color: #212121;
-    padding: 8px 20px;
-    font-weight: 700;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    user-select: none;
-    font-size: 1rem;
-    box-shadow: none;
-}
-
-.btn-logout:hover {
-    background: #212121;
-    color: #ffd600;
-    box-shadow: none; 
-}
-        
-    </style>
+<meta charset="UTF-8" />
+<title>Contato - MoneSol</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background:#fff8e1;
+        color:#212121;
+        min-height:100vh;
+        display:flex;
+        flex-direction:column;
+    }
+    main {
+        max-width:900px;
+        margin:50px auto 80px;
+        padding:0 20px;
+    }
+    h1,h2 { font-weight:900; color:#212121; user-select:none; }
+    h1 { font-size:2.4rem; margin-bottom:30px; text-align:center; }
+    h2 { font-size:1.8rem; margin-top:40px; margin-bottom:18px; border-bottom:3px solid #f7c600; padding-bottom:6px; }
+    p { color:#424242; font-size:1.15rem; line-height:1.7; margin-bottom:18px; max-width:720px; margin-left:auto; margin-right:auto; }
+    ul.contact-list { max-width:720px; margin:0 auto 30px; padding-left:1.25rem; color:#555; font-weight:600; font-size:1.1rem; line-height:1.5; }
+    ul.contact-list li { margin-bottom:10px; list-style-type:disc; }
+    .contact-section {
+        max-width:720px;
+        margin:0 auto;
+        padding:30px;
+        border:1.5px solid #f7c600;
+        border-radius:12px;
+        box-shadow:0 4px 15px rgba(247,198,0,0.2);
+        background:#fffde7;
+    }
+    .contact-section a {
+        color:#212121;
+        text-decoration:none;
+        font-weight:700;
+    }
+    .contact-section a:hover { text-decoration:underline; }
+    @media (max-width:600px) {
+        main { margin:30px 15px 60px; }
+        h1 { font-size:2rem; }
+        h2 { font-size:1.5rem; }
+        p, ul.contact-list { font-size:1.05rem; }
+    }
+</style>
 </head>
 <body>
 
 <jsp:include page="/pages/usuario/header.jsp" />
 
-<main role="main" aria-label="Formulário de Contato">
-    <h1>Contato</h1>
-    <form action="#" method="post" novalidate>
-        <input type="text" name="nome" placeholder="Seu nome" required />
-        <input type="email" name="email" placeholder="Seu e-mail" required />
-        <textarea name="mensagem" rows="5" placeholder="Sua mensagem" required></textarea>
-        <button type="submit">Enviar</button>
-    </form>
+<main role="main" aria-labelledby="contato-title">
+    <h1 id="contato-title">Fale Conosco</h1>
+
+    <div class="contact-section">
+        <p><strong>Geral:</strong> Para dúvidas de usuários, faturamento ou suporte, entre em contato pelo e-mail abaixo. Antes de enviar, consulte nossas <a href="<%= request.getContextPath() %>/pages/outros/sobre.jsp">perguntas frequentes</a> sobre contratos e faturamento.</p>
+
+        <p><strong>Negócios:</strong> Para consultas comerciais, mídia ou profissionais, envie e-mail para: <a href="mailto:contato@monesol.com.br">contato@monesol.com.br</a></p>
+
+        <p><strong>Contratações:</strong> Para trabalhar conosco, envie seu interesse através do e-mail: <a href="mailto:trabalheconosco@monesol.com.br">trabalheconosco@monesol.com.br</a>. Entraremos em contato quando houver posições disponíveis.</p>
+
+        <ul class="contact-list">
+            <li>Email: <a href="mailto:contato@monesol.com.br">contato@monesol.com.br</a></li>
+            <li>Telefone: (11) 99999-9999</li>
+            <li>Endereço: Rua da Energia, 123 - São Paulo, SP</li>
+        </ul>
+    </div>
 </main>
 
 </body>

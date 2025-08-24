@@ -44,10 +44,10 @@ public class DocumentoController extends HttpServlet {
                     int idContrato = Integer.parseInt(idContratoStr);
                     listarPorContrato(request, response, idContrato);
                 } else {
-                    response.sendRedirect("pages/listaDocumentos.jsp");
+                    response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                 }
             } else {
-                response.sendRedirect("pages/listaDocumentos.jsp");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
             }
         } catch (Exception e) {
             throw new ServletException(e);
@@ -77,11 +77,11 @@ public class DocumentoController extends HttpServlet {
                         int idContrato = Integer.parseInt(idContratoStr);
                         listarPorContrato(request, response, idContrato);
                     } else {
-                        response.sendRedirect("pages/listaDocumentos.jsp");
+                        response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                     }
                     break;
                 default:
-                    response.sendRedirect("pages/listaDocumentos.jsp");
+                    response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                     break;
             }
         } catch (Exception e) {
@@ -92,85 +92,77 @@ public class DocumentoController extends HttpServlet {
     private void adicionarDocumento(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         String dataStr = request.getParameter("dataDocumento");
         LocalDateTime dataDocumento = LocalDateTime.parse(dataStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-
         TipoDocumento tipo = TipoDocumento.valueOf(request.getParameter("tipo"));
         String descricao = request.getParameter("descricao");
         String arquivo = request.getParameter("arquivo");
-
         int idContrato = Integer.parseInt(request.getParameter("contratoId"));
         Contrato contrato = contratoDAO.buscarPorId(idContrato);
-
         if (contrato == null) {
-            response.setContentType("text/html; charset=UTF-8");
             PrintWriter out = response.getWriter();
-            out.println("<script>alert('Contrato não encontrado!'); window.location.href='pages/listaDocumentos.jsp';</script>");
+            out.println("<script>alert('Contrato não encontrado!'); window.location.href='" 
+                + request.getContextPath() + "/pages/usuario/dashboard.jsp';</script>");
             out.close();
             return;
         }
-
         Documento doc = new Documento(tipo, descricao, dataDocumento, arquivo, contrato);
         documentoDAO.cadastrar(doc);
-
-        response.sendRedirect("pages/usuario/dashboard.jsp");
+        response.sendRedirect(request.getContextPath() + "/ContratoController?action=buscarPorId&id=" + idContrato);
     }
 
     private void editarDocumento(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         String dataStr = request.getParameter("dataDocumento");
         LocalDateTime dataDocumento = LocalDateTime.parse(dataStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-
         TipoDocumento tipo = TipoDocumento.valueOf(request.getParameter("tipo"));
         String descricao = request.getParameter("descricao");
         String arquivo = request.getParameter("arquivo");
-
         int idContrato = Integer.parseInt(request.getParameter("contratoId"));
         Contrato contrato = contratoDAO.buscarPorId(idContrato);
-
         if (contrato == null) {
-            response.setContentType("text/html; charset=UTF-8");
             PrintWriter out = response.getWriter();
-            out.println("<script>alert('Contrato não encontrado!'); window.location.href='pages/listaDocumentos.jsp';</script>");
+            out.println("<script>alert('Contrato não encontrado!'); window.location.href='" 
+                + request.getContextPath() + "/pages/usuario/dashboard.jsp';</script>");
             out.close();
             return;
         }
-
         Documento doc = new Documento(tipo, descricao, dataDocumento, arquivo, contrato);
         doc.setId(id);
         documentoDAO.atualizar(doc);
-
-        response.sendRedirect("pages/listaDocumentos.jsp?contratoId=" + idContrato);
+        response.sendRedirect(request.getContextPath() + "/ContratoController?action=buscarPorId&id=" + idContrato);
     }
 
     private void deletarDocumento(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
-        documentoDAO.excluir(id);
-        response.sendRedirect("pages/listaDocumentos.jsp");
+        Documento doc = documentoDAO.buscarPorId(id);
+        if (doc != null) {
+            int idContrato = doc.getContrato().getId();
+            documentoDAO.excluir(id);
+            response.sendRedirect(request.getContextPath() + "/ContratoController?action=buscarPorId&id=" + idContrato);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+        }
     }
 
     private void buscarPorId(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         Documento doc = documentoDAO.buscarPorId(id);
-
         if (doc == null) {
-            response.setContentType("text/html; charset=UTF-8");
             PrintWriter out = response.getWriter();
-            out.println("<script>alert('Documento não encontrado!'); window.location.href='pages/listaDocumentos.jsp';</script>");
+            out.println("<script>alert('Documento não encontrado!'); window.location.href='" 
+                + request.getContextPath() + "/pages/usuario/dashboard.jsp';</script>");
             out.close();
             return;
         }
-
         request.setAttribute("documento", doc);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("pages/documentoDetalhes.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/documentoDetalhes.jsp");
         dispatcher.forward(request, response);
     }
 
     private void listarPorContrato(HttpServletRequest request, HttpServletResponse response, int idContrato) throws SQLException, ServletException, IOException {
         List<Documento> lista = documentoDAO.listarPorContrato(idContrato);
-
         request.setAttribute("listaDocumentos", lista);
         request.setAttribute("contratoId", idContrato);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("pages/listaDocumentos.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/contrato/detalhesContrato.jsp");
         dispatcher.forward(request, response);
     }
-    
 }

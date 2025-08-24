@@ -155,7 +155,7 @@ public class UsuarioController extends HttpServlet {
     private void deletarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         String cpfCnpj = request.getParameter("cpfCnpj");
         usuarioDAO.excluir(cpfCnpj);
-        response.sendRedirect("pages/listaUsuarios.jsp");
+        response.sendRedirect("index.jsp");
     }
 
     private void listarUsuarios(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {

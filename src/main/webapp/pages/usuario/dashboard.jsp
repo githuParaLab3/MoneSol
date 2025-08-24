@@ -94,6 +94,7 @@
         font-weight: bold;
         color: var(--dark);
         transition: background 0.2s ease;
+        margin-top: 10px;
     }
     .edit-button:hover {
         background: #ffeb3b;
@@ -188,8 +189,20 @@
         <p><strong>CPF/CNPJ:</strong> <%= usuario.getCpfCnpj() %></p>
         <p><strong>Contato:</strong> <%= usuario.getContato() != null ? usuario.getContato() : "-" %></p>
         <p><strong>Endereço:</strong> <%= usuario.getEndereco() != null ? usuario.getEndereco() : "-" %></p>
+        
+        <!-- Botão Editar -->
         <form action="<%= request.getContextPath() %>/pages/usuario/editarUsuario.jsp" method="get" style="margin-top:10px;">
             <button type="submit" class="edit-button">Editar meus dados</button>
+        </form>
+
+        <!-- Botão Deletar Conta -->
+        <form action="<%= request.getContextPath() %>/UsuarioController" method="post" style="margin-top:15px;"
+              onsubmit="return confirm('Deseja realmente deletar sua conta? Esta ação não pode ser desfeita.');">
+            <input type="hidden" name="action" value="deletar" />
+            <input type="hidden" name="cpfCnpj" value="<%= usuario.getCpfCnpj() %>" />
+            <button type="submit" class="edit-button" style="background:#d32f2f; color:#fff; border-color:#d32f2f;">
+                Deletar Minha Conta
+            </button>
         </form>
     </div>
 
@@ -210,7 +223,6 @@
                                 <%= (c.getVigenciaFim() != null ? c.getVigenciaFim() : "-") %>
                             </div>
                             <div class="unit-sub"><strong>Unidade:</strong> <%= c.getUnidadeGeradora() != null ? c.getUnidadeGeradora().getLocalizacao() : "-" %></div>
-                            <!-- Linha de Modelo removida -->
                             <div class="unit-sub"><strong>Qtd. Contratada:</strong> <%= c.getQuantidadeContratada() %> kWh</div>
                             <div class="unit-sub"><strong>Preço:</strong> R$ <%= String.format("%.4f", c.getUnidadeGeradora().getPrecoPorKWh()) %> / kWh</div>
                         </div>

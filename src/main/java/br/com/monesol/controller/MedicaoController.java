@@ -104,10 +104,8 @@ public class MedicaoController extends HttpServlet {
         Medicao medicao = new Medicao(dataMedicao, energiaGerada, energiaConsumida, energiaInjetada, unidade);
         medicaoDAO.cadastrar(medicao);
 
-        response.setContentType("text/html; charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        out.println("<script>alert('Medição cadastrada com sucesso!'); window.location.href='pages/listaMedicoes.jsp?unidadeGeradoraId=" + idUnidade + "';</script>");
-        out.close();
+        response.sendRedirect(request.getContextPath() 
+                + "/UnidadeGeradoraController?action=buscarPorId&id=" + idUnidade);
     }
 
     private void editarMedicao(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
@@ -133,13 +131,26 @@ public class MedicaoController extends HttpServlet {
         medicao.setId(id);
         medicaoDAO.atualizar(medicao);
 
-        response.sendRedirect("pages/listaMedicoes.jsp?unidadeGeradoraId=" + idUnidade);
+        response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + idUnidade);
     }
 
     private void deletarMedicao(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
+
+        Medicao medicao = medicaoDAO.buscarPorId(id);
+        if (medicao == null) {
+            response.setContentType("text/html; charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            out.println("<script>alert('Medição não encontrada!'); window.history.back();</script>");
+            out.close();
+            return;
+        }
+
+        int idUnidade = medicao.getUnidadeGeradora().getId();
         medicaoDAO.excluir(id);
-        response.sendRedirect("pages/listaMedicoes.jsp");
+
+        // Redireciona via controller para detalhes da unidade
+        response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + idUnidade);
     }
 
     private void buscarPorId(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
@@ -161,10 +172,6 @@ public class MedicaoController extends HttpServlet {
 
     private void listarPorUnidade(HttpServletRequest request, HttpServletResponse response, int idUnidade) throws SQLException, ServletException, IOException {
         List<Medicao> lista = medicaoDAO.listarPorUnidade(idUnidade);
-
-        if (lista == null || lista.isEmpty()) {
-            request.setAttribute("mensagem", "Nenhuma medição encontrada para essa unidade geradora.");
-        }
 
         request.setAttribute("listaMedicoes", lista);
         request.setAttribute("unidadeGeradoraId", idUnidade);

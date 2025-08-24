@@ -122,11 +122,15 @@ public class UnidadeGeradoraController extends HttpServlet {
             return;
         }
 
-        unidadeDAO.cadastrar(unidade);
+        unidadeDAO.cadastrar(unidade); // aqui o objeto já terá o ID setado
 
         HttpSession session = request.getSession();
         session.setAttribute("msgSucesso", "Unidade Geradora cadastrada com sucesso!");
-        response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+
+        // redireciona para os detalhes da unidade recém-criada
+        response.sendRedirect(request.getContextPath() 
+                + "/UnidadeGeradoraController?action=buscarPorId&id=" + unidade.getId());
+
     }
 
     private void editarUnidade(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
@@ -154,26 +158,21 @@ public class UnidadeGeradoraController extends HttpServlet {
             return;
         }
 
-        UnidadeGeradora unidade = new UnidadeGeradora();
-        unidade.setId(id);
-        unidade.setLocalizacao(localizacao);
-        unidade.setPotenciaInstalada(potencia);
-        unidade.setEficienciaMedia(eficiencia);
-        unidade.setPrecoPorKWh(precoPorKWh);
-        unidade.setQuantidadeMinimaAceita(quantidadeMinima);
+        existente.setLocalizacao(localizacao);
+        existente.setPotenciaInstalada(potencia);
+        existente.setEficienciaMedia(eficiencia);
+        existente.setPrecoPorKWh(precoPorKWh);
+        existente.setQuantidadeMinimaAceita(quantidadeMinima);
 
-        if (usuario.getTipo() == TipoUsuario.CONSUMIDOR_PARCEIRO) {
-            unidade.setCpfCnpjUsuario(usuario.getCpfCnpj());
-        } else if (usuario.getTipo() == TipoUsuario.ADMIN) {
-            String dono = request.getParameter("usuario");
-            if (dono != null && !dono.isBlank()) {
-                unidade.setCpfCnpjUsuario(dono);
-            } else {
-                unidade.setCpfCnpjUsuario(existente.getCpfCnpjUsuario());
+        if (usuario.getTipo() == TipoUsuario.ADMIN) {
+            String novoDono = request.getParameter("usuario");
+            if (novoDono != null && !novoDono.isBlank()) {
+                existente.setCpfCnpjUsuario(novoDono);
             }
         }
 
-        unidadeDAO.atualizar(unidade);
+        unidadeDAO.atualizar(existente);
+
         response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + id);
     }
 
