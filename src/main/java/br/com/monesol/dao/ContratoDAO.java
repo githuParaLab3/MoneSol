@@ -163,5 +163,36 @@ public class ContratoDAO {
         }
         return false;
     }
+    
+    public void atualizarStatus(int idContrato, StatusContrato novoStatus) throws SQLException {
+        String sql = "UPDATE Contrato SET statusContrato = ? WHERE id = ?";
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, novoStatus.name());
+            stmt.setInt(2, idContrato);
+            stmt.executeUpdate();
+        }
+    }
+    
+    public List<Contrato> listarPorDonoGeradora(String cpfCnpjDono) throws SQLException {
+        String sql = "SELECT c.* FROM Contrato c " +
+                     "JOIN UnidadeGeradora u ON c.unidadeGeradora = u.id " +
+                     "WHERE u.usuario = ?";
+        List<Contrato> lista = new ArrayList<>();
+
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, cpfCnpjDono);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Contrato contrato = preencherContrato(rs);
+                contrato.setId(rs.getInt("id"));
+                lista.add(contrato);
+            }
+        }
+        return lista;
+    }
 
 }

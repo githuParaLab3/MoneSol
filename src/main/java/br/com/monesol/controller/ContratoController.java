@@ -83,8 +83,18 @@ public class ContratoController extends HttpServlet {
                 case "editar":
                     editarContrato(request, response);
                     break;
+                case "aprovar":
+                    aprovarContrato(request, response);
+                    break;
+                case "rejeitar":
+                    rejeitarContrato(request, response);
+                    break;
                 case "deletar":
                     deletarContrato(request, response);
+                    break;
+                case "listarPorDono":
+                    String cpfDono = request.getParameter("usuarioCpfCnpj");
+                    listarPorDono(request, response, cpfDono);
                     break;
                 case "buscarPorId":
                     buscarPorId(request, response);
@@ -264,4 +274,49 @@ public class ContratoController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
     }
+    private void aprovarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        contratoDAO.atualizarStatus(id, StatusContrato.ATIVO);
+
+        Contrato contrato = contratoDAO.buscarPorId(id);
+
+        HistoricoContrato historico = new HistoricoContrato(
+            LocalDateTime.now(),
+            "Contrato aprovado",
+            "O dono da geradora aprovou o contrato.",
+            HistoricoContrato.TipoHistorico.ALTERACAO_CONTRATUAL,
+            contrato
+        );
+        historicoContratoDAO.cadastrar(historico);
+
+        response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + id);
+    }
+
+    private void rejeitarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        contratoDAO.atualizarStatus(id, StatusContrato.CANCELADO);
+
+        Contrato contrato = contratoDAO.buscarPorId(id);
+
+        HistoricoContrato historico = new HistoricoContrato(
+            LocalDateTime.now(),
+            "Contrato rejeitado",
+            "O dono da geradora rejeitou o contrato.",
+            HistoricoContrato.TipoHistorico.ALTERACAO_CONTRATUAL,
+            contrato
+        );
+        historicoContratoDAO.cadastrar(historico);
+
+        response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + id);
+    }
+    
+    private void listarPorDono(HttpServletRequest request, HttpServletResponse response, String cpfCnpjDono)
+            throws SQLException, ServletException, IOException {
+        List<Contrato> lista = contratoDAO.listarPorDonoGeradora(cpfCnpjDono);
+        request.setAttribute("contratosDono", lista);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/usuario/dashboard.jsp");
+        dispatcher.forward(request, response);
+    }
+
+
 }
