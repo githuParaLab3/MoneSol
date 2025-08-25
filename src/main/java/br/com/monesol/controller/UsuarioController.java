@@ -72,7 +72,9 @@ public class UsuarioController extends HttpServlet {
         }
     }
 
-    private void adicionarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
+    // ================== ADMIN / USUÁRIO ===================
+
+    private void adicionarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         String cpfCnpj = request.getParameter("cpfCnpj").replaceAll("\\D", ""); 
         String nome = request.getParameter("nome");
         String email = request.getParameter("email");
@@ -81,20 +83,17 @@ public class UsuarioController extends HttpServlet {
         String endereco = request.getParameter("endereco");
         String tipoStr = request.getParameter("tipo");
 
-        TipoUsuario tipo = TipoUsuario.CONSUMIDOR_PARCEIRO; 
-
+        TipoUsuario tipo = TipoUsuario.CONSUMIDOR_PARCEIRO;
         if (tipoStr != null && !tipoStr.isEmpty()) {
             try {
                 TipoUsuario tipoTemp = TipoUsuario.valueOf(tipoStr);
                 if (tipoTemp == TipoUsuario.DONO_GERADORA || tipoTemp == TipoUsuario.CONSUMIDOR_PARCEIRO) {
                     tipo = tipoTemp;
                 }
-            } catch (IllegalArgumentException e) {
-            }
+            } catch (IllegalArgumentException e) {}
         }
 
         Usuario usuario = new Usuario(cpfCnpj, nome, email, senha, contato, endereco, tipo);
-
         usuarioDAO.cadastrar(usuario);
 
         HttpSession session = request.getSession(true);
@@ -103,10 +102,18 @@ public class UsuarioController extends HttpServlet {
         response.sendRedirect("index.jsp");
     }
 
-
     private void editarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         String cpfCnpjRaw = request.getParameter("cpfCnpj");
         String cpfCnpj = (cpfCnpjRaw != null) ? cpfCnpjRaw.replaceAll("\\D", "") : "";
+
+        HttpSession session = request.getSession(false);
+        Usuario logado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
+
+        // Usuário normal só pode editar o próprio perfil
+        if (logado == null || (logado.getTipo() != TipoUsuario.ADMIN && !logado.getCpfCnpj().equals(cpfCnpj))) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso negado");
+            return;
+        }
 
         String nome = request.getParameter("nome");
         String email = request.getParameter("email");
@@ -114,12 +121,11 @@ public class UsuarioController extends HttpServlet {
         String contato = request.getParameter("contato");
         String endereco = request.getParameter("endereco");
         String tipoStr = request.getParameter("tipo");
-        Usuario.TipoUsuario tipo = null;
-        if (tipoStr != null && !tipoStr.isBlank()) {
+        TipoUsuario tipo = null;
+        if (tipoStr != null && !tipoStr.isBlank() && logado.getTipo() == TipoUsuario.ADMIN) {
             try {
-                tipo = Usuario.TipoUsuario.valueOf(tipoStr);
-            } catch (IllegalArgumentException e) {
-            }
+                tipo = TipoUsuario.valueOf(tipoStr);
+            } catch (IllegalArgumentException e) {}
         }
 
         Usuario existente = usuarioDAO.buscarPorCpfCnpj(cpfCnpj);
@@ -131,7 +137,9 @@ public class UsuarioController extends HttpServlet {
             return;
         }
 
+        // Se senha não fornecida, mantém a antiga
         String senhaFinal = (senha == null || senha.trim().isEmpty()) ? existente.getSenha() : senha;
+
         if (tipo == null) {
             tipo = existente.getTipo();
         }
@@ -139,39 +147,46 @@ public class UsuarioController extends HttpServlet {
         Usuario usuarioAtualizado = new Usuario(cpfCnpj, nome, email, senhaFinal, contato, endereco, tipo);
         usuarioDAO.atualizar(usuarioAtualizado);
 
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            Usuario logado = (Usuario) session.getAttribute("usuarioLogado");
-            if (logado != null && logado.getCpfCnpj().replaceAll("\\D", "").equals(cpfCnpj)) {
-                session.setAttribute("usuarioLogado", usuarioAtualizado);
-            }
+        // Atualiza sessão se o próprio usuário editou
+        if (logado != null && logado.getCpfCnpj().equals(cpfCnpj)) {
+            session.setAttribute("usuarioLogado", usuarioAtualizado);
         }
 
-        response.sendRedirect("pages/usuario/dashboard.jsp");
+        response.sendRedirect(logado.getTipo() == TipoUsuario.ADMIN ? 
+            "pages/admin/usuarios.jsp" : "pages/usuario/dashboard.jsp");
     }
-
-
 
     private void deletarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         String cpfCnpj = request.getParameter("cpfCnpj");
+
+        HttpSession session = request.getSession(false);
+        Usuario logado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
+
+        // Usuário normal só pode deletar a si mesmo (se permitido)
+        if (logado == null || logado.getTipo() != TipoUsuario.ADMIN) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso negado");
+            return;
+        }
+
         usuarioDAO.excluir(cpfCnpj);
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("pages/admin/usuarios.jsp");
     }
 
     private void listarUsuarios(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
         List<Usuario> listaUsuarios = usuarioDAO.listarTodos();
+        request.setAttribute("listaUsuarios", listaUsuarios);
 
-        if (listaUsuarios == null || listaUsuarios.isEmpty()) {
-            System.out.println("A lista de usuários está vazia ou nula.");
+        HttpSession session = request.getSession(false);
+        Usuario usuarioLogado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
+
+        String jsp;
+        if (usuarioLogado != null && usuarioLogado.getTipo() == TipoUsuario.ADMIN) {
+            jsp = "pages/admin/usuarios.jsp";
         } else {
-            System.out.println("Lista de Usuários Obtida:");
-            for (Usuario u : listaUsuarios) {
-                System.out.println("CPF/CNPJ: " + u.getCpfCnpj() + ", Nome: " + u.getNome() + ", Email: " + u.getEmail());
-            }
+            jsp = "pages/listaUsuarios.jsp";
         }
 
-        request.setAttribute("listaUsuarios", listaUsuarios);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("pages/listaUsuarios.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher(jsp);
         dispatcher.forward(request, response);
     }
 
@@ -182,18 +197,24 @@ public class UsuarioController extends HttpServlet {
         if (usuario == null) {
             response.setContentType("text/html; charset=UTF-8");
             PrintWriter out = response.getWriter();
-            out.println("<script type='text/javascript'>");
-            out.println("alert('Usuário não encontrado para CPF/CNPJ: " + cpfCnpj + "');");
-            out.println("window.location.href = 'pages/listaUsuarios.jsp';");
-            out.println("</script>");
+            out.println("<script>alert('Usuário não encontrado.'); window.location.href='pages/admin/usuarios.jsp';</script>");
             out.close();
         } else {
             request.setAttribute("usuario", usuario);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("pages/usuarioDetalhes.jsp");
+
+            HttpSession session = request.getSession(false);
+            Usuario logado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
+
+            String jsp = (logado != null && logado.getTipo() == TipoUsuario.ADMIN) ? 
+                "pages/admin/usuarioDetalhes.jsp" : "pages/usuarioDetalhes.jsp";
+
+            RequestDispatcher dispatcher = request.getRequestDispatcher(jsp);
             dispatcher.forward(request, response);
         }
     }
-    
+
+    // ================== LOGIN / LOGOUT ===================
+
     private void login(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
         String cpfCnpj = request.getParameter("cpfCnpj").replaceAll("\\D", ""); 
         String senha = request.getParameter("senha");
@@ -201,20 +222,15 @@ public class UsuarioController extends HttpServlet {
         Usuario usuario = usuarioDAO.buscarPorCpfCnpj(cpfCnpj);
 
         if (usuario != null && usuario.getSenha().equals(senha)) {
-           
             HttpSession session = request.getSession();
             session.setAttribute("usuarioLogado", usuario);
-            
-          
             response.sendRedirect("index.jsp");
         } else {
-         
             request.setAttribute("erroLogin", "CPF/CNPJ ou senha inválidos");
             RequestDispatcher dispatcher = request.getRequestDispatcher("pages/usuario/login.jsp");
             dispatcher.forward(request, response);
         }
     }
-
 
     private void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession(false); 

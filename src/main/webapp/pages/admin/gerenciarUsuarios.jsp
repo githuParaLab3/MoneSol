@@ -98,11 +98,6 @@
 <div class="container">
     <h1>Gerenciar Usuários</h1>
 
-    <div class="top-actions">
-        <form action="<%= request.getContextPath() %>/pages/usuario/cadastro.jsp" method="get">
-            <button type="submit" class="btn">+ Novo Usuário</button>
-        </form>
-    </div>
 
     <% if (listaUsuarios != null && !listaUsuarios.isEmpty()) { %>
         <table>

@@ -6,7 +6,6 @@ import br.com.monesol.dao.UsuarioDAO;
 import br.com.monesol.dao.DocumentoDAO;
 import br.com.monesol.dao.HistoricoContratoDAO;
 import br.com.monesol.model.Contrato;
-import br.com.monesol.model.Contrato.StatusContrato;
 import br.com.monesol.model.Documento;
 import br.com.monesol.model.HistoricoContrato;
 import br.com.monesol.model.HistoricoContrato.TipoHistorico;
@@ -83,12 +82,6 @@ public class ContratoController extends HttpServlet {
                 case "editar":
                     editarContrato(request, response);
                     break;
-                case "aprovar":
-                    aprovarContrato(request, response);
-                    break;
-                case "rejeitar":
-                    rejeitarContrato(request, response);
-                    break;
                 case "deletar":
                     deletarContrato(request, response);
                     break;
@@ -129,7 +122,6 @@ public class ContratoController extends HttpServlet {
         LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
         LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
         int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
-        StatusContrato status = StatusContrato.valueOf(request.getParameter("statusContrato"));
         String observacoes = request.getParameter("observacoes");
         String regrasExcecoes = request.getParameter("regrasExcecoes");
         double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
@@ -156,7 +148,6 @@ public class ContratoController extends HttpServlet {
         contrato.setVigenciaInicio(vigenciaInicio);
         contrato.setVigenciaFim(vigenciaFim);
         contrato.setReajustePeriodico(reajustePeriodico);
-        contrato.setStatusContrato(status);
         contrato.setObservacoes(observacoes);
         contrato.setRegrasExcecoes(regrasExcecoes);
         contrato.setQuantidadeContratada(qtdContratada);
@@ -169,7 +160,7 @@ public class ContratoController extends HttpServlet {
             LocalDateTime.now(),
             "Início do contrato",
             "Contrato firmado com sucesso.",
-            HistoricoContrato.TipoHistorico.ALTERACAO_CONTRATUAL,
+            TipoHistorico.ALTERACAO_CONTRATUAL,
             contrato
         );
         historicoContratoDAO.cadastrar(historico);
@@ -177,13 +168,11 @@ public class ContratoController extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + contrato.getId());
     }
 
-
     private void editarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
         LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
         int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
-        StatusContrato status = StatusContrato.valueOf(request.getParameter("statusContrato"));
         String observacoes = request.getParameter("observacoes");
         String regrasExcecoes = request.getParameter("regrasExcecoes");
         double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
@@ -204,7 +193,6 @@ public class ContratoController extends HttpServlet {
         contrato.setVigenciaInicio(vigenciaInicio);
         contrato.setVigenciaFim(vigenciaFim);
         contrato.setReajustePeriodico(reajustePeriodico);
-        contrato.setStatusContrato(status);
         contrato.setObservacoes(observacoes);
         contrato.setRegrasExcecoes(regrasExcecoes);
         contrato.setQuantidadeContratada(qtdContratada);
@@ -213,11 +201,10 @@ public class ContratoController extends HttpServlet {
 
         contratoDAO.atualizar(contrato);
 
-        // Histórico automático
         HistoricoContrato historico = new HistoricoContrato(
             LocalDateTime.now(),
             "Alteração do contrato",
-            "Contrato atualizado. Status: " + status + ", Quantidade: " + qtdContratada,
+            "Contrato atualizado. Quantidade: " + qtdContratada,
             TipoHistorico.ALTERACAO_CONTRATUAL,
             contrato
         );
@@ -274,42 +261,7 @@ public class ContratoController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
     }
-    private void aprovarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        contratoDAO.atualizarStatus(id, StatusContrato.ATIVO);
 
-        Contrato contrato = contratoDAO.buscarPorId(id);
-
-        HistoricoContrato historico = new HistoricoContrato(
-            LocalDateTime.now(),
-            "Contrato aprovado",
-            "O dono da geradora aprovou o contrato.",
-            HistoricoContrato.TipoHistorico.ALTERACAO_CONTRATUAL,
-            contrato
-        );
-        historicoContratoDAO.cadastrar(historico);
-
-        response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + id);
-    }
-
-    private void rejeitarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        contratoDAO.atualizarStatus(id, StatusContrato.CANCELADO);
-
-        Contrato contrato = contratoDAO.buscarPorId(id);
-
-        HistoricoContrato historico = new HistoricoContrato(
-            LocalDateTime.now(),
-            "Contrato rejeitado",
-            "O dono da geradora rejeitou o contrato.",
-            HistoricoContrato.TipoHistorico.ALTERACAO_CONTRATUAL,
-            contrato
-        );
-        historicoContratoDAO.cadastrar(historico);
-
-        response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + id);
-    }
-    
     private void listarPorDono(HttpServletRequest request, HttpServletResponse response, String cpfCnpjDono)
             throws SQLException, ServletException, IOException {
         List<Contrato> lista = contratoDAO.listarPorDonoGeradora(cpfCnpjDono);
@@ -317,6 +269,4 @@ public class ContratoController extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/usuario/dashboard.jsp");
         dispatcher.forward(request, response);
     }
-
-
 }

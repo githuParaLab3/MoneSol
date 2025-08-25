@@ -102,7 +102,6 @@ h2 { margin:0 0 15px; font-size:1.5rem; color:var(--dark); border-bottom:2px sol
                                 <div class="unit-sub"><strong>Unidade:</strong> <%= c.getUnidadeGeradora() != null ? c.getUnidadeGeradora().getLocalizacao() : "-" %></div>
                                 <div class="unit-sub"><strong>Qtd. Contratada:</strong> <%= c.getQuantidadeContratada() %> kWh</div>
                                 <div class="unit-sub"><strong>Preço:</strong> R$ <%= String.format("%.4f", c.getUnidadeGeradora().getPrecoPorKWh()) %> / kWh</div>
-                                <div class="unit-sub"><strong>Status:</strong> <%= c.getStatusContrato() %></div>
                             </div>
                             <form method="post" action="<%= request.getContextPath() %>/ContratoController" style="margin:0; align-self:center;">
                                 <input type="hidden" name="action" value="buscarPorId" />

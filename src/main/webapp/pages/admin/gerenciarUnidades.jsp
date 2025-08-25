@@ -97,11 +97,7 @@
 <div class="container">
     <h1>Gerenciar Unidades Geradoras</h1>
 
-    <div class="top-actions">
-        <form action="<%= request.getContextPath() %>/pages/unidadeGeradora/cadastrarUnidade.jsp" method="get">
-            <button type="submit" class="btn">+ Nova Unidade</button>
-        </form>
-    </div>
+ 
 
     <% if (unidades != null && !unidades.isEmpty()) { %>
         <table>

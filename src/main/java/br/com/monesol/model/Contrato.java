@@ -4,15 +4,7 @@ import java.time.LocalDate;
 
 public class Contrato {
 
-    public enum StatusContrato {
-        PENDENTE,
-        ATIVO,
-        CANCELADO,
-        ENCERRADO
-    }
-
     private int id;
-    private StatusContrato statusContrato;
     private LocalDate vigenciaInicio;
     private LocalDate vigenciaFim;
     private int reajustePeriodico;
@@ -23,7 +15,6 @@ public class Contrato {
     private Usuario usuario;
 
     public Contrato() {
-        this.statusContrato = StatusContrato.PENDENTE;
     }
 
     public Contrato(LocalDate vigenciaInicio, LocalDate vigenciaFim, int reajustePeriodico,
@@ -37,86 +28,32 @@ public class Contrato {
         this.quantidadeContratada = quantidadeContratada;
         this.unidadeGeradora = unidadeGeradora;
         this.usuario = usuario;
-        this.statusContrato = StatusContrato.PENDENTE;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public LocalDate getVigenciaInicio() { return vigenciaInicio; }
+    public void setVigenciaInicio(LocalDate vigenciaInicio) { this.vigenciaInicio = vigenciaInicio; }
 
-    public StatusContrato getStatusContrato() {
-        return statusContrato;
-    }
+    public LocalDate getVigenciaFim() { return vigenciaFim; }
+    public void setVigenciaFim(LocalDate vigenciaFim) { this.vigenciaFim = vigenciaFim; }
 
-    public void setStatusContrato(StatusContrato statusContrato) {
-        this.statusContrato = statusContrato;
-    }
+    public int getReajustePeriodico() { return reajustePeriodico; }
+    public void setReajustePeriodico(int reajustePeriodico) { this.reajustePeriodico = reajustePeriodico; }
 
-    public LocalDate getVigenciaInicio() {
-        return vigenciaInicio;
-    }
+    public String getObservacoes() { return observacoes; }
+    public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
 
-    public void setVigenciaInicio(LocalDate vigenciaInicio) {
-        this.vigenciaInicio = vigenciaInicio;
-    }
+    public String getRegrasExcecoes() { return regrasExcecoes; }
+    public void setRegrasExcecoes(String regrasExcecoes) { this.regrasExcecoes = regrasExcecoes; }
 
-    public LocalDate getVigenciaFim() {
-        return vigenciaFim;
-    }
+    public double getQuantidadeContratada() { return quantidadeContratada; }
+    public void setQuantidadeContratada(double quantidadeContratada) { this.quantidadeContratada = quantidadeContratada; }
 
-    public void setVigenciaFim(LocalDate vigenciaFim) {
-        this.vigenciaFim = vigenciaFim;
-    }
+    public UnidadeGeradora getUnidadeGeradora() { return unidadeGeradora; }
+    public void setUnidadeGeradora(UnidadeGeradora unidadeGeradora) { this.unidadeGeradora = unidadeGeradora; }
 
-    public int getReajustePeriodico() {
-        return reajustePeriodico;
-    }
-
-    public void setReajustePeriodico(int reajustePeriodico) {
-        this.reajustePeriodico = reajustePeriodico;
-    }
-
-    public String getObservacoes() {
-        return observacoes;
-    }
-
-    public void setObservacoes(String observacoes) {
-        this.observacoes = observacoes;
-    }
-
-    public String getRegrasExcecoes() {
-        return regrasExcecoes;
-    }
-
-    public void setRegrasExcecoes(String regrasExcecoes) {
-        this.regrasExcecoes = regrasExcecoes;
-    }
-
-    public double getQuantidadeContratada() {
-        return quantidadeContratada;
-    }
-
-    public void setQuantidadeContratada(double quantidadeContratada) {
-        this.quantidadeContratada = quantidadeContratada;
-    }
-
-    public UnidadeGeradora getUnidadeGeradora() {
-        return unidadeGeradora;
-    }
-
-    public void setUnidadeGeradora(UnidadeGeradora unidadeGeradora) {
-        this.unidadeGeradora = unidadeGeradora;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 }

@@ -108,15 +108,6 @@
         <input type="number" id="reajustePeriodico" name="reajustePeriodico"
                value="<%= contrato.getReajustePeriodico() %>" min="1" required />
 
-        <label for="statusContrato">Status do Contrato:</label>
-        <select id="statusContrato" name="statusContrato" required>
-            <% for (Contrato.StatusContrato status : Contrato.StatusContrato.values()) { %>
-                <option value="<%= status %>" <%= contrato.getStatusContrato() == status ? "selected" : "" %>>
-                    <%= status %>
-                </option>
-            <% } %>
-        </select>
-
         <label for="quantidadeContratada">Quantidade Contratada (kWh):</label>
         <input type="number" id="quantidadeContratada" name="quantidadeContratada"
                step="0.01" min="0.01" value="<%= contrato.getQuantidadeContratada() %>" required />

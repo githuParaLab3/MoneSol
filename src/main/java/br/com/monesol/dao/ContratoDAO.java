@@ -1,7 +1,6 @@
 package br.com.monesol.dao;
 
 import br.com.monesol.model.Contrato;
-import br.com.monesol.model.Contrato.StatusContrato;
 import br.com.monesol.model.UnidadeGeradora;
 import br.com.monesol.model.Usuario;
 import br.com.monesol.util.Conexao;
@@ -13,20 +12,19 @@ import java.util.List;
 public class ContratoDAO {
 
     public void cadastrar(Contrato contrato) throws SQLException {
-        String sql = "INSERT INTO Contrato (statusContrato, vigenciaInicio, vigenciaFim, reajustePeriodico, observacoes, regrasExcecoes, quantidadecontratada, unidadeGeradora, usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Contrato (vigenciaInicio, vigenciaFim, reajustePeriodico, observacoes, regrasExcecoes, quantidadeContratada, unidadeGeradora, usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setString(1, contrato.getStatusContrato().name());
-            stmt.setDate(2, Date.valueOf(contrato.getVigenciaInicio()));
-            stmt.setDate(3, Date.valueOf(contrato.getVigenciaFim()));
-            stmt.setInt(4, contrato.getReajustePeriodico());
-            stmt.setString(5, contrato.getObservacoes());
-            stmt.setString(6, contrato.getRegrasExcecoes());
-            stmt.setDouble(7, contrato.getQuantidadeContratada());
-            stmt.setInt(8, contrato.getUnidadeGeradora().getId());
-            stmt.setString(9, contrato.getUsuario().getCpfCnpj());
+            stmt.setDate(1, Date.valueOf(contrato.getVigenciaInicio()));
+            stmt.setDate(2, Date.valueOf(contrato.getVigenciaFim()));
+            stmt.setInt(3, contrato.getReajustePeriodico());
+            stmt.setString(4, contrato.getObservacoes());
+            stmt.setString(5, contrato.getRegrasExcecoes());
+            stmt.setDouble(6, contrato.getQuantidadeContratada());
+            stmt.setInt(7, contrato.getUnidadeGeradora().getId());
+            stmt.setString(8, contrato.getUsuario().getCpfCnpj());
 
             stmt.executeUpdate();
 
@@ -47,12 +45,9 @@ public class ContratoDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                Contrato contrato = preencherContrato(rs);
-                contrato.setId(id);
-                return contrato;
+                return preencherContrato(rs);
             }
         }
-
         return null;
     }
 
@@ -68,11 +63,9 @@ public class ContratoDAO {
 
             while (rs.next()) {
                 Contrato contrato = preencherContrato(rs);
-                contrato.setId(rs.getInt("id"));
                 lista.add(contrato);
             }
         }
-
         return lista;
     }
 
@@ -88,30 +81,27 @@ public class ContratoDAO {
 
             while (rs.next()) {
                 Contrato contrato = preencherContrato(rs);
-                contrato.setId(rs.getInt("id"));
                 lista.add(contrato);
             }
         }
-
         return lista;
     }
 
     public void atualizar(Contrato contrato) throws SQLException {
-        String sql = "UPDATE Contrato SET statusContrato = ?, vigenciaInicio = ?, vigenciaFim = ?, reajustePeriodico = ?, observacoes = ?, regrasExcecoes = ?, quantidadecontratada = ?, unidadeGeradora = ?, usuario = ? WHERE id = ?";
+        String sql = "UPDATE Contrato SET vigenciaInicio = ?, vigenciaFim = ?, reajustePeriodico = ?, observacoes = ?, regrasExcecoes = ?, quantidadeContratada = ?, unidadeGeradora = ?, usuario = ? WHERE id = ?";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, contrato.getStatusContrato().name());
-            stmt.setDate(2, Date.valueOf(contrato.getVigenciaInicio()));
-            stmt.setDate(3, Date.valueOf(contrato.getVigenciaFim()));
-            stmt.setInt(4, contrato.getReajustePeriodico());
-            stmt.setString(5, contrato.getObservacoes());
-            stmt.setString(6, contrato.getRegrasExcecoes());
-            stmt.setDouble(7, contrato.getQuantidadeContratada());
-            stmt.setInt(8, contrato.getUnidadeGeradora().getId());
-            stmt.setString(9, contrato.getUsuario().getCpfCnpj());
-            stmt.setInt(10, contrato.getId());
+            stmt.setDate(1, Date.valueOf(contrato.getVigenciaInicio()));
+            stmt.setDate(2, Date.valueOf(contrato.getVigenciaFim()));
+            stmt.setInt(3, contrato.getReajustePeriodico());
+            stmt.setString(4, contrato.getObservacoes());
+            stmt.setString(5, contrato.getRegrasExcecoes());
+            stmt.setDouble(6, contrato.getQuantidadeContratada());
+            stmt.setInt(7, contrato.getUnidadeGeradora().getId());
+            stmt.setString(8, contrato.getUsuario().getCpfCnpj());
+            stmt.setInt(9, contrato.getId());
 
             stmt.executeUpdate();
         }
@@ -135,19 +125,19 @@ public class ContratoDAO {
         usuario.setCpfCnpj(rs.getString("usuario"));
 
         Contrato contrato = new Contrato();
-        contrato.setStatusContrato(StatusContrato.valueOf(rs.getString("statusContrato")));
+        contrato.setId(rs.getInt("id"));
         contrato.setVigenciaInicio(rs.getDate("vigenciaInicio").toLocalDate());
         contrato.setVigenciaFim(rs.getDate("vigenciaFim").toLocalDate());
         contrato.setReajustePeriodico(rs.getInt("reajustePeriodico"));
         contrato.setObservacoes(rs.getString("observacoes"));
         contrato.setRegrasExcecoes(rs.getString("regrasExcecoes"));
-        contrato.setQuantidadeContratada(rs.getDouble("quantidadecontratada"));
+        contrato.setQuantidadeContratada(rs.getDouble("quantidadeContratada"));
         contrato.setUnidadeGeradora(unidade);
         contrato.setUsuario(usuario);
 
         return contrato;
     }
-    
+
     public boolean existeContratoUsuarioUnidade(String cpfCnpj, int idUnidade) throws SQLException {
         String sql = "SELECT COUNT(*) FROM Contrato WHERE usuario = ? AND unidadeGeradora = ?";
         try (Connection conn = Conexao.getConnection();
@@ -163,17 +153,7 @@ public class ContratoDAO {
         }
         return false;
     }
-    
-    public void atualizarStatus(int idContrato, StatusContrato novoStatus) throws SQLException {
-        String sql = "UPDATE Contrato SET statusContrato = ? WHERE id = ?";
-        try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, novoStatus.name());
-            stmt.setInt(2, idContrato);
-            stmt.executeUpdate();
-        }
-    }
-    
+
     public List<Contrato> listarPorDonoGeradora(String cpfCnpjDono) throws SQLException {
         String sql = "SELECT c.* FROM Contrato c " +
                      "JOIN UnidadeGeradora u ON c.unidadeGeradora = u.id " +
@@ -188,11 +168,25 @@ public class ContratoDAO {
 
             while (rs.next()) {
                 Contrato contrato = preencherContrato(rs);
-                contrato.setId(rs.getInt("id"));
                 lista.add(contrato);
             }
         }
         return lista;
     }
 
+    public List<Contrato> listarTodos() throws SQLException {
+        String sql = "SELECT * FROM Contrato";
+        List<Contrato> lista = new ArrayList<>();
+
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Contrato contrato = preencherContrato(rs);
+                lista.add(contrato);
+            }
+        }
+        return lista;
+    }
 }

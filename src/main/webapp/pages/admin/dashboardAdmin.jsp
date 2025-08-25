@@ -113,27 +113,17 @@
         <div class="card">
             <h2>Usuários</h2>
             <p>Gerencie todos os usuários</p>
-            <a href="<%= request.getContextPath() %>/admin/listaUsuarios.jsp" class="btn">Acessar</a>
+            <a href="<%= request.getContextPath() %>/pages/admin/gerenciarUsuarios.jsp" class="btn">Acessar</a>
         </div>
         <div class="card">
             <h2>Unidades</h2>
             <p>Visualize e edite unidades</p>
-            <a href="<%= request.getContextPath() %>/admin/listaUnidades.jsp" class="btn">Acessar</a>
+            <a href="<%= request.getContextPath() %>/pages/admin/gerenciarUnidades.jsp" class="btn">Acessar</a>
         </div>
         <div class="card">
             <h2>Contratos</h2>
             <p>Ver todos os contratos</p>
-            <a href="<%= request.getContextPath() %>/admin/listaContratos.jsp" class="btn">Acessar</a>
-        </div>
-        <div class="card">
-            <h2>Medições</h2>
-            <p>Monitorar todas as medições</p>
-            <a href="<%= request.getContextPath() %>/admin/listaMedicoes.jsp" class="btn">Acessar</a>
-        </div>
-        <div class="card">
-            <h2>Relatórios</h2>
-            <p>Exportar e gerar relatórios</p>
-            <a href="<%= request.getContextPath() %>/admin/relatorios.jsp" class="btn">Acessar</a>
+            <a href="<%= request.getContextPath() %>/pages/admin/gerenciarContratos.jsp" class="btn">Acessar</a>
         </div>
     </div>
 

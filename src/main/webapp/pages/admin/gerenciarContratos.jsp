@@ -15,9 +15,8 @@
     UnidadeGeradoraDAO unidadeDAO = new UnidadeGeradoraDAO();
     UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    List<Contrato> listaContratos = contratoDAO.listarPorUsuario("%"); // ou listarTodos se tiver método
+    List<Contrato> listaContratos = contratoDAO.listarTodos();
 
-    // Preencher informações completas de usuário e unidade
     for (Contrato c : listaContratos) {
         c.setUsuario(usuarioDAO.buscarPorCpfCnpj(c.getUsuario().getCpfCnpj()));
         c.setUnidadeGeradora(unidadeDAO.buscarPorId(c.getUnidadeGeradora().getId()));
@@ -110,18 +109,13 @@
 <div class="container">
     <h1>Gerenciar Contratos</h1>
 
-    <div class="top-actions">
-        <form action="<%= request.getContextPath() %>/pages/contrato/cadastrarContrato.jsp" method="get">
-            <button type="submit" class="btn">+ Novo Contrato</button>
-        </form>
-    </div>
+    
 
     <% if (listaContratos != null && !listaContratos.isEmpty()) { %>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Status</th>
                     <th>Vigência Início</th>
                     <th>Vigência Fim</th>
                     <th>Quantidade Contratada</th>
@@ -134,7 +128,6 @@
                 <% for (Contrato c : listaContratos) { %>
                 <tr>
                     <td><%= c.getId() %></td>
-                    <td><%= c.getStatusContrato() %></td>
                     <td><%= c.getVigenciaInicio() != null ? c.getVigenciaInicio() : "-" %></td>
                     <td><%= c.getVigenciaFim() != null ? c.getVigenciaFim() : "-" %></td>
                     <td><%= c.getQuantidadeContratada() %></td>

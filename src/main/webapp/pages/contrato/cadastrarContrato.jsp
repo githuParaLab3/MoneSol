@@ -189,8 +189,6 @@
 	        <label for="reajustePeriodico">Reajuste Periódico (meses):</label>
 	        <input type="number" id="reajustePeriodico" name="reajustePeriodico" min="1" value="12" required />
 	
-			<input type="hidden" id="statusContrato" name="statusContrato" value="PENDENTE" />
-
 	        <label for="regrasExcecoes">Regras e Exceções:</label>
 	        <textarea id="regrasExcecoes" name="regrasExcecoes" rows="3" maxlength="500" required></textarea>
 	
