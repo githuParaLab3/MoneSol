@@ -19,7 +19,6 @@
 <title>Admin Dashboard - MoneSol</title>
 <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/monesol.css" />
 <style>
-    /* Mantendo exatamente o mesmo estilo do dashboard comum */
     :root {
         --yellow:#ffd600;
         --dark:#212121;
@@ -95,7 +94,6 @@
 
 <div class="container">
 
-    <!-- Dados do Admin -->
     <div class="section" aria-label="Informações do Admin">
         <h2>Meus Dados</h2>
         <p><strong>Nome:</strong> <%= usuarioLogado.getNome() %></p>
@@ -108,7 +106,6 @@
         </form>
     </div>
 
-    <!-- Cards administrativos -->
     <div class="cards">
         <div class="card">
             <h2>Usuários</h2>

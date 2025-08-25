@@ -49,7 +49,6 @@
             margin-right: auto;
         }
 
-        /* Valores list */
         ul.valores-list {
             max-width: 720px;
             margin: 0 auto 30px;

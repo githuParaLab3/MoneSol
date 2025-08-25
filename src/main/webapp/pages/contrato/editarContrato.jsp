@@ -87,7 +87,6 @@
         <input type="hidden" name="action" value="editar" />
         <input type="hidden" name="id" value="<%= contrato.getId() %>" />
 
-        <!-- Usuário e Unidade Geradora (hidden para envio) -->
         <label>Usuário:</label>
         <input type="text" value="<%= contrato.getUsuario() != null ? contrato.getUsuario().getCpfCnpj() : "-" %>" disabled />
         <input type="hidden" name="usuarioCpfCnpj" value="<%= contrato.getUsuario() != null ? contrato.getUsuario().getCpfCnpj() : "" %>" />

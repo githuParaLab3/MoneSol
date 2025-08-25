@@ -83,7 +83,6 @@ h2 { margin:0 0 15px; font-size:1.5rem; color:var(--dark); border-bottom:2px sol
         </form>
     </div>
 
-    <!-- Contratos -->
     <div class="section" aria-label="Contratos do usuário">
         <h2>Meus Contratos</h2>
         <% if (contratos == null || contratos.isEmpty()) { %>
@@ -115,7 +114,6 @@ h2 { margin:0 0 15px; font-size:1.5rem; color:var(--dark); border-bottom:2px sol
         <% } %>
     </div>
 
-    <!-- Unidades Geradoras (só para dono de geradora) -->
     <% if (usuario.getTipo() == Usuario.TipoUsuario.DONO_GERADORA) { %>
         <div class="section" aria-label="Unidades geradoras do usuário">
             <h2>

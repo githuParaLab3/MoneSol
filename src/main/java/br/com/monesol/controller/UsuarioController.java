@@ -72,7 +72,6 @@ public class UsuarioController extends HttpServlet {
         }
     }
 
-    // ================== ADMIN / USUÁRIO ===================
 
     private void adicionarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         String cpfCnpj = request.getParameter("cpfCnpj").replaceAll("\\D", ""); 
@@ -109,7 +108,6 @@ public class UsuarioController extends HttpServlet {
         HttpSession session = request.getSession(false);
         Usuario logado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
 
-        // Usuário normal só pode editar o próprio perfil
         if (logado == null || (logado.getTipo() != TipoUsuario.ADMIN && !logado.getCpfCnpj().equals(cpfCnpj))) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso negado");
             return;
@@ -137,7 +135,6 @@ public class UsuarioController extends HttpServlet {
             return;
         }
 
-        // Se senha não fornecida, mantém a antiga
         String senhaFinal = (senha == null || senha.trim().isEmpty()) ? existente.getSenha() : senha;
 
         if (tipo == null) {
@@ -147,7 +144,6 @@ public class UsuarioController extends HttpServlet {
         Usuario usuarioAtualizado = new Usuario(cpfCnpj, nome, email, senhaFinal, contato, endereco, tipo);
         usuarioDAO.atualizar(usuarioAtualizado);
 
-        // Atualiza sessão se o próprio usuário editou
         if (logado != null && logado.getCpfCnpj().equals(cpfCnpj)) {
             session.setAttribute("usuarioLogado", usuarioAtualizado);
         }
@@ -162,7 +158,6 @@ public class UsuarioController extends HttpServlet {
         HttpSession session = request.getSession(false);
         Usuario logado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
 
-        // Usuário normal só pode deletar a si mesmo (se permitido)
         if (logado == null || logado.getTipo() != TipoUsuario.ADMIN) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso negado");
             return;
@@ -213,7 +208,6 @@ public class UsuarioController extends HttpServlet {
         }
     }
 
-    // ================== LOGIN / LOGOUT ===================
 
     private void login(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
         String cpfCnpj = request.getParameter("cpfCnpj").replaceAll("\\D", ""); 

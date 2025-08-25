@@ -104,11 +104,9 @@ public class DocumentoController extends HttpServlet {
         TipoDocumento tipo = TipoDocumento.valueOf(request.getParameter("tipo"));
         String descricao = request.getParameter("descricao");
 
-        // Upload do arquivo para a pasta /uploads dentro do webapp do Tomcat
         Part arquivoPart = request.getPart("arquivo");
         String nomeArquivo = Paths.get(arquivoPart.getSubmittedFileName()).getFileName().toString();
 
-        // Diretório dentro do webapp do Tomcat
         String uploadPath = getServletContext().getRealPath("/") + "uploads";
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) uploadDir.mkdirs();

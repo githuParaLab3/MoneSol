@@ -78,7 +78,6 @@ public class MedicaoController extends HttpServlet {
                     break;
             }
         } catch (Exception e) {
-            // Mensagem de erro global
             request.getSession().setAttribute("mensagemErro", "Ocorreu um erro: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/pages/listaMedicoes.jsp");
         }

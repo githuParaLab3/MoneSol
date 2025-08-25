@@ -87,7 +87,7 @@
     }
     td .actions {
         display: flex;
-        gap: 5px; /* garante espaçamento entre os botões */
+        gap: 5px; 
     }
 </style>
 </head>

@@ -122,12 +122,11 @@ public class UnidadeGeradoraController extends HttpServlet {
             return;
         }
 
-        unidadeDAO.cadastrar(unidade); // aqui o objeto já terá o ID setado
+        unidadeDAO.cadastrar(unidade); 
 
         HttpSession session = request.getSession();
         session.setAttribute("msgSucesso", "Unidade Geradora cadastrada com sucesso!");
 
-        // redireciona para os detalhes da unidade recém-criada
         response.sendRedirect(request.getContextPath() 
                 + "/UnidadeGeradoraController?action=buscarPorId&id=" + unidade.getId());
 

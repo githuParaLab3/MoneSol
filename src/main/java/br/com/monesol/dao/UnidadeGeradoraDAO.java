@@ -126,7 +126,6 @@ public class UnidadeGeradoraDAO {
         }
     }
 
-    // 🔹 Método auxiliar para reduzir duplicação de código
     private UnidadeGeradora mapResultSet(ResultSet rs) throws SQLException {
         UnidadeGeradora unidade = new UnidadeGeradora();
         unidade.setId(rs.getInt("id"));
