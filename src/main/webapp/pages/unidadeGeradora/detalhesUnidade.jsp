@@ -210,6 +210,7 @@ tbody tr:hover {
 </style>
 </head>
 <body>
+	<jsp:include page="/pages/outros/mensagens.jsp" />
 	<jsp:include page="/pages/usuario/header.jsp" />
 
 	<main aria-label="Detalhes da unidade geradora">

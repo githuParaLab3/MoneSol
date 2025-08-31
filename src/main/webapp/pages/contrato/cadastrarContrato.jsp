@@ -137,6 +137,8 @@ button[type="submit"]:hover {
 </head>
 
 <body>
+	<jsp:include page="/pages/outros/mensagens.jsp" />
+
 	<div style="max-width: 800px; margin: 30px auto 10px; padding: 0 20px;">
 		<a
 			href="<%=request.getContextPath()%>/pages/unidadeGeradora/listaUnidadesDisponiveis.jsp"

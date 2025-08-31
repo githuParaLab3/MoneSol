@@ -39,6 +39,7 @@
     </style>
 </head>
 <body>
+<jsp:include page="/pages/outros/mensagens.jsp" />
 <main>
     <button type="button" class="btn-voltar" onclick="window.history.back();">&larr; Voltar</button>
 

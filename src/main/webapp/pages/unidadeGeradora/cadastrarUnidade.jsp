@@ -105,6 +105,7 @@
     </style>
 </head>
 <body>
+<jsp:include page="/pages/outros/mensagens.jsp" />
 
 <%@ include file="../usuario/header.jsp" %>
 

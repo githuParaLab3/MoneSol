@@ -118,6 +118,8 @@ main h1 {
 </head>
 <body>
 
+<jsp:include page="/pages/outros/mensagens.jsp" />
+
 <main aria-label="Editar Unidade Geradora">
 
     <a href="<%= request.getContextPath() %>/UnidadeGeradoraController?action=buscarPorId&id=<%= unidade.getId() %>" class="btn-back" aria-label="Voltar para detalhes da unidade">

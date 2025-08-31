@@ -82,6 +82,9 @@
 </head>
 <body>
 
+	<jsp:include page="/pages/outros/mensagens.jsp" />
+
+
 <header style="background: #FFD600; padding: 12px 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center;">
     <a href="${pageContext.request.contextPath}/index.jsp" style="text-decoration: none; color: inherit;">
         <span style="font-weight: 900; font-size: 2rem; color: #212121; letter-spacing: 1.5px;">

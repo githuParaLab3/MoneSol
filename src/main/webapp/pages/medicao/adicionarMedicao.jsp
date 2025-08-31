@@ -34,6 +34,7 @@
     </style>
 </head>
 <body>
+<jsp:include page="/pages/outros/mensagens.jsp" />
 <main>
     <a href="javascript:history.back();" class="btn-back" aria-label="Voltar para a página anterior">&larr; Voltar</a>
 

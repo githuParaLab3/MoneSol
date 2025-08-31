@@ -45,6 +45,7 @@ button:hover { background: #000; }
 </style>
 </head>
 <body>
+<jsp:include page="/pages/outros/mensagens.jsp" />
 
 <main aria-label="Editar Documento">
 

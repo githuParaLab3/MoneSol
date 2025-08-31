@@ -54,6 +54,8 @@ h2 { margin:0 0 15px; font-size:1.5rem; color:var(--dark); border-bottom:2px sol
 </style>
 </head>
 <body>
+<jsp:include page="/pages/outros/mensagens.jsp" />
+
 
 <jsp:include page="/pages/usuario/header.jsp" />
 

@@ -221,6 +221,7 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 </style>
 </head>
 <body class="pagina-detalhes-contrato">
+	<jsp:include page="/pages/outros/mensagens.jsp" />
 
 	<jsp:include page="/pages/usuario/header.jsp" />
 

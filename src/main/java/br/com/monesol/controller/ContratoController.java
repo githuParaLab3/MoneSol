@@ -70,6 +70,8 @@ public class ContratoController extends HttpServlet {
                             int idUnidade = Integer.parseInt(idUnidadeStr);
                             listarPorUnidade(request, response, idUnidade);
                         } else {
+                            request.getSession().setAttribute("mensagemInfo", 
+                                "Nenhum parâmetro de busca fornecido.");
                             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                         }
                     }
@@ -81,11 +83,19 @@ public class ContratoController extends HttpServlet {
                     mostrarFormEdicao(request, response);
                     break;
                 default:
+                    request.getSession().setAttribute("mensagemInfo", 
+                        "Ação não reconhecida, redirecionando para dashboard.");
                     response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                     break;
             }
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Parâmetro inválido fornecido.");
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         } catch (Exception e) {
-            throw new ServletException(e);
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro interno do sistema: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
     }
 
@@ -115,6 +125,8 @@ public class ContratoController extends HttpServlet {
                     if (cpfCnpj != null && !cpfCnpj.isEmpty()) {
                         listarPorUsuario(request, response, cpfCnpj);
                     } else {
+                        request.getSession().setAttribute("mensagemErro", 
+                            "CPF/CNPJ não informado para busca.");
                         response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                     }
                     break;
@@ -124,210 +136,398 @@ public class ContratoController extends HttpServlet {
                         int idUnidade = Integer.parseInt(idUnidadeStr);
                         listarPorUnidade(request, response, idUnidade);
                     } else {
+                        request.getSession().setAttribute("mensagemErro", 
+                            "ID da unidade não informado para busca.");
                         response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                     }
                     break;
                 default:
+                    request.getSession().setAttribute("mensagemInfo", 
+                        "Ação não reconhecida, redirecionando para dashboard.");
                     response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                     break;
             }
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Dados numéricos inválidos fornecidos.");
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         } catch (Exception e) {
-            throw new ServletException(e);
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro interno do sistema: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
     }
 
     private void mostrarFormCadastro(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
-        String unidadeIdStr = request.getParameter("unidadeGeradoraId");
-        if (unidadeIdStr == null || unidadeIdStr.isEmpty()) {
+        try {
+            String unidadeIdStr = request.getParameter("unidadeGeradoraId");
+            if (unidadeIdStr == null || unidadeIdStr.isEmpty()) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "ID da unidade geradora não informado.");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            int unidadeId = Integer.parseInt(unidadeIdStr);
+            UnidadeGeradora unidade = unidadeDAO.buscarPorId(unidadeId);
+            
+            if (unidade == null) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "Unidade geradora não encontrada (ID: " + unidadeId + ").");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            LocalDate hoje = LocalDate.now();
+            LocalDate dataFim = hoje.plusMonths(12);
+            
+            request.setAttribute("unidade", unidade);
+            request.setAttribute("dataInicio", hoje);
+            request.setAttribute("dataFim", dataFim);
+
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/contrato/cadastrarContrato.jsp");
+            dispatcher.forward(request, response);
+
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "ID da unidade geradora inválido.");
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-            return;
-        }
-
-        int unidadeId = Integer.parseInt(unidadeIdStr);
-        UnidadeGeradora unidade = unidadeDAO.buscarPorId(unidadeId);
-        
-        if (unidade == null) {
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro ao carregar formulário de cadastro: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-            return;
         }
-
-        LocalDate hoje = LocalDate.now();
-        LocalDate dataFim = hoje.plusMonths(12);
-        
-        request.setAttribute("unidade", unidade);
-        request.setAttribute("dataInicio", hoje);
-        request.setAttribute("dataFim", dataFim);
-
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/contrato/cadastrarContrato.jsp");
-        dispatcher.forward(request, response);
     }
 
     private void mostrarFormEdicao(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
-        String contratoIdStr = request.getParameter("id");
-        if (contratoIdStr == null || contratoIdStr.isEmpty()) {
+        try {
+            String contratoIdStr = request.getParameter("id");
+            if (contratoIdStr == null || contratoIdStr.isEmpty()) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "ID do contrato não informado para edição.");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            int contratoId = Integer.parseInt(contratoIdStr);
+            Contrato contrato = contratoDAO.buscarPorId(contratoId);
+
+            if (contrato == null) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "Contrato não encontrado (ID: " + contratoId + ").");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            request.setAttribute("contrato", contrato);
+
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/contrato/editarContrato.jsp");
+            dispatcher.forward(request, response);
+
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "ID do contrato inválido.");
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-            return;
-        }
-
-        int contratoId = Integer.parseInt(contratoIdStr);
-        Contrato contrato = contratoDAO.buscarPorId(contratoId);
-
-        if (contrato == null) {
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro ao carregar formulário de edição: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-            return;
         }
-
-        request.setAttribute("contrato", contrato);
-
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/contrato/editarContrato.jsp");
-        dispatcher.forward(request, response);
     }
 
     private void adicionarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
-        LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
-        int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
-      
-        double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
+        try {
+            LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
+            LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
+            int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
+            double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
 
-        int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
-        UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
+            int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
+            UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
 
-        String cpfCnpjUsuario = request.getParameter("usuarioCpfCnpj");
-        Usuario usuario = usuarioDAO.buscarPorCpfCnpj(cpfCnpjUsuario);
+            String cpfCnpjUsuario = request.getParameter("usuarioCpfCnpj");
+            Usuario usuario = usuarioDAO.buscarPorCpfCnpj(cpfCnpjUsuario);
 
-        if (unidade == null || usuario == null) {
+            if (unidade == null || usuario == null) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "Dados inválidos: unidade ou usuário não encontrado.");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            if (contratoDAO.existeContratoUsuarioUnidade(cpfCnpjUsuario, idUnidade)) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "Você já possui um contrato para esta unidade geradora.");
+                response.sendRedirect(request.getContextPath() + "/pages/unidadeGeradora/listaUnidadesDisponiveis.jsp");
+                return;
+            }
+
+            // Validar datas
+            if (vigenciaFim.isBefore(vigenciaInicio)) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "A data de fim deve ser posterior à data de início.");
+                response.sendRedirect(request.getContextPath() + "/ContratoController?action=formCadastrar&unidadeGeradoraId=" + idUnidade);
+                return;
+            }
+
+            // Validar quantidade mínima
+            if (qtdContratada < unidade.getQuantidadeMinimaAceita()) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "Quantidade contratada deve ser no mínimo " + unidade.getQuantidadeMinimaAceita() + " kWh.");
+                response.sendRedirect(request.getContextPath() + "/ContratoController?action=formCadastrar&unidadeGeradoraId=" + idUnidade);
+                return;
+            }
+
+            Contrato contrato = new Contrato();
+            contrato.setVigenciaInicio(vigenciaInicio);
+            contrato.setVigenciaFim(vigenciaFim);
+            contrato.setReajustePeriodico(reajustePeriodico);
+            contrato.setQuantidadeContratada(qtdContratada);
+            contrato.setUnidadeGeradora(unidade);
+            contrato.setUsuario(usuario);
+
+            contratoDAO.cadastrar(contrato);
+
+            HistoricoContrato historico = new HistoricoContrato(
+                LocalDateTime.now(),
+                "Início do contrato",
+                "Contrato firmado com sucesso.",
+                TipoHistorico.ALTERACAO_CONTRATUAL,
+                contrato
+            );
+            historicoContratoDAO.cadastrar(historico);
+
+            request.getSession().setAttribute("mensagemSucesso", 
+                "Contrato criado com sucesso! ID: " + contrato.getId());
+
+            response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + contrato.getId());
+
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Dados numéricos inválidos fornecidos.");
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-            return;
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro ao criar contrato: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
-
-        if (contratoDAO.existeContratoUsuarioUnidade(cpfCnpjUsuario, idUnidade)) {
-            request.getSession().setAttribute("erroContratoExistente", 
-                "Você já possui um contrato para esta unidade geradora.");
-            response.sendRedirect(request.getContextPath() + "/pages/unidadeGeradora/listaUnidadesDisponiveis.jsp");
-            return;
-        }
-
-        Contrato contrato = new Contrato();
-        contrato.setVigenciaInicio(vigenciaInicio);
-        contrato.setVigenciaFim(vigenciaFim);
-        contrato.setReajustePeriodico(reajustePeriodico);
-     
-        contrato.setQuantidadeContratada(qtdContratada);
-        contrato.setUnidadeGeradora(unidade);
-        contrato.setUsuario(usuario);
-
-        contratoDAO.cadastrar(contrato);
-
-        HistoricoContrato historico = new HistoricoContrato(
-            LocalDateTime.now(),
-            "Início do contrato",
-            "Contrato firmado com sucesso.",
-            TipoHistorico.ALTERACAO_CONTRATUAL,
-            contrato
-        );
-        historicoContratoDAO.cadastrar(historico);
-
-        response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + contrato.getId());
     }
 
     private void editarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
-        LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
-        int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
- 
-        double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
+            LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
+            int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
+            double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
 
-        int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
-        UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
+            int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
+            UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
 
-        String cpfCnpjUsuario = request.getParameter("usuarioCpfCnpj");
-        Usuario usuario = usuarioDAO.buscarPorCpfCnpj(cpfCnpjUsuario);
+            String cpfCnpjUsuario = request.getParameter("usuarioCpfCnpj");
+            Usuario usuario = usuarioDAO.buscarPorCpfCnpj(cpfCnpjUsuario);
 
-        if (unidade == null || usuario == null) {
-            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-            return;
+            if (unidade == null || usuario == null) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "Dados inválidos: unidade ou usuário não encontrado.");
+                response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + id);
+                return;
+            }
+
+            // Validar datas
+            if (vigenciaFim.isBefore(vigenciaInicio)) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "A data de fim deve ser posterior à data de início.");
+                response.sendRedirect(request.getContextPath() + "/ContratoController?action=formEditar&id=" + id);
+                return;
+            }
+
+            // Validar quantidade mínima
+            if (qtdContratada < unidade.getQuantidadeMinimaAceita()) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "Quantidade contratada deve ser no mínimo " + unidade.getQuantidadeMinimaAceita() + " kWh.");
+                response.sendRedirect(request.getContextPath() + "/ContratoController?action=formEditar&id=" + id);
+                return;
+            }
+
+            Contrato contrato = new Contrato();
+            contrato.setId(id);
+            contrato.setVigenciaInicio(vigenciaInicio);
+            contrato.setVigenciaFim(vigenciaFim);
+            contrato.setReajustePeriodico(reajustePeriodico);
+            contrato.setQuantidadeContratada(qtdContratada);
+            contrato.setUnidadeGeradora(unidade);
+            contrato.setUsuario(usuario);
+
+            contratoDAO.atualizar(contrato);
+
+            HistoricoContrato historico = new HistoricoContrato(
+                LocalDateTime.now(),
+                "Alteração do contrato",
+                "Contrato atualizado. Quantidade: " + qtdContratada + " kWh",
+                TipoHistorico.ALTERACAO_CONTRATUAL,
+                contrato
+            );
+            historicoContratoDAO.cadastrar(historico);
+
+            request.getSession().setAttribute("mensagemSucesso", 
+                "Contrato atualizado com sucesso!");
+
+            response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + id);
+
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Dados numéricos inválidos fornecidos.");
+            String contratoId = request.getParameter("id");
+            response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + contratoId);
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro ao atualizar contrato: " + e.getMessage());
+            String contratoId = request.getParameter("id");
+            response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + contratoId);
         }
-
-        Contrato contrato = new Contrato();
-        contrato.setId(id);
-        contrato.setVigenciaInicio(vigenciaInicio);
-        contrato.setVigenciaFim(vigenciaFim);
-        contrato.setReajustePeriodico(reajustePeriodico);
-       
-        contrato.setQuantidadeContratada(qtdContratada);
-        contrato.setUnidadeGeradora(unidade);
-        contrato.setUsuario(usuario);
-
-        contratoDAO.atualizar(contrato);
-
-        HistoricoContrato historico = new HistoricoContrato(
-            LocalDateTime.now(),
-            "Alteração do contrato",
-            "Contrato atualizado. Quantidade: " + qtdContratada,
-            TipoHistorico.ALTERACAO_CONTRATUAL,
-            contrato
-        );
-        historicoContratoDAO.cadastrar(historico);
-
-        response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + id);
     }
 
     private void deletarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        contratoDAO.excluir(id);
-        response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            
+            // Buscar o contrato antes de excluir para pegar informações
+            Contrato contrato = contratoDAO.buscarPorId(id);
+            if (contrato == null) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "Contrato não encontrado (ID: " + id + ").");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            String localizacaoUnidade = contrato.getUnidadeGeradora() != null ? 
+                contrato.getUnidadeGeradora().getLocalizacao() : "N/A";
+
+            contratoDAO.excluir(id);
+
+            request.getSession().setAttribute("mensagemSucesso", 
+                "Contrato cancelado com sucesso! (ID: " + id + " - " + localizacaoUnidade + ")");
+
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "ID do contrato inválido.");
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro ao cancelar contrato: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+        }
     }
 
     private void buscarPorId(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
-        String idStr = request.getParameter("id");
-        if (idStr == null || idStr.isEmpty()) {
+        try {
+            String idStr = request.getParameter("id");
+            if (idStr == null || idStr.isEmpty()) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "ID do contrato não informado.");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            int id = Integer.parseInt(idStr);
+            Contrato contrato = contratoDAO.buscarPorId(id);
+            if (contrato == null) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "Contrato não encontrado (ID: " + id + ").");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            List<Documento> listaDocumentos = documentoDAO.listarPorContrato(id);
+            List<HistoricoContrato> listaHistoricos = historicoContratoDAO.listarPorContrato(id);
+
+            request.setAttribute("contrato", contrato);
+            request.setAttribute("listaDocumentos", listaDocumentos);
+            request.setAttribute("listaHistoricos", listaHistoricos);
+
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/contrato/detalhesContrato.jsp");
+            dispatcher.forward(request, response);
+
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "ID do contrato inválido.");
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-            return;
-        }
-
-        int id = Integer.parseInt(idStr);
-        Contrato contrato = contratoDAO.buscarPorId(id);
-        if (contrato == null) {
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro ao buscar detalhes do contrato: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-            return;
         }
-
-        List<Documento> listaDocumentos = documentoDAO.listarPorContrato(id);
-        List<HistoricoContrato> listaHistoricos = historicoContratoDAO.listarPorContrato(id);
-
-        request.setAttribute("contrato", contrato);
-        request.setAttribute("listaDocumentos", listaDocumentos);
-        request.setAttribute("listaHistoricos", listaHistoricos);
-
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/contrato/detalhesContrato.jsp");
-        dispatcher.forward(request, response);
     }
 
     private void listarPorUsuario(HttpServletRequest request, HttpServletResponse response, String cpfCnpj) throws SQLException, ServletException, IOException {
-        List<Contrato> lista = contratoDAO.listarPorUsuario(cpfCnpj);
-        if (!lista.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + lista.get(0).getId());
-        } else {
+        try {
+            List<Contrato> lista = contratoDAO.listarPorUsuario(cpfCnpj);
+            if (!lista.isEmpty()) {
+                request.getSession().setAttribute("mensagemInfo", 
+                    "Encontrado(s) " + lista.size() + " contrato(s) para este usuário.");
+                response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + lista.get(0).getId());
+            } else {
+                request.getSession().setAttribute("mensagemInfo", 
+                    "Nenhum contrato encontrado para o usuário " + cpfCnpj + ".");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            }
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro ao buscar contratos do usuário: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
     }
 
     private void listarPorUnidade(HttpServletRequest request, HttpServletResponse response, int idUnidade) throws SQLException, ServletException, IOException {
-        List<Contrato> lista = contratoDAO.listarPorUnidade(idUnidade);
-        if (!lista.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + lista.get(0).getId());
-        } else {
+        try {
+            List<Contrato> lista = contratoDAO.listarPorUnidade(idUnidade);
+            if (!lista.isEmpty()) {
+                request.getSession().setAttribute("mensagemInfo", 
+                    "Encontrado(s) " + lista.size() + " contrato(s) para esta unidade.");
+                response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + lista.get(0).getId());
+            } else {
+                request.getSession().setAttribute("mensagemInfo", 
+                    "Nenhum contrato encontrado para a unidade ID " + idUnidade + ".");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            }
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro ao buscar contratos da unidade: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
     }
 
     private void listarPorDono(HttpServletRequest request, HttpServletResponse response, String cpfCnpjDono)
             throws SQLException, ServletException, IOException {
-        List<Contrato> lista = contratoDAO.listarPorDonoGeradora(cpfCnpjDono);
-        request.setAttribute("contratosDono", lista);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/usuario/dashboard.jsp");
-        dispatcher.forward(request, response);
+        try {
+            if (cpfCnpjDono == null || cpfCnpjDono.trim().isEmpty()) {
+                request.getSession().setAttribute("mensagemErro", 
+                    "CPF/CNPJ do dono não informado.");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            List<Contrato> lista = contratoDAO.listarPorDonoGeradora(cpfCnpjDono);
+            request.setAttribute("contratosDono", lista);
+            
+            if (lista.isEmpty()) {
+                request.getSession().setAttribute("mensagemInfo", 
+                    "Nenhum contrato encontrado para suas unidades geradoras.");
+            } else {
+                request.getSession().setAttribute("mensagemSucesso", 
+                    "Encontrado(s) " + lista.size() + " contrato(s) para suas unidades.");
+            }
+
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/usuario/dashboard.jsp");
+            dispatcher.forward(request, response);
+
+        } catch (Exception e) {
+            request.getSession().setAttribute("mensagemErro", 
+                "Erro ao buscar contratos do dono: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+        }
     }
 }

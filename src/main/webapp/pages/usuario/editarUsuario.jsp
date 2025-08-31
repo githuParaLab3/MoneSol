@@ -101,6 +101,9 @@
 </head>
 <body>
 
+	<jsp:include page="/pages/outros/mensagens.jsp" />
+
+
 <main aria-label="Editar dados do usuário logado">
     <h1>
         <a href="<%= request.getContextPath() %>/pages/usuario/dashboard.jsp" class="btn-back" aria-label="Voltar para o dashboard">

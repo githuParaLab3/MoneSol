@@ -132,6 +132,8 @@
     </style>
 </head>
 <body>
+	<jsp:include page="/pages/outros/mensagens.jsp" />
+
 <div class="container">
     <a href="<%= request.getContextPath() %>/ContratoController?id=<%= contrato.getId() %>" 
        class="btn-voltar" aria-label="Voltar">&larr; Voltar</a>

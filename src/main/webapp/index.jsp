@@ -325,6 +325,8 @@
 
 <main>
 
+<jsp:include page="/pages/outros/mensagens.jsp" />
+
 <% if (usuarioLogado != null) { %>
 
     <section class="hero" role="banner" aria-label="Área do usuário logado">
