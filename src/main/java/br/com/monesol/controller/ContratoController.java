@@ -49,22 +49,40 @@ public class ContratoController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            String idStr = request.getParameter("id");
-            if (idStr != null && !idStr.isEmpty()) {
-                buscarPorId(request, response);
-                return;
+            String action = request.getParameter("action");
+            
+            if (action == null) {
+                action = "buscar";
             }
+            
+            switch (action) {
+                case "buscar":
+                    String idStr = request.getParameter("id");
+                    if (idStr != null && !idStr.isEmpty()) {
+                        buscarPorId(request, response);
+                    } else {
+                        String cpfCnpj = request.getParameter("usuarioCpfCnpj");
+                        String idUnidadeStr = request.getParameter("unidadeGeradoraId");
 
-            String cpfCnpj = request.getParameter("usuarioCpfCnpj");
-            String idUnidadeStr = request.getParameter("unidadeGeradoraId");
-
-            if (cpfCnpj != null && !cpfCnpj.isEmpty()) {
-                listarPorUsuario(request, response, cpfCnpj);
-            } else if (idUnidadeStr != null && !idUnidadeStr.isEmpty()) {
-                int idUnidade = Integer.parseInt(idUnidadeStr);
-                listarPorUnidade(request, response, idUnidade);
-            } else {
-                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                        if (cpfCnpj != null && !cpfCnpj.isEmpty()) {
+                            listarPorUsuario(request, response, cpfCnpj);
+                        } else if (idUnidadeStr != null && !idUnidadeStr.isEmpty()) {
+                            int idUnidade = Integer.parseInt(idUnidadeStr);
+                            listarPorUnidade(request, response, idUnidade);
+                        } else {
+                            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                        }
+                    }
+                    break;
+                case "formCadastrar":
+                    mostrarFormCadastro(request, response);
+                    break;
+                case "formEditar":
+                    mostrarFormEdicao(request, response);
+                    break;
+                default:
+                    response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                    break;
             }
         } catch (Exception e) {
             throw new ServletException(e);
@@ -116,6 +134,53 @@ public class ContratoController extends HttpServlet {
         } catch (Exception e) {
             throw new ServletException(e);
         }
+    }
+
+    private void mostrarFormCadastro(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
+        String unidadeIdStr = request.getParameter("unidadeGeradoraId");
+        if (unidadeIdStr == null || unidadeIdStr.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            return;
+        }
+
+        int unidadeId = Integer.parseInt(unidadeIdStr);
+        UnidadeGeradora unidade = unidadeDAO.buscarPorId(unidadeId);
+        
+        if (unidade == null) {
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            return;
+        }
+
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataFim = hoje.plusMonths(12);
+        
+        request.setAttribute("unidade", unidade);
+        request.setAttribute("dataInicio", hoje);
+        request.setAttribute("dataFim", dataFim);
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/contrato/cadastrarContrato.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    private void mostrarFormEdicao(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
+        String contratoIdStr = request.getParameter("id");
+        if (contratoIdStr == null || contratoIdStr.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            return;
+        }
+
+        int contratoId = Integer.parseInt(contratoIdStr);
+        Contrato contrato = contratoDAO.buscarPorId(contratoId);
+
+        if (contrato == null) {
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            return;
+        }
+
+        request.setAttribute("contrato", contrato);
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/contrato/editarContrato.jsp");
+        dispatcher.forward(request, response);
     }
 
     private void adicionarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {

@@ -1,12 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ page import="br.com.monesol.model.*" %>
-<%@ page import="br.com.monesol.dao.ContratoDAO" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="javax.servlet.http.HttpSession" %>
 
-<%@ page import="br.com.monesol.model.*" %>
-<%@ page import="br.com.monesol.dao.ContratoDAO" %>
-<%@ page import="javax.servlet.http.HttpSession" %>
 <%
     HttpSession sessao = request.getSession(false);
     Usuario usuarioLogado = (sessao != null) ? (Usuario) sessao.getAttribute("usuarioLogado") : null;
@@ -15,25 +11,20 @@
         return;
     }
 
-    String contratoIdStr = request.getParameter("id");
-    if (contratoIdStr == null || contratoIdStr.isEmpty()) {
-        out.println("<p>Contrato não encontrado.</p>");
-        return;
-    }
-
-    int contratoId = Integer.parseInt(contratoIdStr);
-    ContratoDAO contratoDAO = new ContratoDAO();
-    Contrato contrato = contratoDAO.buscarPorId(contratoId);
-
-    if (contrato == null) {
-        out.println("<p>Contrato não encontrado.</p>");
-        return;
-    }
+    Contrato contrato = (Contrato) request.getAttribute("contrato");
     
+    if (contrato == null) {
+        String contratoIdStr = request.getParameter("id");
+        if (contratoIdStr != null && !contratoIdStr.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/ContratoController?action=formEditar&id=" + contratoIdStr);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+        }
+        return;
+    }
 
-	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 %>
-
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -52,34 +43,98 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #212121;
         }
-        h1 { text-align:center; margin-bottom: 25px; font-weight:900; }
-        label { font-weight:700; margin-bottom:4px; display:block; }
+        
+        .btn-voltar {
+            display: inline-block;
+            background: transparent;
+            color: #d49f00;
+            border: 2px solid #d49f00;
+            border-radius: 30px;
+            padding: 10px 22px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            user-select: none;
+            margin-bottom: 20px;
+        }
+        
+        .btn-voltar:hover {
+            background-color: #d49f00;
+            color: #212121;
+            text-decoration: none;
+        }
+        
+        h1 { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            font-weight: 900; 
+        }
+        
+        label { 
+            font-weight: 700; 
+            margin-bottom: 4px; 
+            display: block; 
+        }
+        
         input[type="text"], input[type="number"], input[type="date"], select, textarea {
             width: 100%;
             padding: 10px;
             border: 1.8px solid #f7c600;
-            border-radius:8px;
-            margin-bottom:15px;
-            font-family:inherit;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: inherit;
+            background-color: #f9f6d8;
+            color: #212121;
+            transition: border-color 0.3s ease;
         }
-        textarea { min-height:70px; resize: vertical; }
+        
+        input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, textarea:focus {
+            outline: none;
+            border-color: #d49f00;
+            background-color: #fffde7;
+        }
+        
+        input[disabled] {
+            background-color: #e0e0e0;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
+        textarea { 
+            min-height: 70px; 
+            resize: vertical; 
+        }
+        
         button[type="submit"] {
-            background:#212121;
-            color:#ffd600;
-            padding:12px;
-            border:none;
-            border-radius:30px;
-            font-weight:700;
-            cursor:pointer;
-            width:100%;
-            font-size:1rem;
+            background: #212121;
+            color: #ffd600;
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
         }
-        button[type="submit"]:hover { background:#000; }
+        
+        button[type="submit"]:hover { 
+            background: #000; 
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                margin: 20px 15px;
+                padding: 25px 20px;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="container">
-	<button type="button" class="btn-voltar" aria-label="Voltar" onclick="window.history.back();">&larr; Voltar</button>
+    <a href="<%= request.getContextPath() %>/ContratoController?id=<%= contrato.getId() %>" 
+       class="btn-voltar" aria-label="Voltar">&larr; Voltar</a>
 
     <h1>Editar Contrato - ID: <%= contrato.getId() %></h1>
 
@@ -92,7 +147,7 @@
         <input type="hidden" name="usuarioCpfCnpj" value="<%= contrato.getUsuario() != null ? contrato.getUsuario().getCpfCnpj() : "" %>" />
 
         <label>Unidade Geradora:</label>
-        <input type="text" value="<%= contrato.getUnidadeGeradora() != null ? contrato.getUnidadeGeradora().getLocalizacao() : "-" %>" disabled />
+        <input type="text" value="<%= contrato.getUnidadeGeradora() != null ? contrato.getUnidadeGeradora().getLocalizacao() + " (ID: " + contrato.getUnidadeGeradora().getId() + ")" : "-" %>" disabled />
         <input type="hidden" name="unidadeGeradoraId" value="<%= contrato.getUnidadeGeradora() != null ? contrato.getUnidadeGeradora().getId() : "" %>" />
 
         <label for="vigenciaInicio">Vigência Início:</label>
@@ -110,7 +165,6 @@
         <label for="quantidadeContratada">Quantidade Contratada (kWh):</label>
         <input type="number" id="quantidadeContratada" name="quantidadeContratada"
                step="0.01" min="0.01" value="<%= contrato.getQuantidadeContratada() %>" required />
-
 
         <button type="submit">Salvar Alterações</button>
     </form>

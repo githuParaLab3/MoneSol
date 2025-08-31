@@ -5,16 +5,26 @@
 
 <%
     Contrato contrato = (Contrato) request.getAttribute("contrato");
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    DateTimeFormatter dtfHora = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
     List<Documento> listaDocumentos = (List<Documento>) request.getAttribute("listaDocumentos");
     List<HistoricoContrato> listaHistoricos = (List<HistoricoContrato>) request.getAttribute("listaHistoricos");
+    
+    if (contrato == null) {
+        response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+        return;
+    }
+    
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    DateTimeFormatter dtfHora = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     Usuario usuario = null;
     HttpSession sessao = request.getSession(false);
     if (sessao != null) {
         usuario = (Usuario) sessao.getAttribute("usuarioLogado");
+    }
+    
+    if (usuario == null) {
+        response.sendRedirect(request.getContextPath() + "/pages/login.jsp");
+        return;
     }
 %>
 
@@ -229,6 +239,10 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 				Contrato</button>
 		</form>
 
+		<% if (usuario.getTipo() == Usuario.TipoUsuario.DONO_GERADORA) { %>
+		<a href="<%= request.getContextPath() %>/ContratoController?action=formEditar&id=<%= contrato.getId() %>"
+			class="btn">Editar Contrato</a>
+		<% } %>
 
 		<div class="card">
 			<div class="info">

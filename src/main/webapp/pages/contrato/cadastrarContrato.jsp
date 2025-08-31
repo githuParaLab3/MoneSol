@@ -1,50 +1,39 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
-<%@ page import="br.com.monesol.dao.UnidadeGeradoraDAO"%>
 <%@ page import="br.com.monesol.model.UnidadeGeradora"%>
 <%@ page import="br.com.monesol.model.Usuario"%>
 <%@ page import="javax.servlet.http.HttpSession"%>
 <%@ page import="java.time.LocalDate"%>
+<%@ page import="java.time.format.DateTimeFormatter"%>
 
 <%
-    
     HttpSession sessionCadastrarContrato = request.getSession(false);
     Usuario usuarioLogado = (sessionCadastrarContrato != null) ? (Usuario) sessionCadastrarContrato.getAttribute("usuarioLogado") : null;
     if (usuarioLogado == null) {
-     response.sendRedirect("../login.jsp");
-     return;
+        response.sendRedirect("../login.jsp");
+        return;
     }
     String cpfCnpj = usuarioLogado.getCpfCnpj();
-
 
     if (cpfCnpj == null) {
         response.sendRedirect("../login.jsp"); 
         return;
     }
 
-    String unidadeIdStr = request.getParameter("unidadeGeradoraId");
-    if (unidadeIdStr == null || unidadeIdStr.isEmpty()) {
-        out.println("<p>Unidade Geradora não informada.</p>");
-        return;
-    }
-
-    int unidadeId = Integer.parseInt(unidadeIdStr);
-    UnidadeGeradoraDAO unidadeDAO = new UnidadeGeradoraDAO();
-    UnidadeGeradora unidade = null;
-    try {
-        unidade = unidadeDAO.buscarPorId(unidadeId);
-    } catch (Exception e) {
-        out.println("<p>Erro ao buscar unidade geradora: " + e.getMessage() + "</p>");
-        return;
-    }
-
+    UnidadeGeradora unidade = (UnidadeGeradora) request.getAttribute("unidade");
+    LocalDate dataInicio = (LocalDate) request.getAttribute("dataInicio");
+    LocalDate dataFim = (LocalDate) request.getAttribute("dataFim");
+    
     if (unidade == null) {
-        out.println("<p>Unidade Geradora não encontrada.</p>");
+        String unidadeIdStr = request.getParameter("unidadeGeradoraId");
+        if (unidadeIdStr != null && !unidadeIdStr.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/ContratoController?action=formCadastrar&unidadeGeradoraId=" + unidadeIdStr);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+        }
         return;
     }
 
-   
-    LocalDate hoje = LocalDate.now();
-    LocalDate dataFim = hoje.plusMonths(12); 
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 %>
 
 <!DOCTYPE html>
@@ -168,21 +157,27 @@ button[type="submit"]:hover {
 
 		<form action="<%=request.getContextPath()%>/ContratoController"
 			method="post">
-			<input type="hidden" name="action" value="adicionar" /> <input
-				type="hidden" name="unidadeGeradoraId"
-				value="<%= unidade.getId() %>" /> <input type="hidden"
-				name="usuarioCpfCnpj" value="<%= cpfCnpj %>" /> <label
-				for="vigenciaInicio">Vigência Início:</label> <input type="date"
-				id="vigenciaInicio" name="vigenciaInicio" value="<%= hoje %>"
-				required /> <label for="vigenciaFim">Vigência Fim:</label> <input
-				type="date" id="vigenciaFim" name="vigenciaFim"
-				value="<%= dataFim %>" required /> <label for="reajustePeriodico">Reajuste
-				Periódico (meses):</label> <input type="number" id="reajustePeriodico"
-				name="reajustePeriodico" min="1" value="12" required /> <label
-				for="quantidadeContratada">Quantidade Contratada (kWh):</label> <input
-				type="number" id="quantidadeContratada" name="quantidadeContratada"
-				step="0.01" min="<%= unidade.getQuantidadeMinimaAceita() %>"
-				required /> <small style="color: #555; font-size: 0.9rem;">
+			<input type="hidden" name="action" value="adicionar" /> 
+			<input type="hidden" name="unidadeGeradoraId" value="<%= unidade.getId() %>" /> 
+			<input type="hidden" name="usuarioCpfCnpj" value="<%= cpfCnpj %>" /> 
+			
+			<label for="vigenciaInicio">Vigência Início:</label> 
+			<input type="date" id="vigenciaInicio" name="vigenciaInicio" 
+			       value="<%= formatter.format(dataInicio) %>" required /> 
+			
+			<label for="vigenciaFim">Vigência Fim:</label> 
+			<input type="date" id="vigenciaFim" name="vigenciaFim"
+				   value="<%= formatter.format(dataFim) %>" required /> 
+			
+			<label for="reajustePeriodico">Reajuste Periódico (meses):</label> 
+			<input type="number" id="reajustePeriodico" name="reajustePeriodico" 
+			       min="1" value="12" required /> 
+			
+			<label for="quantidadeContratada">Quantidade Contratada (kWh):</label> 
+			<input type="number" id="quantidadeContratada" name="quantidadeContratada"
+				   step="0.01" min="<%= unidade.getQuantidadeMinimaAceita() %>" required /> 
+			
+			<small style="color: #555; font-size: 0.9rem;">
 				Mínimo aceito: <%= unidade.getQuantidadeMinimaAceita() %> kWh
 			</small>
 
