@@ -66,7 +66,6 @@
             box-shadow: 0 6px 22px rgba(247, 198, 0, 0.28);
             margin-bottom: 40px;
         }
-        /* Responsividade */
         @media (max-width: 700px) {
             main {
                 margin: 30px 15px 60px;

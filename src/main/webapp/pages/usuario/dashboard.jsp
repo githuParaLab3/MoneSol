@@ -30,7 +30,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dashboard - MoneSol</title>
 <style>
-/* Mantém todo o CSS que você já tinha */
 :root { --yellow:#ffd600; --dark:#212121; --bg:#fffde7; --radius:12px; }
 * { box-sizing:border-box; }
 body { background: var(--bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; color:#333;}
@@ -60,7 +59,6 @@ h2 { margin:0 0 15px; font-size:1.5rem; color:var(--dark); border-bottom:2px sol
 
 <div class="container">
 
-    <!-- Dados do Usuário -->
     <div class="section" aria-label="Informações do usuário">
         <h2>Meus Dados</h2>
         <p><strong>Nome:</strong> <%= usuario.getNome() %></p>

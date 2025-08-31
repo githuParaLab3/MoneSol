@@ -10,7 +10,7 @@ import java.util.List;
 public class UnidadeGeradoraDAO {
 
     public void cadastrar(UnidadeGeradora unidade) throws SQLException {
-        String sql = "INSERT INTO UnidadeGeradora (localizacao, potenciaInstalada, eficienciaMedia, usuario, precoPorKWh, quantidadeMinimaAceita) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO UnidadeGeradora (localizacao, potenciaInstalada, eficienciaMedia, usuario, precoPorKWh, quantidadeMinimaAceita, regraDeExcecoes) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -21,6 +21,7 @@ public class UnidadeGeradoraDAO {
             stmt.setString(4, unidade.getCpfCnpjUsuario());
             stmt.setDouble(5, unidade.getPrecoPorKWh());
             stmt.setDouble(6, unidade.getQuantidadeMinimaAceita());
+            stmt.setString(7, unidade.getRegraDeExcecoes());
 
             stmt.executeUpdate();
 
@@ -41,8 +42,7 @@ public class UnidadeGeradoraDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                UnidadeGeradora unidade = mapResultSet(rs);
-                return unidade;
+                return mapResultSet(rs);
             }
         }
         return null;
@@ -98,7 +98,7 @@ public class UnidadeGeradoraDAO {
     }
 
     public void atualizar(UnidadeGeradora unidade) throws SQLException {
-        String sql = "UPDATE UnidadeGeradora SET localizacao = ?, potenciaInstalada = ?, eficienciaMedia = ?, usuario = ?, precoPorKWh = ?, quantidadeMinimaAceita = ? WHERE id = ?";
+        String sql = "UPDATE UnidadeGeradora SET localizacao = ?, potenciaInstalada = ?, eficienciaMedia = ?, usuario = ?, precoPorKWh = ?, quantidadeMinimaAceita = ?, regraDeExcecoes = ? WHERE id = ?";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -109,7 +109,8 @@ public class UnidadeGeradoraDAO {
             stmt.setString(4, unidade.getCpfCnpjUsuario());
             stmt.setDouble(5, unidade.getPrecoPorKWh());
             stmt.setDouble(6, unidade.getQuantidadeMinimaAceita());
-            stmt.setInt(7, unidade.getId());
+            stmt.setString(7, unidade.getRegraDeExcecoes());
+            stmt.setInt(8, unidade.getId());
 
             stmt.executeUpdate();
         }
@@ -135,6 +136,7 @@ public class UnidadeGeradoraDAO {
         unidade.setCpfCnpjUsuario(rs.getString("usuario"));
         unidade.setPrecoPorKWh(rs.getDouble("precoPorKWh"));
         unidade.setQuantidadeMinimaAceita(rs.getDouble("quantidadeMinimaAceita"));
+        unidade.setRegraDeExcecoes(rs.getString("regraDeExcecoes"));
         return unidade;
     }
 }

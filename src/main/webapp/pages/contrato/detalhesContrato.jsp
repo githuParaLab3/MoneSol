@@ -249,13 +249,6 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 					class="info-value"><%= contrato.getQuantidadeContratada() + " kWh" %></span>
 			</div>
 			<div class="info">
-				<span class="info-label">Regras e Exceções:</span><span
-					class="info-value"><%= contrato.getRegrasExcecoes() != null ? contrato.getRegrasExcecoes() : "-" %></span>
-			</div>
-			<div class="info">
-				<span class="info-label">Observações:</span><span class="info-value"><%= contrato.getObservacoes() != null ? contrato.getObservacoes() : "-" %></span>
-			</div>
-			<div class="info">
 				<span class="info-label">CPF/CNPJ Usuário:</span><span
 					class="info-value"><%= contrato.getUsuario() != null ? contrato.getUsuario().getCpfCnpj() : "-" %></span>
 			</div>

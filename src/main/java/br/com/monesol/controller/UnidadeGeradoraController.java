@@ -54,8 +54,6 @@ public class UnidadeGeradoraController extends HttpServlet {
         }
     }
 
-
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
@@ -100,6 +98,7 @@ public class UnidadeGeradoraController extends HttpServlet {
         double eficiencia = Double.parseDouble(request.getParameter("eficienciaMedia"));
         double precoPorKWh = Double.parseDouble(request.getParameter("precoPorKWh"));
         double quantidadeMinima = Double.parseDouble(request.getParameter("quantidadeMinimaAceita"));
+        String regra = request.getParameter("regraDeExcecoes"); // <<< novo campo
 
         UnidadeGeradora unidade = new UnidadeGeradora();
         unidade.setLocalizacao(localizacao);
@@ -107,6 +106,7 @@ public class UnidadeGeradoraController extends HttpServlet {
         unidade.setEficienciaMedia(eficiencia);
         unidade.setPrecoPorKWh(precoPorKWh);
         unidade.setQuantidadeMinimaAceita(quantidadeMinima);
+        unidade.setRegraDeExcecoes(regra);
 
         if (usuario.getTipo() == TipoUsuario.DONO_GERADORA) {
             unidade.setCpfCnpjUsuario(usuario.getCpfCnpj());
@@ -129,7 +129,6 @@ public class UnidadeGeradoraController extends HttpServlet {
 
         response.sendRedirect(request.getContextPath() 
                 + "/UnidadeGeradoraController?action=buscarPorId&id=" + unidade.getId());
-
     }
 
     private void editarUnidade(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
@@ -145,6 +144,7 @@ public class UnidadeGeradoraController extends HttpServlet {
         double eficiencia = Double.parseDouble(request.getParameter("eficienciaMedia"));
         double precoPorKWh = Double.parseDouble(request.getParameter("precoPorKWh"));
         double quantidadeMinima = Double.parseDouble(request.getParameter("quantidadeMinimaAceita"));
+        String regra = request.getParameter("regraDeExcecoes"); // <<< novo campo
 
         UnidadeGeradora existente = unidadeDAO.buscarPorId(id);
         if (existente == null) {
@@ -162,6 +162,7 @@ public class UnidadeGeradoraController extends HttpServlet {
         existente.setEficienciaMedia(eficiencia);
         existente.setPrecoPorKWh(precoPorKWh);
         existente.setQuantidadeMinimaAceita(quantidadeMinima);
+        existente.setRegraDeExcecoes(regra);
 
         if (usuario.getTipo() == TipoUsuario.ADMIN) {
             String novoDono = request.getParameter("usuario");
@@ -174,7 +175,6 @@ public class UnidadeGeradoraController extends HttpServlet {
 
         response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + id);
     }
-
 
     private void deletarUnidade(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         Usuario usuario = getUsuarioLogado(request);
@@ -265,14 +265,8 @@ public class UnidadeGeradoraController extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher("pages/unidadeGeradora/detalhesUnidade.jsp");
         dispatcher.forward(request, response);
     }
-    
-    private void detalhesPublicos(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
-        Usuario usuario = getUsuarioLogado(request);
-        if (usuario == null) {
-            response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
-            return;
-        }
 
+    private void detalhesPublicos(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         UnidadeGeradora unidade = unidadeDAO.buscarPorId(id);
 
@@ -280,8 +274,6 @@ public class UnidadeGeradoraController extends HttpServlet {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Unidade Geradora não encontrada para ID: " + id);
             return;
         }
-
-        
 
         request.setAttribute("unidade", unidade);
         RequestDispatcher dispatcher = request.getRequestDispatcher("pages/unidadeGeradora/detalhesUnidadePublica.jsp");

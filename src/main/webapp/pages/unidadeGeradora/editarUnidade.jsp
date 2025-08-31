@@ -145,6 +145,10 @@ main h1 {
 
         <label for="quantidadeMinimaAceita">Quantidade Mínima Aceita (kWh)</label>
         <input type="number" id="quantidadeMinimaAceita" name="quantidadeMinimaAceita" step="0.01" min="0" value="<%= unidade.getQuantidadeMinimaAceita() %>" />
+		
+		<label for="regraDeExcecoes">Regra de Exceções</label>
+		<input type="text" id="regraDeExcecoes" name="regraDeExcecoes" value="<%= unidade.getRegraDeExcecoes() != null ? unidade.getRegraDeExcecoes() : "" %>"
+       placeholder="Ex: Se meta não batida, enviar alerta" />
 
         <button type="submit">Salvar Alterações</button>
     </form>

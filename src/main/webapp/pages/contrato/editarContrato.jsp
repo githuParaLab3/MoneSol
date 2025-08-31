@@ -111,11 +111,6 @@
         <input type="number" id="quantidadeContratada" name="quantidadeContratada"
                step="0.01" min="0.01" value="<%= contrato.getQuantidadeContratada() %>" required />
 
-        <label for="regrasExcecoes">Regras e Exceções:</label>
-        <textarea id="regrasExcecoes" name="regrasExcecoes" maxlength="500"><%= contrato.getRegrasExcecoes() != null ? contrato.getRegrasExcecoes() : "" %></textarea>
-
-        <label for="observacoes">Observações:</label>
-        <textarea id="observacoes" name="observacoes" maxlength="500"><%= contrato.getObservacoes() != null ? contrato.getObservacoes() : "" %></textarea>
 
         <button type="submit">Salvar Alterações</button>
     </form>

@@ -73,7 +73,7 @@ public class MedicaoDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                UnidadeGeradora unidade = new UnidadeGeradora("", 0.0, 0.0,"", 0.0, 0.0); 
+                UnidadeGeradora unidade = new UnidadeGeradora("", 0.0, 0.0,"", 0.0, 0.0,""); 
                 unidade.setId(idUnidade);
 
                 Medicao medicao = new Medicao(

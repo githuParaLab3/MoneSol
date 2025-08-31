@@ -122,8 +122,7 @@ public class ContratoController extends HttpServlet {
         LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
         LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
         int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
-        String observacoes = request.getParameter("observacoes");
-        String regrasExcecoes = request.getParameter("regrasExcecoes");
+      
         double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
 
         int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
@@ -148,8 +147,7 @@ public class ContratoController extends HttpServlet {
         contrato.setVigenciaInicio(vigenciaInicio);
         contrato.setVigenciaFim(vigenciaFim);
         contrato.setReajustePeriodico(reajustePeriodico);
-        contrato.setObservacoes(observacoes);
-        contrato.setRegrasExcecoes(regrasExcecoes);
+     
         contrato.setQuantidadeContratada(qtdContratada);
         contrato.setUnidadeGeradora(unidade);
         contrato.setUsuario(usuario);
@@ -173,8 +171,7 @@ public class ContratoController extends HttpServlet {
         LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
         LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
         int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
-        String observacoes = request.getParameter("observacoes");
-        String regrasExcecoes = request.getParameter("regrasExcecoes");
+ 
         double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
 
         int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
@@ -193,8 +190,7 @@ public class ContratoController extends HttpServlet {
         contrato.setVigenciaInicio(vigenciaInicio);
         contrato.setVigenciaFim(vigenciaFim);
         contrato.setReajustePeriodico(reajustePeriodico);
-        contrato.setObservacoes(observacoes);
-        contrato.setRegrasExcecoes(regrasExcecoes);
+       
         contrato.setQuantidadeContratada(qtdContratada);
         contrato.setUnidadeGeradora(unidade);
         contrato.setUsuario(usuario);

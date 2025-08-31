@@ -132,6 +132,10 @@
             <label for="quantidadeMinimaAceita">Quantidade Mínima Aceita (kWh)</label>
             <input type="number" step="0.01" id="quantidadeMinimaAceita" name="quantidadeMinimaAceita" placeholder="Ex: 100.00" />
             <div class="note">Opcional; deixe em branco se não houver mínimo.</div>
+            
+            <label for="regraDeExcecoes">Regra de Exceções</label>
+            <input type="text" id="regraDeExcecoes" name="regraDeExcecoes" placeholder="Ex: Se meta não batida, desconto de 10%" />
+            <div class="note">Descreva o que será feito caso a meta não seja atingida.</div>
 
             <button type="submit" class="btn-submit">Cadastrar Unidade</button>
         </form>

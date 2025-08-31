@@ -234,6 +234,12 @@ tbody tr:hover {
 					<div class="info-label">Quantidade Mínima Aceita (kWh)</div>
 					<div class="info-value"><%=(unidade.getQuantidadeMinimaAceita() > 0) ? String.format("%.2f", unidade.getQuantidadeMinimaAceita())
 		: "Não definido"%></div>
+					<div class="info-label">Regra de Exceções</div>
+					<div class="info-value">
+						<%=(unidade.getRegraDeExcecoes() != null && !unidade.getRegraDeExcecoes().isBlank()) ? unidade.getRegraDeExcecoes()
+				: "Não definida"%>
+					</div>
+
 				</div>
 				<div class="info">
 					<div class="info-label">Dono da Unidade</div>
@@ -280,7 +286,6 @@ tbody tr:hover {
 		}
 		%>
 
-		<!-- Medições -->
 		<div class="card" aria-labelledby="medicoes-title">
 			<h2 id="medicoes-title">Medições Recentes</h2>
 			<%
@@ -359,7 +364,9 @@ tbody tr:hover {
 
 				</table>
 			</div>
-			<% } %>
+			<%
+			}
+			%>
 		</div>
 	</main>
 </body>

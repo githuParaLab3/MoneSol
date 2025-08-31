@@ -12,7 +12,7 @@ import java.util.List;
 public class ContratoDAO {
 
     public void cadastrar(Contrato contrato) throws SQLException {
-        String sql = "INSERT INTO Contrato (vigenciaInicio, vigenciaFim, reajustePeriodico, observacoes, regrasExcecoes, quantidadeContratada, unidadeGeradora, usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Contrato (vigenciaInicio, vigenciaFim, reajustePeriodico, quantidadeContratada, unidadeGeradora, usuario) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -20,11 +20,9 @@ public class ContratoDAO {
             stmt.setDate(1, Date.valueOf(contrato.getVigenciaInicio()));
             stmt.setDate(2, Date.valueOf(contrato.getVigenciaFim()));
             stmt.setInt(3, contrato.getReajustePeriodico());
-            stmt.setString(4, contrato.getObservacoes());
-            stmt.setString(5, contrato.getRegrasExcecoes());
-            stmt.setDouble(6, contrato.getQuantidadeContratada());
-            stmt.setInt(7, contrato.getUnidadeGeradora().getId());
-            stmt.setString(8, contrato.getUsuario().getCpfCnpj());
+            stmt.setDouble(4, contrato.getQuantidadeContratada());
+            stmt.setInt(5, contrato.getUnidadeGeradora().getId());
+            stmt.setString(6, contrato.getUsuario().getCpfCnpj());
 
             stmt.executeUpdate();
 
@@ -88,7 +86,7 @@ public class ContratoDAO {
     }
 
     public void atualizar(Contrato contrato) throws SQLException {
-        String sql = "UPDATE Contrato SET vigenciaInicio = ?, vigenciaFim = ?, reajustePeriodico = ?, observacoes = ?, regrasExcecoes = ?, quantidadeContratada = ?, unidadeGeradora = ?, usuario = ? WHERE id = ?";
+        String sql = "UPDATE Contrato SET vigenciaInicio = ?, vigenciaFim = ?, reajustePeriodico = ?, quantidadeContratada = ?, unidadeGeradora = ?, usuario = ? WHERE id = ?";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -96,16 +94,15 @@ public class ContratoDAO {
             stmt.setDate(1, Date.valueOf(contrato.getVigenciaInicio()));
             stmt.setDate(2, Date.valueOf(contrato.getVigenciaFim()));
             stmt.setInt(3, contrato.getReajustePeriodico());
-            stmt.setString(4, contrato.getObservacoes());
-            stmt.setString(5, contrato.getRegrasExcecoes());
-            stmt.setDouble(6, contrato.getQuantidadeContratada());
-            stmt.setInt(7, contrato.getUnidadeGeradora().getId());
-            stmt.setString(8, contrato.getUsuario().getCpfCnpj());
-            stmt.setInt(9, contrato.getId());
+            stmt.setDouble(4, contrato.getQuantidadeContratada());
+            stmt.setInt(5, contrato.getUnidadeGeradora().getId());
+            stmt.setString(6, contrato.getUsuario().getCpfCnpj());
+            stmt.setInt(7, contrato.getId()); 
 
             stmt.executeUpdate();
         }
     }
+
 
     public void excluir(int id) throws SQLException {
         String sql = "DELETE FROM Contrato WHERE id = ?";
@@ -118,10 +115,22 @@ public class ContratoDAO {
     }
 
     private Contrato preencherContrato(ResultSet rs) throws SQLException {
-        UnidadeGeradora unidade = new UnidadeGeradora("", 0.0, 0.0, "", 0.0, 0.0);
-        unidade.setId(rs.getInt("unidadeGeradora"));
+        int idUnidade = rs.getInt("unidadeGeradora");
+        
+        UnidadeGeradora unidade = new UnidadeGeradora("", 0.0, 0.0, "", 0.0, 0.0,"");
+        unidade.setId(idUnidade);
 
-        Usuario usuario = new Usuario(null, null, null, null, null, null, null);
+        String sqlUnidade = "SELECT localizacao FROM UnidadeGeradora WHERE id = ?";
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmtUnidade = conn.prepareStatement(sqlUnidade)) {
+            stmtUnidade.setInt(1, idUnidade);
+            ResultSet rsUnidade = stmtUnidade.executeQuery();
+            if (rsUnidade.next()) {
+                unidade.setLocalizacao(rsUnidade.getString("localizacao"));
+            }
+        }
+
+        Usuario usuario = new Usuario(null,null,null,null,null,null,null);
         usuario.setCpfCnpj(rs.getString("usuario"));
 
         Contrato contrato = new Contrato();
@@ -129,14 +138,13 @@ public class ContratoDAO {
         contrato.setVigenciaInicio(rs.getDate("vigenciaInicio").toLocalDate());
         contrato.setVigenciaFim(rs.getDate("vigenciaFim").toLocalDate());
         contrato.setReajustePeriodico(rs.getInt("reajustePeriodico"));
-        contrato.setObservacoes(rs.getString("observacoes"));
-        contrato.setRegrasExcecoes(rs.getString("regrasExcecoes"));
         contrato.setQuantidadeContratada(rs.getDouble("quantidadeContratada"));
         contrato.setUnidadeGeradora(unidade);
         contrato.setUsuario(usuario);
 
         return contrato;
     }
+
 
     public boolean existeContratoUsuarioUnidade(String cpfCnpj, int idUnidade) throws SQLException {
         String sql = "SELECT COUNT(*) FROM Contrato WHERE usuario = ? AND unidadeGeradora = ?";
