@@ -26,6 +26,12 @@
         response.sendRedirect(request.getContextPath() + "/pages/login.jsp");
         return;
     }
+    
+    boolean podeGerenciar = "ADMIN".equalsIgnoreCase(usuario.getTipo().name())
+        || (contrato.getUnidadeGeradora().getCpfCnpjUsuario() != null 
+        && contrato.getUnidadeGeradora().getCpfCnpjUsuario().equals(usuario.getCpfCnpj()));
+        
+    boolean isAdmin = "ADMIN".equalsIgnoreCase(usuario.getTipo().name());
 %>
 
 <!DOCTYPE html>
@@ -146,7 +152,7 @@ h3 {
 	border: 2px solid #212121;
 	background: transparent;
 	margin-top: 10px;
-	margin-bottom: 30px;
+	margin-bottom: 10px;
 }
 
 .btn:hover {
@@ -209,15 +215,6 @@ a.arquivo-link:hover {
 	text-decoration: underline;
 	color: #f7c600;
 }
-
-body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
-	body.pagina-detalhes-contrato .header {
-	padding-top: 8px !important;
-	padding-bottom: 8px !important;
-	margin-bottom: 20px !important;
-	height: auto !important;
-	line-height: normal !important;
-}
 </style>
 </head>
 <body class="pagina-detalhes-contrato">
@@ -226,24 +223,31 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 	<jsp:include page="/pages/usuario/header.jsp" />
 
 	<main aria-label="Detalhes do contrato">
-		<a href="javascript:history.back()"
-			class="btn">&larr; Voltar</a>
+		
+		<% if (usuario != null && "ADMIN".equalsIgnoreCase(usuario.getTipo().name())) { %>
+	        <a href="<%= request.getContextPath() %>/pages/admin/gerenciarContratos.jsp" class="btn">&larr; Voltar</a>
+	    <% } else { %>
+	        <a href="<%= request.getContextPath() %>/pages/usuario/dashboard.jsp" class="btn">&larr; Voltar</a>
+	    <% } %>
+		
 		<h1>Detalhes do Contrato</h1>
+		
+		<% if (isAdmin) { %>
+            <div style="margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap;">
+                <form action="<%= request.getContextPath() %>/ContratoController"
+                    method="post"
+                    onsubmit="return confirm('Deseja realmente cancelar este contrato? Esta ação não pode ser desfeita.');">
+                    <input type="hidden" name="action" value="deletar" /> <input
+                        type="hidden" name="id" value="<%= contrato.getId() %>" />
+                    <button type="submit" class="btn btn-delete">Cancelar
+                        Contrato</button>
+                </form>
 
-		<form action="<%= request.getContextPath() %>/ContratoController"
-			method="post"
-			onsubmit="return confirm('Deseja realmente cancelar este contrato? Esta ação não pode ser desfeita.');"
-			style="margin-bottom: 20px;">
-			<input type="hidden" name="action" value="deletar" /> <input
-				type="hidden" name="id" value="<%= contrato.getId() %>" />
-			<button type="submit" class="btn btn-delete">Cancelar
-				Contrato</button>
-		</form>
+                <a href="<%= request.getContextPath() %>/ContratoController?action=formEditar&id=<%= contrato.getId() %>"
+                    class="btn">Editar Contrato</a>
+            </div>
+        <% } %>
 
-		<% if (usuario.getTipo() == Usuario.TipoUsuario.DONO_GERADORA) { %>
-		<a href="<%= request.getContextPath() %>/ContratoController?action=formEditar&id=<%= contrato.getId() %>"
-			class="btn">Editar Contrato</a>
-		<% } %>
 
 		<div class="card">
 			<div class="info">
@@ -278,7 +282,7 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 		</div>
 
 		<h2>Documentos Associados</h2>
-		<% if (usuario != null && usuario.getTipo() == Usuario.TipoUsuario.DONO_GERADORA) { %>
+		<% if (podeGerenciar) { %>
 		<form
 			action="<%= request.getContextPath() %>/pages/documento/cadastrarDocumento.jsp"
 			method="get" style="margin-bottom: 15px;">
@@ -297,7 +301,7 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 						<th>Descrição</th>
 						<th>Data</th>
 						<th>Arquivo</th>
-						<th>Ações</th>
+						<% if (podeGerenciar) { %><th>Ações</th><% } %>
 					</tr>
 				</thead>
 				<tbody>
@@ -313,8 +317,8 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 							href="<%= request.getContextPath() + "/" + doc.getArquivo() %>"
 							target="_blank" class="btn">Abrir</a> <% } else { %> - <% } %>
 						</td>
+						<% if (podeGerenciar) { %>
 						<td>
-							<% if (usuario != null && usuario.getTipo() == Usuario.TipoUsuario.DONO_GERADORA) { %>
 							<form
 								action="<%= request.getContextPath() %>/pages/documento/editarDocumento.jsp"
 								method="get" style="margin: 0; display: inline;">
@@ -329,8 +333,9 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 									type="hidden" name="id" value="<%= doc.getId() %>" />
 								<button type="submit" class="btn"
 									onclick="return confirm('Deseja realmente deletar este documento?');">Deletar</button>
-							</form> <% } %>
+							</form> 
 						</td>
+						<% } %>
 					</tr>
 					<% } %>
 				</tbody>
@@ -341,7 +346,7 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 		</div>
 
 		<h2>Histórico de Ocorrências</h2>
-		<% if (usuario != null && usuario.getTipo() == Usuario.TipoUsuario.DONO_GERADORA) { %>
+		<% if (podeGerenciar) { %>
 		<form
 			action="<%= request.getContextPath() %>/pages/historicoContrato/cadastrarHistorico.jsp"
 			method="get" style="margin-bottom: 15px;">
@@ -360,7 +365,7 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 						<th>Título</th>
 						<th>Tipo</th>
 						<th>Descrição</th>
-						<th>Ações</th>
+						<% if (podeGerenciar) { %><th>Ações</th><% } %>
 					</tr>
 				</thead>
 				<tbody>
@@ -371,8 +376,8 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 						<td><%= hist.getTitulo() %></td>
 						<td><%= hist.getTipo().name() %></td>
 						<td><%= hist.getDescricao() %></td>
+						<% if (podeGerenciar) { %>
 						<td>
-							<% if (usuario != null && usuario.getTipo() == Usuario.TipoUsuario.DONO_GERADORA) { %>
 							<form
 								action="<%= request.getContextPath() %>/pages/historicoContrato/editarHistorico.jsp"
 								method="get" style="margin: 0; display: inline;">
@@ -388,8 +393,9 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 									type="hidden" name="contratoId" value="<%= contrato.getId() %>" />
 								<button type="submit" class="btn"
 									onclick="return confirm('Deseja realmente deletar esta ocorrência?');">Deletar</button>
-							</form> <% } %>
+							</form>
 						</td>
+						<% } %>
 					</tr>
 					<% } %>
 				</tbody>
@@ -402,3 +408,4 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 	</main>
 </body>
 </html>
+

@@ -1,6 +1,8 @@
 package br.com.monesol.controller;
 
+import br.com.monesol.dao.ContratoDAO;
 import br.com.monesol.dao.UsuarioDAO;
+import br.com.monesol.model.Contrato;
 import br.com.monesol.model.Usuario;
 import br.com.monesol.model.Usuario.TipoUsuario;
 
@@ -8,9 +10,12 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
+
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet("/UsuarioController")
 public class UsuarioController extends HttpServlet {
@@ -52,12 +57,9 @@ public class UsuarioController extends HttpServlet {
                     adminAdicionarUsuario(request, response);
                     break;
                 case "editar":
-                    // A flag 'false' indica que a edição não é feita por um admin
                     editarUsuario(request, response, false);
                     break;
-                // AÇÃO ADICIONADA PARA LIDAR COM A EDIÇÃO DO ADMIN
                 case "adminEditar":
-                    // A flag 'true' indica que a edição é feita por um admin
                     editarUsuario(request, response, true);
                     break;
                 case "deletar":
@@ -89,7 +91,6 @@ public class UsuarioController extends HttpServlet {
     }
 
     private void adminAdicionarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        // ... (o seu código deste método permanece inalterado)
         String cpfCnpjRaw = request.getParameter("cpfCnpj");
         String nome = request.getParameter("nome");
         String email = request.getParameter("email");
@@ -154,61 +155,59 @@ public class UsuarioController extends HttpServlet {
         }
     }
 
-    private void adicionarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        // ... (o seu código deste método permanece inalterado)
-        String cpfCnpjRaw = request.getParameter("cpfCnpj");
+    private void adicionarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
+        
+        String cpfCnpj = request.getParameter("cpfCnpj");
         String nome = request.getParameter("nome");
         String email = request.getParameter("email");
         String senha = request.getParameter("senha");
         String contato = request.getParameter("contato");
         String endereco = request.getParameter("endereco");
         String tipoStr = request.getParameter("tipo");
-        
-        String redirectPathOnError = request.getContextPath() + "/pages/usuario/cadastro.jsp";
+
+        Map<String, String> errors = new HashMap<>();
+        Usuario formData = new Usuario(cpfCnpj, nome, email, "", contato, endereco, null);
+
+        // Validação
+        if (cpfCnpj == null || (cpfCnpj.length() != 11 && cpfCnpj.length() != 14)) {
+            errors.put("cpfCnpj", "CPF deve ter 11 dígitos e CNPJ 14.");
+        } else {
+            if (usuarioDAO.buscarPorCpfCnpj(cpfCnpj) != null) {
+                errors.put("cpfCnpj", "Usuário com este CPF/CNPJ já está cadastrado.");
+            }
+        }
+
+        if (nome == null || nome.trim().split(" ").length < 2) {
+            errors.put("nome", "Nome e sobrenome são obrigatórios.");
+        }
+        if (email == null || !email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            errors.put("email", "Por favor, insira um e-mail válido.");
+        }
+        if (senha == null || senha.length() < 6) {
+            errors.put("senha", "Senha deve ter pelo menos 6 caracteres.");
+        }
+
+        TipoUsuario tipoFinal = null;
+        if (tipoStr == null || tipoStr.isEmpty()) {
+            errors.put("tipo", "Por favor, selecione um tipo de cadastro.");
+        } else {
+            try {
+                tipoFinal = TipoUsuario.valueOf(tipoStr);
+                formData.setTipo(tipoFinal);
+            } catch (IllegalArgumentException e) {
+                errors.put("tipo", "Tipo de usuário inválido.");
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            request.setAttribute("formData", formData);
+            request.setAttribute("errors", errors);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/usuario/cadastro.jsp");
+            dispatcher.forward(request, response);
+            return;
+        }
 
         try {
-            if (cpfCnpjRaw == null || cpfCnpjRaw.trim().isEmpty()) {
-                request.getSession().setAttribute("mensagemErro", "CPF/CNPJ é obrigatório.");
-                response.sendRedirect(redirectPathOnError);
-                return;
-            }
-
-            String cpfCnpj = cpfCnpjRaw.replaceAll("\\D", "");
-            if (cpfCnpj.length() != 11 && cpfCnpj.length() != 14) {
-                request.getSession().setAttribute("mensagemErro", "CPF deve ter 11 dígitos e CNPJ deve ter 14 dígitos.");
-                response.sendRedirect(redirectPathOnError);
-                return;
-            }
-
-            Usuario usuarioExistente = usuarioDAO.buscarPorCpfCnpj(cpfCnpj);
-            if (usuarioExistente != null) {
-                request.getSession().setAttribute("mensagemErro", "Usuário com este CPF/CNPJ já está cadastrado.");
-                response.sendRedirect(redirectPathOnError);
-                return;
-            }
-
-            if (nome == null || nome.trim().isEmpty() || email == null || email.trim().isEmpty() || senha == null || senha.trim().isEmpty()) {
-                request.getSession().setAttribute("mensagemErro", "Nome, email e senha são obrigatórios.");
-                response.sendRedirect(redirectPathOnError);
-                return;
-            }
-            
-            if (senha.length() < 6) {
-                request.getSession().setAttribute("mensagemErro", "Senha deve ter pelo menos 6 caracteres.");
-                response.sendRedirect(redirectPathOnError);
-                return;
-            }
-            
-            TipoUsuario tipoFinal = TipoUsuario.CONSUMIDOR_PARCEIRO; // Padrão
-            if (tipoStr != null) {
-                try {
-                    TipoUsuario tipoTemp = TipoUsuario.valueOf(tipoStr);
-                    if (tipoTemp == TipoUsuario.DONO_GERADORA || tipoTemp == TipoUsuario.CONSUMIDOR_PARCEIRO) {
-                        tipoFinal = tipoTemp;
-                    }
-                } catch (IllegalArgumentException e) { /* Mantém o padrão */ }
-            }
-            
             Usuario novoUsuario = new Usuario(cpfCnpj, nome, email, senha, contato, endereco, tipoFinal);
             usuarioDAO.cadastrar(novoUsuario);
 
@@ -219,11 +218,10 @@ public class UsuarioController extends HttpServlet {
             
         } catch (Exception e) {
             request.getSession().setAttribute("mensagemErro", "Erro ao cadastrar usuário: " + e.getMessage());
-            response.sendRedirect(redirectPathOnError);
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/cadastro.jsp");
         }
     }
     
-    // MÉTODO UNIFICADO E CORRIGIDO
     private void editarUsuario(HttpServletRequest request, HttpServletResponse response, boolean isAdmin) throws SQLException, IOException {
         HttpSession session = request.getSession();
         try {
@@ -263,7 +261,6 @@ public class UsuarioController extends HttpServlet {
 
             usuarioDAO.atualizar(existente);
 
-            // Se o utilizador editou o seu próprio perfil, atualiza a sessão
             Usuario logado = (Usuario) session.getAttribute("usuarioLogado");
             if (logado != null && logado.getCpfCnpj().equals(existente.getCpfCnpj())) {
                 session.setAttribute("usuarioLogado", existente);
@@ -271,7 +268,6 @@ public class UsuarioController extends HttpServlet {
             
             session.setAttribute("mensagemSucesso", "Perfil de " + nome + " atualizado com sucesso!");
             
-            // REDIRECIONAMENTO CORRIGIDO
             if (isAdmin) {
                 response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
             } else {
@@ -286,58 +282,88 @@ public class UsuarioController extends HttpServlet {
 
 
     private void deletarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        // ... (o seu código deste método permanece inalterado)
-        try {
-            String cpfCnpj = request.getParameter("cpfCnpj");
-            if (cpfCnpj == null || cpfCnpj.trim().isEmpty()) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "CPF/CNPJ não informado para exclusão.");
-                response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
-                return;
-            }
+	    HttpSession session = request.getSession(false);
+	    try {
+	        String cpfCnpj = request.getParameter("cpfCnpj");
+	        Usuario logado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
+	
+	        if (logado == null) {
+	            session.setAttribute("mensagemErro", "Sessão inválida. Por favor, faça login novamente.");
+	            response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
+	            return;
+	        }
+	
+	        if (cpfCnpj == null || cpfCnpj.trim().isEmpty()) {
+	            session.setAttribute("mensagemErro", "CPF/CNPJ não informado para exclusão.");
+	            response.sendRedirect(logado.getTipo() == TipoUsuario.ADMIN ? "/pages/admin/gerenciarUsuarios.jsp" : "/pages/usuario/dashboard.jsp");
+	            return;
+	        }
+	
+	        String cpfCnpjParaExcluir = cpfCnpj.replaceAll("\\D", "");
+	        boolean isSelfDelete = logado.getCpfCnpj().equals(cpfCnpjParaExcluir);
+	        boolean isAdmin = logado.getTipo() == TipoUsuario.ADMIN;
+	
+	        if (!isAdmin && !isSelfDelete) {
+	            session.setAttribute("mensagemErro", "Você não tem permissão para realizar esta ação.");
+	            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+	            return;
+	        }
+	
+	        if (isAdmin && isSelfDelete) {
+	            session.setAttribute("mensagemErro", "Você não pode excluir sua própria conta de administrador.");
+	            response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
+	            return;
+	        }
+	        
+	        // **NOVA VERIFICAÇÃO DE CONTRATOS**
+	        ContratoDAO contratoDAO = new ContratoDAO();
+	        List<Contrato> contratosConsumidor = contratoDAO.listarPorUsuario(cpfCnpjParaExcluir);
+	        List<Contrato> contratosDono = contratoDAO.listarPorDonoGeradora(cpfCnpjParaExcluir);
 
-            HttpSession session = request.getSession(false);
-            Usuario logado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
+	        if ((contratosConsumidor != null && !contratosConsumidor.isEmpty()) || (contratosDono != null && !contratosDono.isEmpty())) {
+	            session.setAttribute("mensagemErro", "Não é possível excluir a conta, pois existem contratos ativos associados a este usuário.");
+	            response.sendRedirect(request.getContextPath() + (isAdmin ? "/pages/admin/gerenciarUsuarios.jsp" : "/pages/usuario/dashboard.jsp"));
+	            return;
+	        }
+	
+	        Usuario usuarioParaExcluir = usuarioDAO.buscarPorCpfCnpj(cpfCnpjParaExcluir);
+	        if (usuarioParaExcluir == null) {
+	            session.setAttribute("mensagemErro", "Usuário não encontrado (CPF/CNPJ: " + cpfCnpj + ").");
+	            response.sendRedirect(request.getContextPath() + (isAdmin ? "/pages/admin/gerenciarUsuarios.jsp" : "/pages/usuario/dashboard.jsp"));
+	            return;
+	        }
+	
+	        String nomeExcluido = usuarioParaExcluir.getNome();
+	        usuarioDAO.excluir(cpfCnpjParaExcluir);
+	
+	        if (isSelfDelete) {
+	            session.invalidate();
+	            HttpSession novaSessao = request.getSession(true);
+	            novaSessao.setAttribute("mensagemSucesso", "Sua conta foi excluída com sucesso!");
+	            response.sendRedirect(request.getContextPath() + "/index.jsp");
+	        } else {
+	            session.setAttribute("mensagemSucesso", "Usuário " + nomeExcluido + " (CPF/CNPJ: " + cpfCnpj + ") excluído com sucesso!");
+	            response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
+	        }
+	
+	    } catch (Exception e) {
+	    	if (session != null) {
+		        session.setAttribute("mensagemErro", "Erro ao excluir usuário: " + e.getMessage());
+		        Usuario logado = (Usuario) session.getAttribute("usuarioLogado");
+		        if (logado != null && logado.getTipo() == TipoUsuario.ADMIN) {
+		            response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
+		        } else {
+		            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+		        }
+	    	} else {
+	    		// Se a sessão for nula, redireciona para o login
+	    		response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
+	    	}
+	    }
+	}
 
-            if (logado == null || logado.getTipo() != TipoUsuario.ADMIN) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "Apenas administradores podem excluir usuários.");
-                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-                return;
-            }
-
-            Usuario usuarioParaExcluir = usuarioDAO.buscarPorCpfCnpj(cpfCnpj);
-            if (usuarioParaExcluir == null) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "Usuário não encontrado (CPF/CNPJ: " + cpfCnpj + ").");
-                response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
-                return;
-            }
-
-            if (logado.getCpfCnpj().equals(cpfCnpj)) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "Você não pode excluir sua própria conta.");
-                response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
-                return;
-            }
-
-            String nomeExcluido = usuarioParaExcluir.getNome();
-            usuarioDAO.excluir(cpfCnpj);
-
-            request.getSession().setAttribute("mensagemSucesso", 
-                "Usuário " + nomeExcluido + " (CPF/CNPJ: " + cpfCnpj + ") excluído com sucesso!");
-
-            response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
-
-        } catch (Exception e) {
-            request.getSession().setAttribute("mensagemErro", 
-                "Erro ao excluir usuário: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
-        }
-    }
 
     private void listarUsuarios(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
-        // ... (o seu código deste método permanece inalterado)
         try {
             List<Usuario> listaUsuarios = usuarioDAO.listarTodos();
 
@@ -369,7 +395,6 @@ public class UsuarioController extends HttpServlet {
     }
 
     private void buscarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
-        // ... (o seu código deste método permanece inalterado)
         try {
             String cpfCnpj = request.getParameter("cpfCnpj");
             if (cpfCnpj == null || cpfCnpj.trim().isEmpty()) {
@@ -401,7 +426,6 @@ public class UsuarioController extends HttpServlet {
     }
 
     private void login(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
-        // ... (o seu código deste método permanece inalterado)
         try {
             String cpfCnpjRaw = request.getParameter("cpfCnpj");
             String senha = request.getParameter("senha");
@@ -447,13 +471,12 @@ public class UsuarioController extends HttpServlet {
     }
 
     private void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // ... (o seu código deste método permanece inalterado)
         try {
             HttpSession session = request.getSession(false);
             if (session != null) {
                 session.invalidate();
                 
-                HttpSession novaSessao = request.getSession();
+                HttpSession novaSessao = request.getSession(true);
                 novaSessao.setAttribute("mensagemInfo", "Logout realizado com sucesso!");
             }
             response.sendRedirect(request.getContextPath() + "/index.jsp");

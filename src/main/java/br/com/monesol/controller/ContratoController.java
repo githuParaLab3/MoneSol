@@ -58,6 +58,9 @@ public class ContratoController extends HttpServlet {
             }
             
             switch (action) {
+                case "buscarPorId":
+                    buscarPorId(request, response);
+                    break;
                 case "buscar":
                     String idStr = request.getParameter("id");
                     if (idStr != null && !idStr.isEmpty()) {
@@ -304,7 +307,7 @@ public class ContratoController extends HttpServlet {
             request.getSession().setAttribute("mensagemSucesso", 
                 "Contrato criado com sucesso! ID: " + contrato.getId());
 
-            response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + contrato.getId());
+            response.sendRedirect(request.getContextPath() + "/ContratoController?action=buscarPorId&id=" + contrato.getId());
 
         } catch (NumberFormatException e) {
             request.getSession().setAttribute("mensagemErro", 
@@ -457,9 +460,9 @@ public class ContratoController extends HttpServlet {
             session.setAttribute("mensagemSucesso", "Contrato atualizado com sucesso!");
 
             if (usuarioLogado != null && usuarioLogado.getTipo() == TipoUsuario.ADMIN) {
-                 response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarContratos.jsp");
+                 response.sendRedirect(request.getContextPath() + "/ContratoController?action=buscarPorId&id=" + id);
             } else {
-                 response.sendRedirect(request.getContextPath() + "/ContratoController?action=buscar&id=" + id);
+                 response.sendRedirect(request.getContextPath() + "/ContratoController?action=buscarPorId&id=" + id);
             }
 
         } catch (Exception e) {
@@ -627,4 +630,3 @@ public class ContratoController extends HttpServlet {
         }
     }
 }
-

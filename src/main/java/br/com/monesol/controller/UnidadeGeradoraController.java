@@ -44,14 +44,24 @@ public class UnidadeGeradoraController extends HttpServlet {
         try {
             String action = request.getParameter("action");
 
-            if ("buscarPorId".equals(action)) {
-                buscarPorId(request, response);
-            } else if ("detalhesPublicos".equals(action)) {
-                detalhesPublicos(request, response);
-            } else if ("buscar".equals(action)) {
-                buscarPorLocalizacao(request, response);
-            } else {
-                listarUnidades(request, response);
+            if (action == null) {
+                 listarUnidades(request, response);
+                 return;
+            }
+            
+            switch (action) {
+                case "buscarPorId":
+                    buscarPorId(request, response);
+                    break;
+                case "detalhesPublicos":
+                    detalhesPublicos(request, response);
+                    break;
+                case "buscar":
+                    buscarPorLocalizacao(request, response);
+                    break;
+                default:
+                    listarUnidades(request, response);
+                    break;
             }
         } catch (NumberFormatException e) {
             request.getSession().setAttribute("mensagemErro", "Parâmetro numérico inválido fornecido.");
@@ -111,9 +121,12 @@ public class UnidadeGeradoraController extends HttpServlet {
 
             String localizacao = request.getParameter("localizacao");
             double potencia = Double.parseDouble(request.getParameter("potenciaInstalada"));
-            double eficiencia = Double.parseDouble(request.getParameter("eficienciaMedia"));
+            double eficiencia = Double.parseDouble(request.getParameter("eficienciaMedia")) / 100.0;
             double precoPorKWh = Double.parseDouble(request.getParameter("precoPorKWh"));
-            double quantidadeMinima = Double.parseDouble(request.getParameter("quantidadeMinimaAceita"));
+            
+            String qtdMinimaStr = request.getParameter("quantidadeMinimaAceita");
+            double quantidadeMinima = (qtdMinimaStr != null && !qtdMinimaStr.isEmpty()) ? Double.parseDouble(qtdMinimaStr) : 0.0;
+            
             String regra = request.getParameter("regraDeExcecoes");
 
             UnidadeGeradora unidade = new UnidadeGeradora();
@@ -127,7 +140,7 @@ public class UnidadeGeradoraController extends HttpServlet {
             if (usuario.getTipo() == TipoUsuario.DONO_GERADORA) {
                 unidade.setCpfCnpjUsuario(usuario.getCpfCnpj());
             } else if (usuario.getTipo() == TipoUsuario.ADMIN) {
-                String dono = request.getParameter("usuario");
+                String dono = request.getParameter("cpfCnpjDono");
                 unidade.setCpfCnpjUsuario((dono != null && !dono.isBlank()) ? dono : usuario.getCpfCnpj());
             } else {
                 request.getSession().setAttribute("mensagemErro", "Você não tem permissão para cadastrar unidade.");
@@ -169,9 +182,10 @@ public class UnidadeGeradoraController extends HttpServlet {
 
             String localizacao = request.getParameter("localizacao");
             double potencia = Double.parseDouble(request.getParameter("potenciaInstalada"));
-            double eficiencia = Double.parseDouble(request.getParameter("eficienciaMedia"));
+            double eficiencia = Double.parseDouble(request.getParameter("eficienciaMedia")) / 100.0;
             double precoPorKWh = Double.parseDouble(request.getParameter("precoPorKWh"));
-            double quantidadeMinima = Double.parseDouble(request.getParameter("quantidadeMinimaAceita"));
+            String qtdMinimaStr = request.getParameter("quantidadeMinimaAceita");
+            double quantidadeMinima = (qtdMinimaStr != null && !qtdMinimaStr.isEmpty()) ? Double.parseDouble(qtdMinimaStr) : 0.0;
             String regra = request.getParameter("regraDeExcecoes");
 
             existente.setLocalizacao(localizacao);
@@ -186,7 +200,7 @@ public class UnidadeGeradoraController extends HttpServlet {
             request.getSession().setAttribute("mensagemSucesso", "Unidade Geradora '" + localizacao + "' atualizada com sucesso!");
             
             if (usuario.getTipo() == TipoUsuario.ADMIN) {
-                response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUnidades.jsp");
+                response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + id);
             } else {
                 response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + id);
             }
@@ -230,7 +244,6 @@ public class UnidadeGeradoraController extends HttpServlet {
 
             session.setAttribute("mensagemSucesso", "Unidade Geradora '" + existente.getLocalizacao() + "' excluída com sucesso!");
             
-            // LÓGICA DE REDIRECIONAMENTO CORRIGIDA
             if (usuarioLogado.getTipo() == TipoUsuario.ADMIN) {
                 response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUnidades.jsp");
             } else {
@@ -325,7 +338,7 @@ public class UnidadeGeradoraController extends HttpServlet {
             }
 
             request.setAttribute("unidade", unidade);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("pages/unidadeGeradora/detalhesUnidade.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/unidadeGeradora/detalhesUnidade.jsp");
             dispatcher.forward(request, response);
 
         } catch (Exception e) {
@@ -349,4 +362,3 @@ public class UnidadeGeradoraController extends HttpServlet {
         dispatcher.forward(request, response);
     }
 }
-

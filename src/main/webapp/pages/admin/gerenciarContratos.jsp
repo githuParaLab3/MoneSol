@@ -2,6 +2,7 @@
 <%@ page import="br.com.monesol.model.*" %>
 <%@ page import="br.com.monesol.dao.*" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 
 <%
     HttpSession sessao = request.getSession(false);
@@ -17,10 +18,13 @@
 
     List<Contrato> listaContratos = contratoDAO.listarTodos();
 
+    // Carregar dados completos para exibição
     for (Contrato c : listaContratos) {
         c.setUsuario(usuarioDAO.buscarPorCpfCnpj(c.getUsuario().getCpfCnpj()));
         c.setUnidadeGeradora(unidadeDAO.buscarPorId(c.getUnidadeGeradora().getId()));
     }
+    
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 %>
 
 <!DOCTYPE html>
@@ -39,11 +43,11 @@
     th { background: #ffd600; color: #212121; font-weight: 700; }
     tr:nth-child(even) { background: #fff9d1; }
     tr:hover { background: #fff3a0; }
-    .btn { padding: 8px 16px; font-size: 0.9rem; border-radius: 20px; border: 1.5px solid #212121; font-weight: 700; cursor: pointer; background: transparent; transition: all 0.2s ease; text-decoration: none; }
+    .btn { text-decoration: none; padding: 8px 16px; font-size: 0.9rem; border-radius: 20px; border: 1.5px solid #212121; font-weight: 700; cursor: pointer; background: transparent; transition: all 0.2s ease; text-decoration: none; display: inline-block; text-align:center;}
     .btn:hover { background: #212121; color: #ffd600; border-color: #ffd600; }
     .btn-create { background: #212121; color: #ffd600; border-color: #212121; }
     .btn-create:hover { background: #000; color: #ffeb3b; }
-    .actions { display: flex; gap: 5px; }
+    .actions { display: flex; gap: 5px; flex-wrap: wrap;}
 </style>
 </head>
 <body>
@@ -63,11 +67,10 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Vigência Início</th>
-                    <th>Vigência Fim</th>
-                    <th>Quantidade Contratada</th>
+                    <th>Vigência</th>
+                    <th>Qtd. Contratada (kWh)</th>
                     <th>Unidade Geradora</th>
-                    <th>Usuário</th>
+                    <th>Usuário (Consumidor)</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -75,21 +78,31 @@
                 <% for (Contrato c : listaContratos) { %>
                 <tr>
                     <td><%= c.getId() %></td>
-                    <td><%= c.getVigenciaInicio() != null ? c.getVigenciaInicio() : "-" %></td>
-                    <td><%= c.getVigenciaFim() != null ? c.getVigenciaFim() : "-" %></td>
+                    <td><%= c.getVigenciaInicio() != null ? dtf.format(c.getVigenciaInicio()) : "-" %> até <%= c.getVigenciaFim() != null ? dtf.format(c.getVigenciaFim()) : "-" %></td>
                     <td><%= c.getQuantidadeContratada() %></td>
                     <td><%= c.getUnidadeGeradora() != null ? c.getUnidadeGeradora().getLocalizacao() : "-" %></td>
                     <td><%= c.getUsuario() != null ? c.getUsuario().getNome() : "-" %></td>
                     <td>
                         <div class="actions">
-                            <form action="<%= request.getContextPath() %>/pages/contrato/editarContrato.jsp" method="get">
-                                <input type="hidden" name="id" value="<%= c.getId() %>" />
-                                <button type="submit" class="btn">Editar</button>
-                            </form>
-                            <form action="<%= request.getContextPath() %>/ContratoController" method="post">
+                             <!-- Botão Detalhes -->
+                             <form action="<%= request.getContextPath() %>/ContratoController" method="get" style="display:inline;">
+                                 <input type="hidden" name="action" value="buscarPorId" />
+                                 <input type="hidden" name="id" value="<%= c.getId() %>" />
+                                 <button type="submit" class="btn btn-danger">Detalhes</button>
+                             </form>
+                             
+                             <!-- Botão Editar -->
+                             <form action="<%= request.getContextPath() %>/ContratoController" method="get" style="display:inline;">
+                                 <input type="hidden" name="action" value="formEditar" />
+                                 <input type="hidden" name="id" value="<%= c.getId() %>" />
+                                 <button type="submit" class="btn btn-danger">Editar</button>
+                             </form>
+
+                             <!-- Botão Deletar -->
+                            <form action="<%= request.getContextPath() %>/ContratoController" method="post" style="display:inline;">
                                 <input type="hidden" name="action" value="deletar" />
                                 <input type="hidden" name="id" value="<%= c.getId() %>" />
-                                <button type="submit" class="btn" onclick="return confirm('Deseja realmente deletar este contrato?');">Deletar</button>
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Deseja realmente deletar este contrato?');">Deletar</button>
                             </form>
                         </div>
                     </td>
@@ -104,3 +117,4 @@
 
 </body>
 </html>
+

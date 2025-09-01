@@ -130,6 +130,7 @@ h1 {
 	transition: background 0.25s ease;
 	text-decoration: none;
 	text-align: center;
+	
 }
 
 .btn-edit {
@@ -214,8 +215,12 @@ tbody tr:hover {
 	<jsp:include page="/pages/usuario/header.jsp" />
 
 	<main aria-label="Detalhes da unidade geradora">
-		<a href="javascript:history.back()"
-			class="btn btn-back" style="margin-bottom: 20px;">&larr; Voltar</a>
+		
+		<% if (usuarioDetalhesUnidade != null && "ADMIN".equalsIgnoreCase(usuarioDetalhesUnidade.getTipo().name())) { %>
+	        <a href="<%= request.getContextPath() %>/pages/admin/gerenciarUnidades.jsp" class="btn btn-back" style="margin-bottom: 20px;">&larr; Voltar</a>
+	    <% } else { %>
+	        <a href="<%= request.getContextPath() %>/pages/usuario/dashboard.jsp" class="btn btn-back" style="margin-bottom: 20px;">&larr; Voltar</a>
+	    <% } %>
 
 		<h1>
 			Unidade Geradora #<%=unidade.getId()%></h1>
@@ -325,6 +330,9 @@ tbody tr:hover {
 							<th>Energia Gerada (kWh)</th>
 							<th>Consumida Localmente (kWh)</th>
 							<th>Injetada na Rede (kWh)</th>
+							<% if (podeEditar) { %>
+							<th>Ações</th>
+							<% } %>
 						</tr>
 					</thead>
 					<tbody>
@@ -372,3 +380,4 @@ tbody tr:hover {
 	</main>
 </body>
 </html>
+

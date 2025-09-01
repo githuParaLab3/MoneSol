@@ -120,13 +120,16 @@ public class ContratoDAO {
         UnidadeGeradora unidade = new UnidadeGeradora("", 0.0, 0.0, "", 0.0, 0.0,"");
         unidade.setId(idUnidade);
 
-        String sqlUnidade = "SELECT localizacao FROM UnidadeGeradora WHERE id = ?";
+        // CORREÇÃO: Buscar também o CPF/CNPJ do dono da unidade
+        String sqlUnidade = "SELECT localizacao, usuario FROM UnidadeGeradora WHERE id = ?";
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmtUnidade = conn.prepareStatement(sqlUnidade)) {
             stmtUnidade.setInt(1, idUnidade);
             ResultSet rsUnidade = stmtUnidade.executeQuery();
             if (rsUnidade.next()) {
                 unidade.setLocalizacao(rsUnidade.getString("localizacao"));
+                // Adiciona a informação que faltava
+                unidade.setCpfCnpjUsuario(rsUnidade.getString("usuario"));
             }
         }
 
@@ -198,3 +201,4 @@ public class ContratoDAO {
         return lista;
     }
 }
+

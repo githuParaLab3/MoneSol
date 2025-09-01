@@ -1,8 +1,14 @@
-<%-- MUDANÇA 1: Adicionado pageEncoding="UTF-8" para garantir que o ficheiro seja lido e processado como UTF-8 --%>
+<%-- MUDANÇA: Adicionado imports para Usuario, Contrato e DAOs necessários --%>
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
 <%@ page import="java.util.List"%>
+<%@ page import="java.util.Set"%>
+<%@ page import="java.util.Collections"%>
+<%@ page import="java.util.stream.Collectors"%>
 <%@ page import="br.com.monesol.dao.UnidadeGeradoraDAO"%>
 <%@ page import="br.com.monesol.model.UnidadeGeradora"%>
+<%@ page import="br.com.monesol.model.Usuario"%>
+<%@ page import="br.com.monesol.dao.ContratoDAO"%>
+<%@ page import="br.com.monesol.model.Contrato"%>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -201,12 +207,31 @@ h1 {
             List<UnidadeGeradora> listaUnidades = null;
 
             try {
+                // Pega o usuário logado da sessão
+                HttpSession sessao = request.getSession(false);
+                Usuario usuarioLogado = (sessao != null) ? (Usuario) sessao.getAttribute("usuarioLogado") : null;
+
+                // Se houver um usuário logado, busca os IDs das unidades que ele já contratou
+                Set<Integer> idsUnidadesContratadas = Collections.emptySet();
+                if (usuarioLogado != null) {
+                    ContratoDAO contratoDAO = new ContratoDAO();
+                    List<Contrato> contratosDoUsuario = contratoDAO.listarPorUsuario(usuarioLogado.getCpfCnpj());
+                    idsUnidadesContratadas = contratosDoUsuario.stream()
+                                               .map(contrato -> contrato.getUnidadeGeradora().getId())
+                                               .collect(Collectors.toSet());
+                }
+
                 // 1. Pega todas as unidades do banco
                 listaUnidades = unidadeDAO.listarTodas();
 
-                // 2. Aplica os filtros um por um
+                // 2. Aplica o filtro para remover unidades já contratadas (se aplicável)
+                if (!idsUnidadesContratadas.isEmpty()) {
+                    final Set<Integer> finalIds = idsUnidadesContratadas;
+                    listaUnidades.removeIf(unidade -> finalIds.contains(unidade.getId()));
+                }
+
+                // 3. Aplica os outros filtros de pesquisa
                 
-                // Filtro de texto genérico (q)
                 String q = request.getParameter("q");
                 if (q != null && !q.trim().isEmpty()) {
                     String termo = q.toLowerCase();
@@ -216,7 +241,6 @@ h1 {
                     );
                 }
 
-                // Filtro de Potência Mínima
                 String potenciaMinStr = request.getParameter("potenciaMin");
                 if (potenciaMinStr != null && !potenciaMinStr.trim().isEmpty()) {
                     try {
@@ -225,7 +249,6 @@ h1 {
                     } catch (NumberFormatException e) { /* Ignora valor inválido */ }
                 }
 
-                // Filtro de Preço Máximo
                 String precoMaxStr = request.getParameter("precoMax");
                 if (precoMaxStr != null && !precoMaxStr.trim().isEmpty()) {
                     try {
@@ -234,12 +257,12 @@ h1 {
                     } catch (NumberFormatException e) { /* Ignora valor inválido */ }
                 }
 
-                // Filtro de Eficiência Mínima
                 String eficienciaMinStr = request.getParameter("eficienciaMin");
                 if (eficienciaMinStr != null && !eficienciaMinStr.trim().isEmpty()) {
                     try {
                         double eficienciaMin = Double.parseDouble(eficienciaMinStr);
-                        listaUnidades.removeIf(unidade -> unidade.getEficienciaMedia() < eficienciaMin);
+                        // A eficiência é armazenada como decimal (ex: 0.9), então dividimos por 100
+                        listaUnidades.removeIf(unidade -> (unidade.getEficienciaMedia() * 100) < eficienciaMin);
                     } catch (NumberFormatException e) { /* Ignora valor inválido */ }
                 }
 
@@ -265,7 +288,7 @@ h1 {
 						</div>
 						<div class="unit-info">
 							<strong>Eficiência Média:</strong>
-							<%= (unidade.getEficienciaMedia() != 0.0) ? String.format("%.1f", unidade.getEficienciaMedia()) + " %" : "N/A" %>
+							<%= String.format("%.1f", unidade.getEficienciaMedia() * 100) %> %
 						</div>
 						<div class="unit-info">
 							<strong>Preço por kWh:</strong> R$
