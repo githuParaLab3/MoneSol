@@ -6,6 +6,12 @@
     String mensagemErro = (String) session.getAttribute("mensagemErro");
     String mensagemInfo = (String) session.getAttribute("mensagemInfo");
     
+    // Além da sessão, checa também o escopo da requisição para mensagens de erro/sucesso
+    if (mensagemSucesso == null) mensagemSucesso = (String) request.getAttribute("mensagemSucesso");
+    if (mensagemErro == null) mensagemErro = (String) request.getAttribute("mensagemErro");
+    if (mensagemInfo == null) mensagemInfo = (String) request.getAttribute("mensagemInfo");
+
+    // Remove as mensagens da sessão após a exibição
     if (mensagemSucesso != null) session.removeAttribute("mensagemSucesso");
     if (mensagemErro != null) session.removeAttribute("mensagemErro");
     if (mensagemInfo != null) session.removeAttribute("mensagemInfo");
@@ -105,14 +111,15 @@
 
 @keyframes progressBar {
     from { width: 100%; }
-    to { width: 0%; }
+    to { width: 0%;
+    }
 }
 
 @media (max-width: 768px) {
     .flash-messages {
         top: 10px;
         right: 10px;
-        left: 10px;
+    left: 10px;
         max-width: none;
     }
 }
@@ -128,6 +135,7 @@
     
     <% if (mensagemErro != null && !mensagemErro.trim().isEmpty()) { %>
         <div class="flash-message flash-error" onclick="fecharMensagem(this)">
+ 
             <button class="flash-close" onclick="event.stopPropagation(); fecharMensagem(this.parentElement)">&times;</button>
             <%= mensagemErro %>
         </div>
@@ -137,6 +145,7 @@
         <div class="flash-message flash-info" onclick="fecharMensagem(this)">
             <button class="flash-close" onclick="event.stopPropagation(); fecharMensagem(this.parentElement)">&times;</button>
             <%= mensagemInfo %>
+  
         </div>
     <% } %>
 </div>
@@ -149,7 +158,7 @@ function fecharMensagem(elemento) {
             elemento.parentNode.removeChild(elemento);
         }
     }, 300);
-}
+    }
 
 // Auto-close mensagens após 4 segundos
 document.addEventListener('DOMContentLoaded', function() {

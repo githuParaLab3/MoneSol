@@ -449,6 +449,7 @@ public class UsuarioController extends HttpServlet {
 
             if (usuario != null && usuario.getSenha().equals(senha)) {
                 session.setAttribute("usuarioLogado", usuario);
+                session.setAttribute("mensagemSucesso", "Login realizado com sucesso! Bem-vindo(a), " + usuario.getNome() + "!");
                 
                 if(usuario.getTipo() == TipoUsuario.ADMIN) {
                 	 response.sendRedirect(request.getContextPath() + "/pages/admin/dashboardAdmin.jsp");
