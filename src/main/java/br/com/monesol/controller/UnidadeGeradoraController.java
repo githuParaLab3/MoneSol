@@ -1,18 +1,21 @@
 package br.com.monesol.controller;
 
-import br.com.monesol.dao.UnidadeGeradoraDAO;
-import br.com.monesol.model.UnidadeGeradora;
-import br.com.monesol.model.Usuario;
-import br.com.monesol.model.Usuario.TipoUsuario;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import br.com.monesol.dao.UnidadeGeradoraDAO;
+import br.com.monesol.model.UnidadeGeradora;
+import br.com.monesol.model.Usuario;
+import br.com.monesol.model.Usuario.TipoUsuario;
 
 @WebServlet("/UnidadeGeradoraController")
 public class UnidadeGeradoraController extends HttpServlet {
@@ -37,6 +40,7 @@ public class UnidadeGeradoraController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         try {
             String action = request.getParameter("action");
 
@@ -60,6 +64,7 @@ public class UnidadeGeradoraController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
         try {
             switch (action) {
@@ -179,7 +184,12 @@ public class UnidadeGeradoraController extends HttpServlet {
             unidadeDAO.atualizar(existente);
 
             request.getSession().setAttribute("mensagemSucesso", "Unidade Geradora '" + localizacao + "' atualizada com sucesso!");
-            response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + id);
+            
+            if (usuario.getTipo() == TipoUsuario.ADMIN) {
+                response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUnidades.jsp");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/UnidadeGeradoraController?action=buscarPorId&id=" + id);
+            }
 
         } catch (NumberFormatException e) {
             request.getSession().setAttribute("mensagemErro", "Valores inválidos fornecidos.");
@@ -191,10 +201,11 @@ public class UnidadeGeradoraController extends HttpServlet {
     }
 
     private void deletarUnidade(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+        HttpSession session = request.getSession();
         try {
-            Usuario usuario = getUsuarioLogado(request);
-            if (usuario == null) {
-                request.getSession().setAttribute("mensagemErro", "Usuário não logado. Faça login para continuar.");
+            Usuario usuarioLogado = getUsuarioLogado(request);
+            if (usuarioLogado == null) {
+                session.setAttribute("mensagemErro", "Utilizador não logado. Faça login para continuar.");
                 response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
                 return;
             }
@@ -203,21 +214,34 @@ public class UnidadeGeradoraController extends HttpServlet {
             UnidadeGeradora existente = unidadeDAO.buscarPorId(id);
 
             if (existente == null) {
-                request.getSession().setAttribute("mensagemErro", "Unidade Geradora não encontrada (ID: " + id + ").");
+                session.setAttribute("mensagemErro", "Unidade Geradora não encontrada (ID: " + id + ").");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            // Validação de permissão: só o dono ou um admin podem excluir
+            if (usuarioLogado.getTipo() != TipoUsuario.ADMIN && !existente.getCpfCnpjUsuario().equals(usuarioLogado.getCpfCnpj())) {
+                session.setAttribute("mensagemErro", "Você não tem permissão para excluir esta unidade.");
                 response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                 return;
             }
 
             unidadeDAO.excluir(id);
 
-            request.getSession().setAttribute("mensagemSucesso", "Unidade Geradora excluída com sucesso!");
-            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            session.setAttribute("mensagemSucesso", "Unidade Geradora '" + existente.getLocalizacao() + "' excluída com sucesso!");
+            
+            // LÓGICA DE REDIRECIONAMENTO CORRIGIDA
+            if (usuarioLogado.getTipo() == TipoUsuario.ADMIN) {
+                response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUnidades.jsp");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            }
 
         } catch (NumberFormatException e) {
-            request.getSession().setAttribute("mensagemErro", "ID inválido.");
+            session.setAttribute("mensagemErro", "ID inválido fornecido.");
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         } catch (Exception e) {
-            request.getSession().setAttribute("mensagemErro", "Erro ao excluir unidade: " + e.getMessage());
+            session.setAttribute("mensagemErro", "Erro ao excluir unidade: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
     }
@@ -325,3 +349,4 @@ public class UnidadeGeradoraController extends HttpServlet {
         dispatcher.forward(request, response);
     }
 }
+

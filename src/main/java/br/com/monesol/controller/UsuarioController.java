@@ -29,6 +29,7 @@ public class UsuarioController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         try {
             listarUsuarios(request, response);
         } catch (Exception e) {
@@ -40,17 +41,24 @@ public class UsuarioController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
         try {
             switch (action) {
                 case "adicionar":
                     adicionarUsuario(request, response);
                     break;
-                case "adminAdicionar": // Ação para admin criar usuário
+                case "adminAdicionar":
                     adminAdicionarUsuario(request, response);
                     break;
                 case "editar":
-                    editarUsuario(request, response);
+                    // A flag 'false' indica que a edição não é feita por um admin
+                    editarUsuario(request, response, false);
+                    break;
+                // AÇÃO ADICIONADA PARA LIDAR COM A EDIÇÃO DO ADMIN
+                case "adminEditar":
+                    // A flag 'true' indica que a edição é feita por um admin
+                    editarUsuario(request, response, true);
                     break;
                 case "deletar":
                     deletarUsuario(request, response);
@@ -81,6 +89,7 @@ public class UsuarioController extends HttpServlet {
     }
 
     private void adminAdicionarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+        // ... (o seu código deste método permanece inalterado)
         String cpfCnpjRaw = request.getParameter("cpfCnpj");
         String nome = request.getParameter("nome");
         String email = request.getParameter("email");
@@ -146,6 +155,7 @@ public class UsuarioController extends HttpServlet {
     }
 
     private void adicionarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+        // ... (o seu código deste método permanece inalterado)
         String cpfCnpjRaw = request.getParameter("cpfCnpj");
         String nome = request.getParameter("nome");
         String email = request.getParameter("email");
@@ -189,7 +199,6 @@ public class UsuarioController extends HttpServlet {
                 return;
             }
             
-            // Lógica para Registro Público
             TipoUsuario tipoFinal = TipoUsuario.CONSUMIDOR_PARCEIRO; // Padrão
             if (tipoStr != null) {
                 try {
@@ -214,43 +223,21 @@ public class UsuarioController extends HttpServlet {
         }
     }
     
-    // O resto dos métodos (editarUsuario, deletarUsuario, etc.) permanecem os mesmos.
-    // ...
-    private void editarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+    // MÉTODO UNIFICADO E CORRIGIDO
+    private void editarUsuario(HttpServletRequest request, HttpServletResponse response, boolean isAdmin) throws SQLException, IOException {
+        HttpSession session = request.getSession();
         try {
-            String cpfCnpjRaw = request.getParameter("cpfCnpj");
-            String cpfCnpj = (cpfCnpjRaw != null) ? cpfCnpjRaw.replaceAll("\\D", "") : "";
-
-            if (cpfCnpj.isEmpty()) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "CPF/CNPJ não informado para edição.");
-                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            String cpfCnpj = request.getParameter("cpfCnpj");
+            if (cpfCnpj == null || cpfCnpj.trim().isEmpty()) {
+                session.setAttribute("mensagemErro", "CPF/CNPJ não informado para edição.");
+                response.sendRedirect(request.getContextPath() + (isAdmin ? "/pages/admin/gerenciarUsuarios.jsp" : "/pages/usuario/dashboard.jsp"));
                 return;
             }
 
-            HttpSession session = request.getSession(false);
-            Usuario logado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
-
-            if (logado == null) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "Usuário não logado. Faça login para continuar.");
-                response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
-                return;
-            }
-
-            // Verificar permissões
-            if (logado.getTipo() != TipoUsuario.ADMIN && !logado.getCpfCnpj().equals(cpfCnpj)) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "Você não tem permissão para editar este usuário.");
-                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-                return;
-            }
-
-            Usuario existente = usuarioDAO.buscarPorCpfCnpj(cpfCnpj);
+            Usuario existente = usuarioDAO.buscarPorCpfCnpj(cpfCnpj.replaceAll("\\D", ""));
             if (existente == null) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "Usuário não encontrado (CPF/CNPJ: " + cpfCnpj + ").");
-                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                session.setAttribute("mensagemErro", "Utilizador não encontrado (CPF/CNPJ: " + cpfCnpj + ").");
+                response.sendRedirect(request.getContextPath() + (isAdmin ? "/pages/admin/gerenciarUsuarios.jsp" : "/pages/usuario/dashboard.jsp"));
                 return;
             }
 
@@ -259,73 +246,47 @@ public class UsuarioController extends HttpServlet {
             String senha = request.getParameter("senha");
             String contato = request.getParameter("contato");
             String endereco = request.getParameter("endereco");
-            String tipoStr = request.getParameter("tipo");
 
-            // Validar campos obrigatórios
-            if (nome == null || nome.trim().isEmpty()) {
-                request.getSession().setAttribute("mensagemErro", "Nome é obrigatório.");
-                response.sendRedirect(request.getContextPath() + "/pages/usuario/editarUsuario.jsp");
-                return;
-            }
+            existente.setNome(nome);
+            existente.setEmail(email);
+            existente.setContato(contato);
+            existente.setEndereco(endereco);
 
-            if (email == null || email.trim().isEmpty()) {
-                request.getSession().setAttribute("mensagemErro", "Email é obrigatório.");
-                response.sendRedirect(request.getContextPath() + "/pages/usuario/editarUsuario.jsp");
-                return;
-            }
-
-            // Validar email
-            if (!email.matches("^[\\w\\.-]+@[\\w\\.-]+\\.[a-zA-Z]{2,}$")) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "Formato de email inválido.");
-                response.sendRedirect(request.getContextPath() + "/pages/usuario/editarUsuario.jsp");
-                return;
-            }
-
-            // Validar senha se foi fornecida
-            String senhaFinal = existente.getSenha(); // mantém a antiga por padrão
             if (senha != null && !senha.trim().isEmpty()) {
-                if (senha.length() < 6) {
-                    request.getSession().setAttribute("mensagemErro", 
-                        "Nova senha deve ter pelo menos 6 caracteres.");
-                    response.sendRedirect(request.getContextPath() + "/pages/usuario/editarUsuario.jsp");
-                    return;
-                }
-                senhaFinal = senha;
+                existente.setSenha(senha);
             }
 
-            TipoUsuario tipo = existente.getTipo(); // mantém o tipo atual
-            if (tipoStr != null && !tipoStr.trim().isEmpty() && logado.getTipo() == TipoUsuario.ADMIN) {
-                try {
-                    tipo = TipoUsuario.valueOf(tipoStr);
-                } catch (IllegalArgumentException e) {
-                    // Mantém o tipo atual
-                }
+            if (isAdmin) {
+                String tipoStr = request.getParameter("tipo");
+                existente.setTipo(TipoUsuario.valueOf(tipoStr));
             }
 
-            Usuario usuarioAtualizado = new Usuario(cpfCnpj, nome, email, senhaFinal, contato, endereco, tipo);
-            usuarioDAO.atualizar(usuarioAtualizado);
+            usuarioDAO.atualizar(existente);
 
-            // Atualizar sessão se o usuário editou seu próprio perfil
-            if (logado.getCpfCnpj().equals(cpfCnpj)) {
-                session.setAttribute("usuarioLogado", usuarioAtualizado);
+            // Se o utilizador editou o seu próprio perfil, atualiza a sessão
+            Usuario logado = (Usuario) session.getAttribute("usuarioLogado");
+            if (logado != null && logado.getCpfCnpj().equals(existente.getCpfCnpj())) {
+                session.setAttribute("usuarioLogado", existente);
             }
-
-            request.getSession().setAttribute("mensagemSucesso", 
-                "Perfil de " + nome + " atualizado com sucesso!");
-
-            String redirectPath = logado.getTipo() == TipoUsuario.ADMIN ? 
-                "/pages/admin/gerenciarUsuarios.jsp" : "/pages/usuario/dashboard.jsp";
-            response.sendRedirect(request.getContextPath() + redirectPath);
+            
+            session.setAttribute("mensagemSucesso", "Perfil de " + nome + " atualizado com sucesso!");
+            
+            // REDIRECIONAMENTO CORRIGIDO
+            if (isAdmin) {
+                response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            }
 
         } catch (Exception e) {
-            request.getSession().setAttribute("mensagemErro", 
-                "Erro ao editar usuário: " + e.getMessage());
+            session.setAttribute("mensagemErro", "Erro ao editar utilizador: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
     }
 
+
     private void deletarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+        // ... (o seu código deste método permanece inalterado)
         try {
             String cpfCnpj = request.getParameter("cpfCnpj");
             if (cpfCnpj == null || cpfCnpj.trim().isEmpty()) {
@@ -376,6 +337,7 @@ public class UsuarioController extends HttpServlet {
     }
 
     private void listarUsuarios(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
+        // ... (o seu código deste método permanece inalterado)
         try {
             List<Usuario> listaUsuarios = usuarioDAO.listarTodos();
 
@@ -393,8 +355,6 @@ public class UsuarioController extends HttpServlet {
             if (usuarioLogado != null && usuarioLogado.getTipo() == TipoUsuario.ADMIN) {
                 jsp = "/pages/admin/gerenciarUsuarios.jsp";
             } else {
-                // Idealmente, um usuário comum não deveria listar todos os outros.
-                // Redirecionando para o dashboard para segurança.
                 jsp = "/pages/usuario/dashboard.jsp"; 
             }
 
@@ -409,6 +369,7 @@ public class UsuarioController extends HttpServlet {
     }
 
     private void buscarUsuario(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
+        // ... (o seu código deste método permanece inalterado)
         try {
             String cpfCnpj = request.getParameter("cpfCnpj");
             if (cpfCnpj == null || cpfCnpj.trim().isEmpty()) {
@@ -429,7 +390,6 @@ public class UsuarioController extends HttpServlet {
 
             request.setAttribute("usuario", usuario);
             
-            // Para edição, redireciona para a página de edição
              RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/usuario/editarUsuario.jsp");
             dispatcher.forward(request, response);
 
@@ -441,6 +401,7 @@ public class UsuarioController extends HttpServlet {
     }
 
     private void login(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
+        // ... (o seu código deste método permanece inalterado)
         try {
             String cpfCnpjRaw = request.getParameter("cpfCnpj");
             String senha = request.getParameter("senha");
@@ -486,6 +447,7 @@ public class UsuarioController extends HttpServlet {
     }
 
     private void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // ... (o seu código deste método permanece inalterado)
         try {
             HttpSession session = request.getSession(false);
             if (session != null) {
@@ -500,4 +462,3 @@ public class UsuarioController extends HttpServlet {
         }
     }
 }
-

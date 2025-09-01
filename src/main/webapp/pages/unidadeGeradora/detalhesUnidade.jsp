@@ -214,7 +214,7 @@ tbody tr:hover {
 	<jsp:include page="/pages/usuario/header.jsp" />
 
 	<main aria-label="Detalhes da unidade geradora">
-		<a href="<%=request.getContextPath()%>/pages/usuario/dashboard.jsp"
+		<a href="javascript:history.back()"
 			class="btn btn-back" style="margin-bottom: 20px;">&larr; Voltar</a>
 
 		<h1>

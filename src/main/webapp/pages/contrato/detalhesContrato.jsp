@@ -226,7 +226,7 @@ body.pagina-detalhes-contrato header, body.pagina-detalhes-contrato #header,
 	<jsp:include page="/pages/usuario/header.jsp" />
 
 	<main aria-label="Detalhes do contrato">
-		<a href="<%= request.getContextPath() %>/pages/usuario/dashboard.jsp"
+		<a href="javascript:history.back()"
 			class="btn">&larr; Voltar</a>
 		<h1>Detalhes do Contrato</h1>
 

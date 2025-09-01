@@ -122,8 +122,8 @@ main h1 {
 
 <main aria-label="Editar Unidade Geradora">
 
-    <a href="<%= request.getContextPath() %>/UnidadeGeradoraController?action=buscarPorId&id=<%= unidade.getId() %>" class="btn-back" aria-label="Voltar para detalhes da unidade">
-        &larr; Voltar
+    <a href="javascript:history.back()" class="btn-back" aria-label="Voltar para a página anterior">
+            &larr; Voltar
     </a>
 
     <h1>Editar Unidade Geradora #<%= unidade.getId() %></h1>

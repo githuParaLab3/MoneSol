@@ -10,7 +10,7 @@
     }
     
     UsuarioDAO usuarioDAO = new UsuarioDAO();
-    List<Usuario> donos = usuarioDAO.listarTodos(); // Ou um método específico para donos
+    List<Usuario> donos = usuarioDAO.listarTodos(); 
 %>
 
 <!DOCTYPE html>
@@ -37,7 +37,7 @@
 
 <main>
     <h1>
-        <a href="<%= request.getContextPath() %>/pages/admin/gerenciarUnidades.jsp" class="btn-back">
+        <a href="javascript:history.back()"class="btn-back">
             &#8592; Voltar
         </a>
         Criar Nova Unidade

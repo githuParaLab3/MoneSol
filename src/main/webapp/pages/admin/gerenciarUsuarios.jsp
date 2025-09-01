@@ -74,7 +74,7 @@
                     <td><%= u.getTipo() %></td>
                     <td>
                         <div class="actions">
-                            <form action="<%= request.getContextPath() %>/pages/usuario/editarUsuario.jsp" method="get">
+                            <form action="<%= request.getContextPath() %>/pages/admin/editarUsuario.jsp" method="get">
                                 <input type="hidden" name="cpfCnpj" value="<%= u.getCpfCnpj() %>" />
                                 <button type="submit" class="btn">Editar</button>
                             </form>

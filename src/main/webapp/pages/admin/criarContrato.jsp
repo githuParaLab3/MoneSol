@@ -39,7 +39,7 @@
 
 <main>
     <h1>
-        <a href="<%= request.getContextPath() %>/pages/admin/gerenciarContratos.jsp" class="btn-back">
+        <a href="javascript:history.back()" class="btn-back">
             &#8592; Voltar
         </a>
         Criar Novo Contrato

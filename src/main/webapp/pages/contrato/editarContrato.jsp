@@ -135,8 +135,9 @@
 	<jsp:include page="/pages/outros/mensagens.jsp" />
 
 <div class="container">
-    <a href="<%= request.getContextPath() %>/ContratoController?id=<%= contrato.getId() %>" 
-       class="btn-voltar" aria-label="Voltar">&larr; Voltar</a>
+    <a href="javascript:history.back()" class="btn-voltar" aria-label="Voltar para a página anterior">
+            &larr; Voltar
+        </a>
 
     <h1>Editar Contrato - ID: <%= contrato.getId() %></h1>
 

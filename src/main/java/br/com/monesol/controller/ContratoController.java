@@ -11,6 +11,7 @@ import br.com.monesol.model.HistoricoContrato;
 import br.com.monesol.model.HistoricoContrato.TipoHistorico;
 import br.com.monesol.model.UnidadeGeradora;
 import br.com.monesol.model.Usuario;
+import br.com.monesol.model.Usuario.TipoUsuario;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -316,7 +317,6 @@ public class ContratoController extends HttpServlet {
         }
     }
     
-    // MÉTODO CORRIGIDO E COMPLETADO
     private void adminAdicionarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         String redirectPathOnError = request.getContextPath() + "/pages/admin/criarContrato.jsp";
         HttpSession session = request.getSession();
@@ -362,7 +362,6 @@ public class ContratoController extends HttpServlet {
                 return;
             }
             
-            // --- LÓGICA DE NEGÓCIO ADICIONADA ---
             if (contratoDAO.existeContratoUsuarioUnidade(cpfCnpjUsuario, idUnidade)) {
                 session.setAttribute("mensagemErro", "Este usuário já possui um contrato para esta unidade.");
                 response.sendRedirect(redirectPathOnError);
@@ -374,7 +373,6 @@ public class ContratoController extends HttpServlet {
                 response.sendRedirect(redirectPathOnError);
                 return;
             }
-            // --- FIM DA LÓGICA ADICIONADA ---
 
             Contrato novoContrato = new Contrato();
             novoContrato.setUsuario(contratante);
@@ -386,7 +384,6 @@ public class ContratoController extends HttpServlet {
             
             contratoDAO.cadastrar(novoContrato);
             
-            // --- CRIAÇÃO DE HISTÓRICO ADICIONADA ---
             HistoricoContrato historico = new HistoricoContrato(
                 LocalDateTime.now(),
                 "Início do contrato (Admin)",
@@ -395,7 +392,6 @@ public class ContratoController extends HttpServlet {
                 novoContrato
             );
             historicoContratoDAO.cadastrar(historico);
-            // --- FIM DA CRIAÇÃO DE HISTÓRICO ---
 
             session.setAttribute("mensagemSucesso", "Contrato criado com sucesso!");
             response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarContratos.jsp");
@@ -408,44 +404,41 @@ public class ContratoController extends HttpServlet {
             response.sendRedirect(redirectPathOnError);
         }
     }
-
+    
     private void editarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+        HttpSession session = request.getSession();
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
             LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
             int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
             double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada").replace(",","."));
-
             int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
             UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
-
             String cpfCnpjUsuario = request.getParameter("usuarioCpfCnpj");
             Usuario usuario = usuarioDAO.buscarPorCpfCnpj(cpfCnpjUsuario);
 
             if (unidade == null || usuario == null) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "Dados inválidos: unidade ou usuário não encontrado.");
-                response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + id);
+                session.setAttribute("mensagemErro", "Dados inválidos: unidade ou utilizador não encontrado.");
+                response.sendRedirect(request.getContextPath() + "/ContratoController?action=formEditar&id=" + id);
                 return;
             }
 
             if (vigenciaFim.isBefore(vigenciaInicio)) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "A data de fim deve ser posterior à data de início.");
+                session.setAttribute("mensagemErro", "A data de fim deve ser posterior à data de início.");
                 response.sendRedirect(request.getContextPath() + "/ContratoController?action=formEditar&id=" + id);
                 return;
             }
 
             if (qtdContratada < unidade.getQuantidadeMinimaAceita()) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "Quantidade contratada deve ser no mínimo " + unidade.getQuantidadeMinimaAceita() + " kWh.");
+                session.setAttribute("mensagemErro", "Quantidade contratada deve ser no mínimo " + unidade.getQuantidadeMinimaAceita() + " kWh.");
                 response.sendRedirect(request.getContextPath() + "/ContratoController?action=formEditar&id=" + id);
                 return;
             }
 
-            Contrato contrato = new Contrato();
-            contrato.setId(id);
+            Contrato contrato = contratoDAO.buscarPorId(id);
             contrato.setVigenciaInicio(vigenciaInicio);
             contrato.setVigenciaFim(vigenciaFim);
             contrato.setReajustePeriodico(reajustePeriodico);
@@ -456,40 +449,49 @@ public class ContratoController extends HttpServlet {
             contratoDAO.atualizar(contrato);
 
             HistoricoContrato historico = new HistoricoContrato(
-                LocalDateTime.now(),
-                "Alteração do contrato",
-                "Contrato atualizado. Quantidade: " + qtdContratada + " kWh",
-                TipoHistorico.ALTERACAO_CONTRATUAL,
-                contrato
+                LocalDateTime.now(), "Alteração do contrato", "Contrato atualizado.",
+                TipoHistorico.ALTERACAO_CONTRATUAL, contrato
             );
             historicoContratoDAO.cadastrar(historico);
+            
+            session.setAttribute("mensagemSucesso", "Contrato atualizado com sucesso!");
 
-            request.getSession().setAttribute("mensagemSucesso", 
-                "Contrato atualizado com sucesso!");
+            if (usuarioLogado != null && usuarioLogado.getTipo() == TipoUsuario.ADMIN) {
+                 response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarContratos.jsp");
+            } else {
+                 response.sendRedirect(request.getContextPath() + "/ContratoController?action=buscar&id=" + id);
+            }
 
-            response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + id);
-
-        } catch (NumberFormatException e) {
-            request.getSession().setAttribute("mensagemErro", 
-                "Dados numéricos inválidos fornecidos.");
-            String contratoId = request.getParameter("id");
-            response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + contratoId);
         } catch (Exception e) {
-            request.getSession().setAttribute("mensagemErro", 
-                "Erro ao atualizar contrato: " + e.getMessage());
-            String contratoId = request.getParameter("id");
-            response.sendRedirect(request.getContextPath() + "/ContratoController?id=" + contratoId);
+            String redirectPath = request.getParameter("id") != null 
+                ? "/ContratoController?action=formEditar&id=" + request.getParameter("id") 
+                : "/pages/usuario/dashboard.jsp";
+            session.setAttribute("mensagemErro", "Erro ao atualizar contrato: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + redirectPath);
         }
     }
 
     private void deletarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+        HttpSession session = request.getSession();
         try {
+            Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+            if (usuarioLogado == null) {
+                session.setAttribute("mensagemErro", "Utilizador não logado. Faça login para continuar.");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
+                return;
+            }
+
             int id = Integer.parseInt(request.getParameter("id"));
-            
             Contrato contrato = contratoDAO.buscarPorId(id);
+
             if (contrato == null) {
-                request.getSession().setAttribute("mensagemErro", 
-                    "Contrato não encontrado (ID: " + id + ").");
+                session.setAttribute("mensagemErro", "Contrato não encontrado (ID: " + id + ").");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+                return;
+            }
+
+            if (usuarioLogado.getTipo() != TipoUsuario.ADMIN && !contrato.getUsuario().getCpfCnpj().equals(usuarioLogado.getCpfCnpj())) {
+                session.setAttribute("mensagemErro", "Você não tem permissão para cancelar este contrato.");
                 response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
                 return;
             }
@@ -499,18 +501,19 @@ public class ContratoController extends HttpServlet {
 
             contratoDAO.excluir(id);
 
-            request.getSession().setAttribute("mensagemSucesso", 
-                "Contrato cancelado com sucesso! (ID: " + id + " - " + localizacaoUnidade + ")");
+            session.setAttribute("mensagemSucesso", "Contrato cancelado com sucesso! (ID: " + id + " - " + localizacaoUnidade + ")");
 
-            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            if (usuarioLogado.getTipo() == TipoUsuario.ADMIN) {
+                response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarContratos.jsp");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
+            }
 
         } catch (NumberFormatException e) {
-            request.getSession().setAttribute("mensagemErro", 
-                "ID do contrato inválido.");
+            session.setAttribute("mensagemErro", "ID do contrato inválido.");
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         } catch (Exception e) {
-            request.getSession().setAttribute("mensagemErro", 
-                "Erro ao cancelar contrato: " + e.getMessage());
+            session.setAttribute("mensagemErro", "Erro ao cancelar contrato: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
     }

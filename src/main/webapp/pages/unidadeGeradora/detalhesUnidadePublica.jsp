@@ -263,9 +263,9 @@ tbody tr:hover {
 	<jsp:include page="/pages/usuario/header.jsp" />
 
 	<main aria-label="Detalhes da unidade geradora">
-		<a
-			href="<%= request.getContextPath() %>/pages/unidadeGeradora/listaUnidadesDisponiveis.jsp"
-			class="btn btn-back">&larr; Voltar ao Marketplace</a>
+		<a href="javascript:history.back()" class="btn btn-back" aria-label="Voltar para a página anterior">
+            &larr; Voltar ao Marketplace
+        </a>
 
 		<h1>
 			Unidade Geradora #<%= unidade.getId() %></h1>

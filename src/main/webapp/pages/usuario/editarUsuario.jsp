@@ -120,8 +120,8 @@
 
 <main aria-label="Editar dados do usuário logado">
     <h1>
-        <a href="<%= request.getContextPath() %>/pages/usuario/dashboard.jsp" class="btn-back" aria-label="Voltar para o dashboard">
-            &#8592; Voltar
+        <a href="javascript:history.back()" class="btn-back" aria-label="Voltar para a página anterior">
+            &larr; Voltar
         </a>
         Editar Meus Dados
     </h1>

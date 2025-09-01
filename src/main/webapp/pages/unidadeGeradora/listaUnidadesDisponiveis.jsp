@@ -155,7 +155,6 @@ h1 {
 </style>
 </head>
 <body>
-    <%-- MUDANÇA 2: Garante que os dados enviados via formulário sejam lidos como UTF-8 --%>
     <% request.setCharacterEncoding("UTF-8"); %>
 
 	<jsp:include page="/pages/outros/mensagens.jsp" />
