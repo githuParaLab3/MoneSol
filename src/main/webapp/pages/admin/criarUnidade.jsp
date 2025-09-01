@@ -72,6 +72,9 @@
 
         <label for="regraDeExcecoes">Regras e Exceções</label>
         <textarea id="regraDeExcecoes" name="regraDeExcecoes" rows="3"></textarea>
+        
+         <label for="quantidadeMáximaComerciavel">Quantidade Máxima Comerciável (kWh)</label>
+         <input type="number" step="0.01" id="quantidadeMaximaComerciavel" name="quantidadeMaximaComerciavel" placeholder="Ex: 200.00" />
 
         <button type="submit">Criar Unidade</button>
     </form>

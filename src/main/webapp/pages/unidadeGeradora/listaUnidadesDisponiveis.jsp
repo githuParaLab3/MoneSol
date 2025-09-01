@@ -169,8 +169,7 @@ h1 {
 	<div class="container">
 		<h1>Marketplace - Unidades Geradoras Disponíveis</h1>
 
-        <!-- PAINEL DE FILTROS EXPANDIDO -->
-		<details class="filter-panel" open>
+        <details class="filter-panel" open>
             <summary>Filtros de Pesquisa</summary>
             <form method="get" class="search-form">
                 <input type="text" name="q" class="search-input"
@@ -192,6 +191,11 @@ h1 {
                         <label for="eficienciaMin">Eficiência Mínima (%)</label>
                         <input type="number" id="eficienciaMin" name="eficienciaMin" min="0" max="100" step="0.1"
                                value="<%= request.getParameter("eficienciaMin") != null ? request.getParameter("eficienciaMin") : "" %>" />
+                    </div>
+                     <div class="filter-group">
+                        <label for="quantidadeMin">Quantidade Mínima (kWh)</label>
+                        <input type="number" id="quantidadeMin" name="quantidadeMin" min="0" step="1"
+                               value="<%= request.getParameter("quantidadeMin") != null ? request.getParameter("quantidadeMin") : "" %>" />
                     </div>
                 </div>
 
@@ -266,6 +270,15 @@ h1 {
                     } catch (NumberFormatException e) { /* Ignora valor inválido */ }
                 }
 
+                String quantidadeMinStr = request.getParameter("quantidadeMin");
+                if (quantidadeMinStr != null && !quantidadeMinStr.trim().isEmpty()) {
+                    try {
+                        double quantidadeMin = Double.parseDouble(quantidadeMinStr);
+                        listaUnidades.removeIf(unidade -> unidade.getQuantidadeMaximaComerciavel() < quantidadeMin);
+                    } catch (NumberFormatException e) { /* Ignora valor inválido */ }
+                }
+
+
             } catch (Exception e) {
                 out.println("<p style='color:red; text-align:center;'>Erro ao carregar unidades geradoras: " + e.getMessage() + "</p>");
             }
@@ -298,6 +311,10 @@ h1 {
 							<strong>Quantidade mínima aceita:</strong>
 							<%= (unidade.getQuantidadeMinimaAceita() > 0) ? String.format("%.2f", unidade.getQuantidadeMinimaAceita()) + " kWh" : "Não definido" %>
 						</div>
+                        <div class="unit-info">
+                            <strong>Quantidade Máxima Comerciável:</strong>
+                            <%= (unidade.getQuantidadeMaximaComerciavel() > 0) ? String.format("%.2f", unidade.getQuantidadeMaximaComerciavel()) + " kWh" : "Não definido" %>
+                        </div>
 						<div class="unit-info">
 							<strong>Regra de Exceções:</strong>
 							<%= (unidade.getRegraDeExcecoes() != null && !unidade.getRegraDeExcecoes().isEmpty())

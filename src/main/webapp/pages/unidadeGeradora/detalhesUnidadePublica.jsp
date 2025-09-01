@@ -285,6 +285,9 @@ tbody tr:hover {
 
 					<div class="info-label">Preço por kWh (R$)</div>
 					<div class="info-value"><%= String.format("%.2f", unidade.getPrecoPorKWh()) %></div>
+					
+					<div class="info-label">Quantidade Máxima Comerciável (%)</div>
+					<div class="info-value"><%=String.format("%.2f", unidade.getQuantidadeMaximaComerciavel())%></div>
 
 					<div class="info-label">Quantidade Mínima Aceita (kWh)</div>
 					<div class="info-value">

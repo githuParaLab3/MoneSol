@@ -9,12 +9,13 @@ public class UnidadeGeradora {
     private double precoPorKWh;
     private double quantidadeMinimaAceita;
     private String regraDeExcecoes; 
+    private double quantidadeMaximaComerciavel;
 
     public UnidadeGeradora() { }
 
     public UnidadeGeradora(String localizacao, double potenciaInstalada, double eficienciaMedia, 
                            String cpfCnpjUsuario, double precoPorKWh, double quantidadeMinimaAceita,
-                           String regraDeExcecoes) {
+                           String regraDeExcecoes, double quantidadeMaximaComerciavel) {
         this.localizacao = localizacao;
         this.potenciaInstalada = potenciaInstalada;
         this.eficienciaMedia = eficienciaMedia;
@@ -22,6 +23,7 @@ public class UnidadeGeradora {
         this.precoPorKWh = precoPorKWh;
         this.quantidadeMinimaAceita = quantidadeMinimaAceita;
         this.regraDeExcecoes = regraDeExcecoes;
+        this.quantidadeMaximaComerciavel = quantidadeMaximaComerciavel;
     }
 
     public int getId() { return id; }
@@ -47,4 +49,7 @@ public class UnidadeGeradora {
 
     public String getRegraDeExcecoes() { return regraDeExcecoes; }
     public void setRegraDeExcecoes(String regraDeExcecoes) { this.regraDeExcecoes = regraDeExcecoes; }
+
+    public double getQuantidadeMaximaComerciavel() { return quantidadeMaximaComerciavel; }
+    public void setQuantidadeMaximaComerciavel(double quantidadeMaximaComerciavel) { this.quantidadeMaximaComerciavel = quantidadeMaximaComerciavel; }
 }

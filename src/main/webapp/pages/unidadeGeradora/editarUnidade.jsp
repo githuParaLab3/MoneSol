@@ -144,13 +144,16 @@ main h1 {
 
         <label for="precoPorKWh">Preço por kWh (R$)</label>
         <input type="number" id="precoPorKWh" name="precoPorKWh" step="0.01" min="0" value="<%= unidade.getPrecoPorKWh() %>" required />
-
+ 
         <label for="quantidadeMinimaAceita">Quantidade Mínima Aceita (kWh)</label>
         <input type="number" id="quantidadeMinimaAceita" name="quantidadeMinimaAceita" step="0.01" min="0" value="<%= unidade.getQuantidadeMinimaAceita() %>" />
 		
 		<label for="regraDeExcecoes">Regra de Exceções</label>
 		<input type="text" id="regraDeExcecoes" name="regraDeExcecoes" value="<%= unidade.getRegraDeExcecoes() != null ? unidade.getRegraDeExcecoes() : "" %>"
        placeholder="Ex: Se meta não batida, enviar alerta" />
+       
+       <label for="quantidadeMáximaComerciavel">Quantidade Máxima Comerciável (kWh)</label>
+       <input type="number" step="0.01" id="quantidadeMaximaComerciavel" name="quantidadeMaximaComerciavel" placeholder="Ex: 200.00" />
 
         <button type="submit">Salvar Alterações</button>
     </form>

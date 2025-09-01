@@ -130,6 +130,7 @@ h2 { margin:0 0 15px; font-size:1.5rem; color:var(--dark); border-bottom:2px sol
                                 <div>
                                     <div class="unit-title"><%= u.getLocalizacao() %></div>
                                     <div class="unit-sub">Potência instalada: <strong><%= String.format("%.2f", u.getPotenciaInstalada()) %> kW</strong></div>
+                                    <div class="unit-sub">Qtd. Máxima Comerciável: <strong><%= String.format("%.2f", u.getQuantidadeMaximaComerciavel()) %> kWh</strong></div>
                                 </div>
                                 <div>&rsaquo;</div>
                             </a>

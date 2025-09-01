@@ -10,7 +10,7 @@ import java.util.List;
 public class UnidadeGeradoraDAO {
 
     public void cadastrar(UnidadeGeradora unidade) throws SQLException {
-        String sql = "INSERT INTO UnidadeGeradora (localizacao, potenciaInstalada, eficienciaMedia, usuario, precoPorKWh, quantidadeMinimaAceita, regraDeExcecoes) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO UnidadeGeradora (localizacao, potenciaInstalada, eficienciaMedia, usuario, precoPorKWh, quantidadeMinimaAceita, regraDeExcecoes, quantidadeMaximaComerciavel) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -22,6 +22,7 @@ public class UnidadeGeradoraDAO {
             stmt.setDouble(5, unidade.getPrecoPorKWh());
             stmt.setDouble(6, unidade.getQuantidadeMinimaAceita());
             stmt.setString(7, unidade.getRegraDeExcecoes());
+            stmt.setDouble(8, unidade.getQuantidadeMaximaComerciavel());
 
             stmt.executeUpdate();
 
@@ -98,7 +99,7 @@ public class UnidadeGeradoraDAO {
     }
 
     public void atualizar(UnidadeGeradora unidade) throws SQLException {
-        String sql = "UPDATE UnidadeGeradora SET localizacao = ?, potenciaInstalada = ?, eficienciaMedia = ?, usuario = ?, precoPorKWh = ?, quantidadeMinimaAceita = ?, regraDeExcecoes = ? WHERE id = ?";
+        String sql = "UPDATE UnidadeGeradora SET localizacao = ?, potenciaInstalada = ?, eficienciaMedia = ?, usuario = ?, precoPorKWh = ?, quantidadeMinimaAceita = ?, regraDeExcecoes = ?, quantidadeMaximaComerciavel = ? WHERE id = ?";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -110,7 +111,8 @@ public class UnidadeGeradoraDAO {
             stmt.setDouble(5, unidade.getPrecoPorKWh());
             stmt.setDouble(6, unidade.getQuantidadeMinimaAceita());
             stmt.setString(7, unidade.getRegraDeExcecoes());
-            stmt.setInt(8, unidade.getId());
+            stmt.setDouble(8, unidade.getQuantidadeMaximaComerciavel());
+            stmt.setInt(9, unidade.getId());
 
             stmt.executeUpdate();
         }
@@ -137,6 +139,7 @@ public class UnidadeGeradoraDAO {
         unidade.setPrecoPorKWh(rs.getDouble("precoPorKWh"));
         unidade.setQuantidadeMinimaAceita(rs.getDouble("quantidadeMinimaAceita"));
         unidade.setRegraDeExcecoes(rs.getString("regraDeExcecoes"));
+        unidade.setQuantidadeMaximaComerciavel(rs.getDouble("quantidadeMaximaComerciavel"));
         return unidade;
     }
 }

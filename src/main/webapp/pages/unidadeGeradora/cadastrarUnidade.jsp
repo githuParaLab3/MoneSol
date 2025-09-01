@@ -137,6 +137,9 @@
             <label for="regraDeExcecoes">Regra de Exceções</label>
             <input type="text" id="regraDeExcecoes" name="regraDeExcecoes" placeholder="Ex: Se meta não batida, desconto de 10%" />
             <div class="note">Descreva o que será feito caso a meta não seja atingida.</div>
+            
+           <label for="quantidadeMáximaComerciavel">Quantidade Máxima Comerciável (kWh)</label>
+           <input type="number" step="0.01" id="quantidadeMaximaComerciavel" name="quantidadeMaximaComerciavel" placeholder="Ex: 200.00" />
 
             <button type="submit" class="btn-submit">Cadastrar Unidade</button>
         </form>

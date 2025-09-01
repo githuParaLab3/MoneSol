@@ -243,8 +243,9 @@ tbody tr:hover {
 					<div class="info-label">Regra de Exceções</div>
 					<div class="info-value">
 						<%=(unidade.getRegraDeExcecoes() != null && !unidade.getRegraDeExcecoes().isBlank()) ? unidade.getRegraDeExcecoes()
-				: "Não definida"%>
-					</div>
+				: "Não definida"%></div>
+				<div class="info-label">Quantidade Máxima Comerciável (%)</div>
+				<div class="info-value"><%=String.format("%.2f", unidade.getQuantidadeMaximaComerciavel())%></div>
 
 				</div>
 				<div class="info">

@@ -57,8 +57,9 @@
 				<tr>
 					<th>ID</th>
 					<th>Localização</th>
-					<th>Potência Instalada (kW)</th>
-					<th>Preço por kWh (R$)</th>
+					<th>Potência (kW)</th>
+					<th>Preço (R$/kWh)</th>
+					<th>Qtd. Máx. (kWh)</th>
 					<th>Dono (CPF/CNPJ)</th>
 					<th>Ações</th>
 				</tr>
@@ -70,6 +71,7 @@
                     <td><%= u.getLocalizacao() %></td>
 					<td><%= String.format("%.2f", u.getPotenciaInstalada()) %></td>
 					<td><%= String.format("%.4f", u.getPrecoPorKWh()) %></td>
+					<td><%= String.format("%.2f", u.getQuantidadeMaximaComerciavel()) %></td>
 					<td><%= u.getCpfCnpjUsuario() != null ? u.getCpfCnpjUsuario() : "-" %></td>
 					<td>
                         <div class="actions">
@@ -107,4 +109,3 @@
 
 </body>
 </html>
-

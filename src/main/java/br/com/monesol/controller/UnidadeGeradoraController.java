@@ -127,6 +127,7 @@ public class UnidadeGeradoraController extends HttpServlet {
             String qtdMinimaStr = request.getParameter("quantidadeMinimaAceita");
             double quantidadeMinima = (qtdMinimaStr != null && !qtdMinimaStr.isEmpty()) ? Double.parseDouble(qtdMinimaStr) : 0.0;
             
+            double quantidadeMaxima = Double.parseDouble(request.getParameter("quantidadeMaximaComerciavel"));
             String regra = request.getParameter("regraDeExcecoes");
 
             UnidadeGeradora unidade = new UnidadeGeradora();
@@ -135,6 +136,7 @@ public class UnidadeGeradoraController extends HttpServlet {
             unidade.setEficienciaMedia(eficiencia);
             unidade.setPrecoPorKWh(precoPorKWh);
             unidade.setQuantidadeMinimaAceita(quantidadeMinima);
+            unidade.setQuantidadeMaximaComerciavel(quantidadeMaxima);
             unidade.setRegraDeExcecoes(regra);
 
             if (usuario.getTipo() == TipoUsuario.DONO_GERADORA) {
@@ -186,6 +188,7 @@ public class UnidadeGeradoraController extends HttpServlet {
             double precoPorKWh = Double.parseDouble(request.getParameter("precoPorKWh"));
             String qtdMinimaStr = request.getParameter("quantidadeMinimaAceita");
             double quantidadeMinima = (qtdMinimaStr != null && !qtdMinimaStr.isEmpty()) ? Double.parseDouble(qtdMinimaStr) : 0.0;
+            double quantidadeMaxima = Double.parseDouble(request.getParameter("quantidadeMaximaComerciavel"));
             String regra = request.getParameter("regraDeExcecoes");
 
             existente.setLocalizacao(localizacao);
@@ -193,6 +196,7 @@ public class UnidadeGeradoraController extends HttpServlet {
             existente.setEficienciaMedia(eficiencia);
             existente.setPrecoPorKWh(precoPorKWh);
             existente.setQuantidadeMinimaAceita(quantidadeMinima);
+            existente.setQuantidadeMaximaComerciavel(quantidadeMaxima);
             existente.setRegraDeExcecoes(regra);
 
             unidadeDAO.atualizar(existente);

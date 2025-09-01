@@ -117,7 +117,7 @@ public class ContratoDAO {
     private Contrato preencherContrato(ResultSet rs) throws SQLException {
         int idUnidade = rs.getInt("unidadeGeradora");
         
-        UnidadeGeradora unidade = new UnidadeGeradora("", 0.0, 0.0, "", 0.0, 0.0,"");
+        UnidadeGeradora unidade = new UnidadeGeradora("", 0.0, 0.0, "", 0.0, 0.0,"", 0.0);
         unidade.setId(idUnidade);
 
         // CORREÇÃO: Buscar também o CPF/CNPJ do dono da unidade
