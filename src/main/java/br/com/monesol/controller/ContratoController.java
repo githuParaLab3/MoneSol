@@ -48,6 +48,7 @@ public class ContratoController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         try {
             String action = request.getParameter("action");
             
@@ -101,11 +102,15 @@ public class ContratoController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
         try {
             switch (action) {
                 case "adicionar":
                     adicionarContrato(request, response);
+                    break;
+                case "adminAdicionar":
+                    adminAdicionarContrato(request, response);
                     break;
                 case "editar":
                     editarContrato(request, response);
@@ -240,7 +245,7 @@ public class ContratoController extends HttpServlet {
             LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
             LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
             int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
-            double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
+            double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada").replace(",","."));
 
             int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
             UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
@@ -262,7 +267,6 @@ public class ContratoController extends HttpServlet {
                 return;
             }
 
-            // Validar datas
             if (vigenciaFim.isBefore(vigenciaInicio)) {
                 request.getSession().setAttribute("mensagemErro", 
                     "A data de fim deve ser posterior à data de início.");
@@ -270,7 +274,6 @@ public class ContratoController extends HttpServlet {
                 return;
             }
 
-            // Validar quantidade mínima
             if (qtdContratada < unidade.getQuantidadeMinimaAceita()) {
                 request.getSession().setAttribute("mensagemErro", 
                     "Quantidade contratada deve ser no mínimo " + unidade.getQuantidadeMinimaAceita() + " kWh.");
@@ -312,6 +315,99 @@ public class ContratoController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
         }
     }
+    
+    // MÉTODO CORRIGIDO E COMPLETADO
+    private void adminAdicionarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+        String redirectPathOnError = request.getContextPath() + "/pages/admin/criarContrato.jsp";
+        HttpSession session = request.getSession();
+
+        try {
+            String cpfCnpjUsuario = request.getParameter("cpfCnpjUsuario");
+            String idUnidadeStr = request.getParameter("idUnidade");
+            String vigenciaInicioStr = request.getParameter("vigenciaInicio");
+            String vigenciaFimStr = request.getParameter("vigenciaFim");
+            String reajustePeriodicoStr = request.getParameter("reajustePeriodico");
+            String quantidadeContratadaStr = request.getParameter("quantidadeContratada");
+
+            if (cpfCnpjUsuario == null || cpfCnpjUsuario.trim().isEmpty() ||
+                idUnidadeStr == null || idUnidadeStr.trim().isEmpty() ||
+                vigenciaInicioStr == null || vigenciaInicioStr.trim().isEmpty() ||
+                vigenciaFimStr == null || vigenciaFimStr.trim().isEmpty() ||
+                reajustePeriodicoStr == null || reajustePeriodicoStr.trim().isEmpty() ||
+                quantidadeContratadaStr == null || quantidadeContratadaStr.trim().isEmpty()) {
+                
+                session.setAttribute("mensagemErro", "Todos os campos são obrigatórios.");
+                response.sendRedirect(redirectPathOnError);
+                return;
+            }
+
+            int idUnidade = Integer.parseInt(idUnidadeStr);
+            LocalDate vigenciaInicio = LocalDate.parse(vigenciaInicioStr);
+            LocalDate vigenciaFim = LocalDate.parse(vigenciaFimStr);
+            int reajustePeriodico = Integer.parseInt(reajustePeriodicoStr);
+            double quantidadeContratada = Double.parseDouble(quantidadeContratadaStr.replace(",", "."));
+
+            if (vigenciaInicio.isAfter(vigenciaFim)) {
+                session.setAttribute("mensagemErro", "A data de início da vigência não pode ser posterior à data de fim.");
+                response.sendRedirect(redirectPathOnError);
+                return;
+            }
+            
+            Usuario contratante = usuarioDAO.buscarPorCpfCnpj(cpfCnpjUsuario);
+            UnidadeGeradora unidadeContratada = unidadeDAO.buscarPorId(idUnidade);
+
+            if (contratante == null || unidadeContratada == null) {
+                session.setAttribute("mensagemErro", "Usuário ou Unidade Geradora inválidos.");
+                response.sendRedirect(redirectPathOnError);
+                return;
+            }
+            
+            // --- LÓGICA DE NEGÓCIO ADICIONADA ---
+            if (contratoDAO.existeContratoUsuarioUnidade(cpfCnpjUsuario, idUnidade)) {
+                session.setAttribute("mensagemErro", "Este usuário já possui um contrato para esta unidade.");
+                response.sendRedirect(redirectPathOnError);
+                return;
+            }
+
+            if (quantidadeContratada < unidadeContratada.getQuantidadeMinimaAceita()) {
+                session.setAttribute("mensagemErro", "Quantidade contratada deve ser no mínimo " + unidadeContratada.getQuantidadeMinimaAceita() + " kWh.");
+                response.sendRedirect(redirectPathOnError);
+                return;
+            }
+            // --- FIM DA LÓGICA ADICIONADA ---
+
+            Contrato novoContrato = new Contrato();
+            novoContrato.setUsuario(contratante);
+            novoContrato.setUnidadeGeradora(unidadeContratada);
+            novoContrato.setVigenciaInicio(vigenciaInicio);
+            novoContrato.setVigenciaFim(vigenciaFim);
+            novoContrato.setReajustePeriodico(reajustePeriodico);
+            novoContrato.setQuantidadeContratada(quantidadeContratada);
+            
+            contratoDAO.cadastrar(novoContrato);
+            
+            // --- CRIAÇÃO DE HISTÓRICO ADICIONADA ---
+            HistoricoContrato historico = new HistoricoContrato(
+                LocalDateTime.now(),
+                "Início do contrato (Admin)",
+                "Contrato firmado com sucesso pelo administrador.",
+                TipoHistorico.ALTERACAO_CONTRATUAL,
+                novoContrato
+            );
+            historicoContratoDAO.cadastrar(historico);
+            // --- FIM DA CRIAÇÃO DE HISTÓRICO ---
+
+            session.setAttribute("mensagemSucesso", "Contrato criado com sucesso!");
+            response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarContratos.jsp");
+
+        } catch (NumberFormatException e) {
+            session.setAttribute("mensagemErro", "Dados numéricos inválidos fornecidos. Verifique os campos de ID, reajuste e quantidade.");
+            response.sendRedirect(redirectPathOnError);
+        } catch (Exception e) {
+            session.setAttribute("mensagemErro", "Erro ao processar o contrato: " + e.getMessage());
+            response.sendRedirect(redirectPathOnError);
+        }
+    }
 
     private void editarContrato(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         try {
@@ -319,7 +415,7 @@ public class ContratoController extends HttpServlet {
             LocalDate vigenciaInicio = LocalDate.parse(request.getParameter("vigenciaInicio"), DateTimeFormatter.ISO_DATE);
             LocalDate vigenciaFim = LocalDate.parse(request.getParameter("vigenciaFim"), DateTimeFormatter.ISO_DATE);
             int reajustePeriodico = Integer.parseInt(request.getParameter("reajustePeriodico"));
-            double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada"));
+            double qtdContratada = Double.parseDouble(request.getParameter("quantidadeContratada").replace(",","."));
 
             int idUnidade = Integer.parseInt(request.getParameter("unidadeGeradoraId"));
             UnidadeGeradora unidade = unidadeDAO.buscarPorId(idUnidade);
@@ -334,7 +430,6 @@ public class ContratoController extends HttpServlet {
                 return;
             }
 
-            // Validar datas
             if (vigenciaFim.isBefore(vigenciaInicio)) {
                 request.getSession().setAttribute("mensagemErro", 
                     "A data de fim deve ser posterior à data de início.");
@@ -342,7 +437,6 @@ public class ContratoController extends HttpServlet {
                 return;
             }
 
-            // Validar quantidade mínima
             if (qtdContratada < unidade.getQuantidadeMinimaAceita()) {
                 request.getSession().setAttribute("mensagemErro", 
                     "Quantidade contratada deve ser no mínimo " + unidade.getQuantidadeMinimaAceita() + " kWh.");
@@ -392,7 +486,6 @@ public class ContratoController extends HttpServlet {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             
-            // Buscar o contrato antes de excluir para pegar informações
             Contrato contrato = contratoDAO.buscarPorId(id);
             if (contrato == null) {
                 request.getSession().setAttribute("mensagemErro", 
@@ -531,3 +624,4 @@ public class ContratoController extends HttpServlet {
         }
     }
 }
+
