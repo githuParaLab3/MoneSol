@@ -9,6 +9,8 @@
 <%@ page import="br.com.monesol.model.Usuario"%>
 <%@ page import="br.com.monesol.dao.ContratoDAO"%>
 <%@ page import="br.com.monesol.model.Contrato"%>
+<%@ page import="java.time.LocalDate"%>
+<%@ page import="java.sql.SQLException"%>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -19,7 +21,7 @@
 <style>
 .container {
 	max-width: 1100px;
-	margin: 40px auto;
+margin: 40px auto;
 	padding: 0 20px;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	color: #333;
@@ -28,7 +30,7 @@
 h1 {
 	text-align: center;
 	color: #212121;
-	font-weight: 900;
+font-weight: 900;
 	font-size: 2.4rem;
 	margin-bottom: 30px;
 }
@@ -36,7 +38,7 @@ h1 {
 /* --- PAINEL DE FILTROS --- */
 .filter-panel {
     background-color: #fff;
-    border: 2px solid #ffd600;
+border: 2px solid #ffd600;
     border-radius: 12px;
     padding: 20px 25px;
     margin-bottom: 40px;
@@ -48,15 +50,18 @@ h1 {
     font-weight: 700;
     color: #212121;
     cursor: pointer;
-    list-style: none; /* Remove a seta padrão */
+    list-style: none;
+/* Remove a seta padrão */
 }
 
 .filter-panel summary::-webkit-details-marker {
-    display: none; /* Remove a seta no Chrome/Safari */
+    display: none;
+/* Remove a seta no Chrome/Safari */
 }
 
 .filter-panel summary::before {
-    content: '▶'; /* Seta customizada */
+    content: '▶';
+/* Seta customizada */
     margin-right: 10px;
     display: inline-block;
     transition: transform 0.2s;
@@ -77,19 +82,19 @@ h1 {
     border-radius: 30px;
     font-size: 1rem;
     outline: none;
-    box-sizing: border-box;
+box-sizing: border-box;
     transition: all 0.3s ease;
     margin-bottom: 20px;
 }
 .search-input:focus {
     border-color: #ffb300;
-    box-shadow: 0 0 10px rgba(255, 214, 0, 0.5);
+box-shadow: 0 0 10px rgba(255, 214, 0, 0.5);
 }
 
 .advanced-filters {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+gap: 20px;
     margin-bottom: 20px;
 }
 
@@ -105,7 +110,7 @@ h1 {
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 1rem;
-    box-sizing: border-box;
+box-sizing: border-box;
 }
 
 .filter-actions {
@@ -123,7 +128,7 @@ h1 {
     color: #ffd600;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
+transition: all 0.3s ease;
 }
 .search-button:hover {
     background-color: #000;
@@ -131,7 +136,7 @@ h1 {
 
 .clear-button {
     padding: 10px 24px;
-    border: 2px solid #ccc;
+border: 2px solid #ccc;
     border-radius: 30px;
     background-color: transparent;
     color: #555;
@@ -147,17 +152,62 @@ h1 {
 
 
 /* --- ESTILOS DOS CARDS (sem alteração) --- */
-.units-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-.unit-card { background: #fff; border: 2px solid #ffd600; border-radius: 12px; padding: 20px 25px; box-shadow: 0 6px 15px rgba(255, 214, 0, 0.2); transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; justify-content: flex-start; color: #212121; }
-.unit-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(255, 214, 0, 0.4); border-color: #ffeb3b; }
+.units-list { list-style: none;
+padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.unit-card { background: #fff; border: 2px solid #ffd600;
+border-radius: 12px; padding: 20px 25px; box-shadow: 0 6px 15px rgba(255, 214, 0, 0.2); transition: transform 0.2s ease, box-shadow 0.2s ease;
+display: flex; flex-direction: column; justify-content: flex-start; color: #212121; }
+.unit-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(255, 214, 0, 0.4);
+border-color: #ffeb3b; }
 .unit-title { font-weight: 700; font-size: 1.25rem; margin-bottom: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.unit-info { font-size: 0.95rem; margin-bottom: 8px; color: #555; }
+.unit-info { font-size: 0.95rem;
+margin-bottom: 8px; color: #555; }
 .unit-info strong { color: #212121; }
-.btn-contratar { margin-top: auto; background-color: #212121; color: #ffd600; border: none; padding: 10px 16px; border-radius: 30px; font-weight: 700; cursor: pointer; align-self: flex-start; transition: background-color 0.3s ease; text-align: center; text-decoration: none; display: inline-block; }
+.btn-contratar { margin-top: auto; background-color: #212121; color: #ffd600; border: none;
+padding: 10px 16px; border-radius: 30px; font-weight: 700; cursor: pointer; align-self: flex-start; transition: background-color 0.3s ease; text-align: center; text-decoration: none;
+display: inline-block; }
 .btn-contratar:hover { background-color: #000; color: #fff700; }
 .link-detalhes { color: inherit; text-decoration: none; cursor: pointer; }
-.link-detalhes:hover { text-decoration: underline; }
+.link-detalhes:hover { text-decoration: underline;
+}
 
+/* Estilos para a barra de progresso */
+.progress-container {
+    margin: 15px 0;
+}
+
+.progress-label {
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.progress-bar-wrapper {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    height: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #f7c600;
+    transition: width 0.4s ease;
+}
+
+.progress-bar-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #212121;
+    font-weight: bold;
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
 </style>
 </head>
 <body>
@@ -174,40 +224,50 @@ h1 {
             <form method="get" class="search-form">
                 <input type="text" name="q" class="search-input"
                     placeholder="Pesquisar por localização, regras..."
-                    value="<%= request.getParameter("q") != null ? request.getParameter("q") : "" %>" />
+     
+                value="<%= request.getParameter("q") != null ? request.getParameter("q") : "" %>" />
                 
                 <div class="advanced-filters">
                     <div class="filter-group">
-                        <label for="potenciaMin">Potência Mínima (kW)</label>
+                      
+   <label for="potenciaMin">Potência Mínima (kW)</label>
                         <input type="number" id="potenciaMin" name="potenciaMin" min="0" step="0.1"
                                value="<%= request.getParameter("potenciaMin") != null ? request.getParameter("potenciaMin") : "" %>" />
                     </div>
-                    <div class="filter-group">
+      
+               <div class="filter-group">
                         <label for="precoMax">Preço Máximo (R$/kWh)</label>
                         <input type="number" id="precoMax" name="precoMax" min="0" step="0.01"
-                               value="<%= request.getParameter("precoMax") != null ? request.getParameter("precoMax") : "" %>" />
+                             
+   value="<%= request.getParameter("precoMax") != null ? request.getParameter("precoMax") : "" %>" />
                     </div>
                     <div class="filter-group">
                         <label for="eficienciaMin">Eficiência Mínima (%)</label>
-                        <input type="number" id="eficienciaMin" name="eficienciaMin" min="0" max="100" step="0.1"
-                               value="<%= request.getParameter("eficienciaMin") != null ? request.getParameter("eficienciaMin") : "" %>" />
+                     
+    <input type="number" id="eficienciaMin" name="eficienciaMin" min="0" max="100" step="0.1"
+                               value="<%= request.getParameter("eficienciaMin") != null ?
+ request.getParameter("eficienciaMin") : "" %>" />
                     </div>
                      <div class="filter-group">
                         <label for="quantidadeMin">Quantidade Mínima (kWh)</label>
-                        <input type="number" id="quantidadeMin" name="quantidadeMin" min="0" step="1"
-                               value="<%= request.getParameter("quantidadeMin") != null ? request.getParameter("quantidadeMin") : "" %>" />
+                        <input type="number" id="quantidadeMin" 
+ name="quantidadeMin" min="0" step="1"
+                               value="<%= request.getParameter("quantidadeMin") != null ?
+ request.getParameter("quantidadeMin") : "" %>" />
                     </div>
                 </div>
 
                 <div class="filter-actions">
                     <button type="submit" class="search-button">Filtrar</button>
-                    <a href="listaUnidadesDisponiveis.jsp" class="clear-button">Limpar Filtros</a>
+                    <a 
+ href="listaUnidadesDisponiveis.jsp" class="clear-button">Limpar Filtros</a>
                 </div>
             </form>
         </details>
 
 		<%
             UnidadeGeradoraDAO unidadeDAO = new UnidadeGeradoraDAO();
+            ContratoDAO contratoDAO = new ContratoDAO();
             List<UnidadeGeradora> listaUnidades = null;
 
             try {
@@ -217,71 +277,96 @@ h1 {
 
                 // Se houver um usuário logado, busca os IDs das unidades que ele já contratou
                 Set<Integer> idsUnidadesContratadas = Collections.emptySet();
+  
                 if (usuarioLogado != null) {
-                    ContratoDAO contratoDAO = new ContratoDAO();
-                    List<Contrato> contratosDoUsuario = contratoDAO.listarPorUsuario(usuarioLogado.getCpfCnpj());
+ List<Contrato> contratosDoUsuario = contratoDAO.listarPorUsuario(usuarioLogado.getCpfCnpj());
                     idsUnidadesContratadas = contratosDoUsuario.stream()
                                                .map(contrato -> contrato.getUnidadeGeradora().getId())
-                                               .collect(Collectors.toSet());
+                                             
+.collect(Collectors.toSet());
                 }
 
                 // 1. Pega todas as unidades do banco
                 listaUnidades = unidadeDAO.listarTodas();
-
-                // 2. Aplica o filtro para remover unidades já contratadas (se aplicável)
+ // 2. Aplica o filtro para remover unidades já contratadas (se aplicável)
                 if (!idsUnidadesContratadas.isEmpty()) {
                     final Set<Integer> finalIds = idsUnidadesContratadas;
-                    listaUnidades.removeIf(unidade -> finalIds.contains(unidade.getId()));
+ listaUnidades.removeIf(unidade -> finalIds.contains(unidade.getId()));
                 }
+                
+                // 2.1. FILTRO ADICIONAL: Remove unidades com capacidade esgotada
+                listaUnidades.removeIf(unidade -> {
+                    try {
+                        double capacidadePreenchida = contratoDAO.calcularCapacidadeContratada(unidade.getId());
+                        return capacidadePreenchida >= unidade.getQuantidadeMaximaComerciavel();
+                    } catch (SQLException e) {
+                        // Se houver um erro, remove a unidade para não correr riscos
+                        return true;
+                    }
+                });
 
                 // 3. Aplica os outros filtros de pesquisa
                 
                 String q = request.getParameter("q");
-                if (q != null && !q.trim().isEmpty()) {
+ if (q != null && !q.trim().isEmpty()) {
                     String termo = q.toLowerCase();
-                    listaUnidades.removeIf(unidade ->
-                        !((unidade.getLocalizacao() != null && unidade.getLocalizacao().toLowerCase().contains(termo)) ||
-                          (unidade.getRegraDeExcecoes() != null && unidade.getRegraDeExcecoes().toLowerCase().contains(termo)))
-                    );
-                }
+ listaUnidades.removeIf(unidade -> {
+        try {
+            double capacidadePreenchida = contratoDAO.calcularCapacidadeContratada(unidade.getId());
+            double capacidadeDisponivel = unidade.getQuantidadeMaximaComerciavel() - capacidadePreenchida;
+            return !(
+                (unidade.getLocalizacao() != null && unidade.getLocalizacao().toLowerCase().contains(termo)) ||
+                (unidade.getRegraDeExcecoes() != null && unidade.getRegraDeExcecoes().toLowerCase().contains(termo)) ||
+                String.format("%.2f", unidade.getPotenciaInstalada()).contains(termo) ||
+                String.format("%.1f", unidade.getEficienciaMedia() * 100).contains(termo) ||
+                String.format("%.2f", unidade.getPrecoPorKWh()).contains(termo) ||
+                String.format("%.2f", unidade.getQuantidadeMinimaAceita()).contains(termo) ||
+                String.format("%.2f", unidade.getQuantidadeMaximaComerciavel()).contains(termo) ||
+                String.format("%.2f", capacidadeDisponivel).contains(termo)
+            );
+        } catch (SQLException e) {
+            return true; // Em caso de erro, remove a unidade da lista para segurança
+        }
+    });
+ }
 
                 String potenciaMinStr = request.getParameter("potenciaMin");
-                if (potenciaMinStr != null && !potenciaMinStr.trim().isEmpty()) {
+ if (potenciaMinStr != null && !potenciaMinStr.trim().isEmpty()) {
                     try {
                         double potenciaMin = Double.parseDouble(potenciaMinStr);
-                        listaUnidades.removeIf(unidade -> unidade.getPotenciaInstalada() < potenciaMin);
+ listaUnidades.removeIf(unidade -> unidade.getPotenciaInstalada() < potenciaMin);
                     } catch (NumberFormatException e) { /* Ignora valor inválido */ }
                 }
 
                 String precoMaxStr = request.getParameter("precoMax");
-                if (precoMaxStr != null && !precoMaxStr.trim().isEmpty()) {
+ if (precoMaxStr != null && !precoMaxStr.trim().isEmpty()) {
                     try {
                         double precoMax = Double.parseDouble(precoMaxStr);
-                        listaUnidades.removeIf(unidade -> unidade.getPrecoPorKWh() > precoMax);
+ listaUnidades.removeIf(unidade -> unidade.getPrecoPorKWh() > precoMax);
                     } catch (NumberFormatException e) { /* Ignora valor inválido */ }
                 }
 
                 String eficienciaMinStr = request.getParameter("eficienciaMin");
-                if (eficienciaMinStr != null && !eficienciaMinStr.trim().isEmpty()) {
+ if (eficienciaMinStr != null && !eficienciaMinStr.trim().isEmpty()) {
                     try {
                         double eficienciaMin = Double.parseDouble(eficienciaMinStr);
-                        // A eficiência é armazenada como decimal (ex: 0.9), então dividimos por 100
+ // A eficiência é armazenada como decimal (ex: 0.9), então dividimos por 100
                         listaUnidades.removeIf(unidade -> (unidade.getEficienciaMedia() * 100) < eficienciaMin);
-                    } catch (NumberFormatException e) { /* Ignora valor inválido */ }
+ } catch (NumberFormatException e) { /* Ignora valor inválido */ }
                 }
 
                 String quantidadeMinStr = request.getParameter("quantidadeMin");
-                if (quantidadeMinStr != null && !quantidadeMinStr.trim().isEmpty()) {
+ if (quantidadeMinStr != null && !quantidadeMinStr.trim().isEmpty()) {
                     try {
                         double quantidadeMin = Double.parseDouble(quantidadeMinStr);
-                        listaUnidades.removeIf(unidade -> unidade.getQuantidadeMaximaComerciavel() < quantidadeMin);
+ listaUnidades.removeIf(unidade -> unidade.getQuantidadeMaximaComerciavel() < quantidadeMin);
                     } catch (NumberFormatException e) { /* Ignora valor inválido */ }
                 }
 
 
             } catch (Exception e) {
                 out.println("<p style='color:red; text-align:center;'>Erro ao carregar unidades geradoras: " + e.getMessage() + "</p>");
-            }
+ }
         %>
 
 		<% if (listaUnidades != null && !listaUnidades.isEmpty()) { %>
@@ -301,7 +386,7 @@ h1 {
 						</div>
 						<div class="unit-info">
 							<strong>Eficiência Média:</strong>
-							<%= String.format("%.1f", unidade.getEficienciaMedia() * 100) %> %
+							<%= String.format("%.1f", unidade.getEficienciaMedia()) %> %
 						</div>
 						<div class="unit-info">
 							<strong>Preço por kWh:</strong> R$
@@ -309,16 +394,42 @@ h1 {
 						</div>
 						<div class="unit-info">
 							<strong>Quantidade mínima aceita:</strong>
-							<%= (unidade.getQuantidadeMinimaAceita() > 0) ? String.format("%.2f", unidade.getQuantidadeMinimaAceita()) + " kWh" : "Não definido" %>
+							<%= (unidade.getQuantidadeMinimaAceita() > 0) ?
+ String.format("%.2f", unidade.getQuantidadeMinimaAceita()) + " kWh" : "Não definido" %>
 						</div>
                         <div class="unit-info">
                             <strong>Quantidade Máxima Comerciável:</strong>
-                            <%= (unidade.getQuantidadeMaximaComerciavel() > 0) ? String.format("%.2f", unidade.getQuantidadeMaximaComerciavel()) + " kWh" : "Não definido" %>
+                            <%= (unidade.getQuantidadeMaximaComerciavel() > 0) ?
+ String.format("%.2f", unidade.getQuantidadeMaximaComerciavel()) + " kWh" : "Não definido" %>
+                        </div>
+                        <%
+                            double capacidadePreenchida = 0.0;
+                            try {
+                                capacidadePreenchida = contratoDAO.calcularCapacidadeContratada(unidade.getId());
+                            } catch (Exception e) {
+                                // Ignorar erro, capacidadePreenchida permanece 0.0
+                            }
+                            double capacidadeDisponivel = unidade.getQuantidadeMaximaComerciavel() - capacidadePreenchida;
+                            double porcentagem = (unidade.getQuantidadeMaximaComerciavel() > 0) ? (capacidadePreenchida / unidade.getQuantidadeMaximaComerciavel()) * 100 : 0;
+                            String porcentagemFormatada = String.format("%.2f", porcentagem).replace(",", ".");
+                        %>
+                        <div class="progress-container">
+                            <div class="progress-label"><strong>Capacidade de Contrato</strong></div>
+                            <div class="progress-bar-wrapper">
+                                <div class="progress-bar-fill" style="width: <%= porcentagemFormatada %>%;"></div>
+                                <span class="progress-bar-text">
+                                    <%= String.format("%.2f", capacidadePreenchida) %>/<%= String.format("%.2f", unidade.getQuantidadeMaximaComerciavel()) %> kWh
+                                </span>
+                            </div>
+                            <small style="color: #555; font-size: 0.9rem; margin-top: 5px; display: block;">
+                                Disponível: <%= String.format("%.2f", capacidadeDisponivel) %> kWh
+                            </small>
                         </div>
 						<div class="unit-info">
 							<strong>Regra de Exceções:</strong>
 							<%= (unidade.getRegraDeExcecoes() != null && !unidade.getRegraDeExcecoes().isEmpty())
-        ? unidade.getRegraDeExcecoes()
+        ?
+ unidade.getRegraDeExcecoes()
         : "Não definida" %>
 						</div>
 					</a>

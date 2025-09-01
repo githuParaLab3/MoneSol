@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java"%>
 <%@ page import="br.com.monesol.model.*"%>
 <%@ page import="br.com.monesol.dao.MedicaoDAO"%>
+<%@ page import="br.com.monesol.dao.ContratoDAO"%>
 <%@ page import="java.util.List"%>
 <%@ page import="java.time.format.DateTimeFormatter"%>
 <%
@@ -20,15 +21,26 @@ if (unidade == null) {
 }
 
 boolean podeEditar = "ADMIN".equalsIgnoreCase(usuarioDetalhesUnidade.getTipo().name())
-		|| (unidade.getCpfCnpjUsuario() != null
+		||
+(unidade.getCpfCnpjUsuario() != null
 		&& unidade.getCpfCnpjUsuario().equals(usuarioDetalhesUnidade.getCpfCnpj()));
 
 MedicaoDAO medicaoDAO = new MedicaoDAO();
+ContratoDAO contratoDAO = new ContratoDAO();
 List<Medicao> medições = null;
 try {
 	medições = medicaoDAO.listarPorUnidade(unidade.getId());
 } catch (Exception e) {
 	e.printStackTrace();
+}
+
+double capacidadeContratada = 0.0;
+double capacidadeDisponivel = 0.0;
+try {
+    capacidadeContratada = contratoDAO.calcularCapacidadeContratada(unidade.getId());
+    capacidadeDisponivel = unidade.getQuantidadeMaximaComerciavel() - capacidadeContratada;
+} catch (Exception e) {
+    e.printStackTrace();
 }
 
 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -57,7 +69,7 @@ body {
 main {
 	max-width: 1000px;
 	margin: 30px auto;
-	padding: 0 20px 60px;
+padding: 0 20px 60px;
 }
 
 h1 {
@@ -71,7 +83,7 @@ h1 {
 .sub {
 	font-size: 0.95rem;
 	color: #555;
-	margin-bottom: 30px;
+margin-bottom: 30px;
 	text-align: center;
 }
 
@@ -81,7 +93,7 @@ h1 {
 	border: 1.5px solid #f7c600;
 	padding: 25px 30px;
 	margin-bottom: 30px;
-	box-shadow: 0 8px 25px rgba(247, 198, 0, 0.25);
+box-shadow: 0 8px 25px rgba(247, 198, 0, 0.25);
 }
 
 .flex {
@@ -106,7 +118,7 @@ h1 {
 	padding: 12px 14px;
 	border-radius: 8px;
 	margin-bottom: 12px;
-	font-size: 1rem;
+font-size: 1rem;
 }
 
 .actions {
@@ -120,7 +132,7 @@ h1 {
 	padding: 10px 22px;
 	border: none;
 	border-radius: 30px;
-	font-weight: 700;
+font-weight: 700;
 	cursor: pointer;
 	user-select: none;
 	font-size: 0.95rem;
@@ -129,7 +141,7 @@ h1 {
 	gap: 6px;
 	transition: background 0.25s ease;
 	text-decoration: none;
-	text-align: center;
+text-align: center;
 	
 }
 
@@ -181,7 +193,7 @@ thead {
 th, td {
 	padding: 12px 14px;
 	text-align: left;
-	border-bottom: 1px solid #f0e38f;
+border-bottom: 1px solid #f0e38f;
 }
 
 th {
@@ -197,7 +209,7 @@ tbody tr:hover {
 	display: flex;
 	gap: 20px;
 	flex-wrap: wrap;
-	margin-top: 10px;
+margin-top: 10px;
 }
 
 .summary-item {
@@ -208,6 +220,44 @@ tbody tr:hover {
 	padding: 12px 16px;
 	font-weight: 600;
 }
+
+/* Estilos para a barra de progresso */
+.progress-container {
+    margin: 15px 0;
+}
+
+.progress-label {
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.progress-bar-wrapper {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    height: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #f7c600;
+    transition: width 0.4s ease;
+}
+
+.progress-bar-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #212121;
+    font-weight: bold;
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
 </style>
 </head>
 <body>
@@ -217,9 +267,11 @@ tbody tr:hover {
 	<main aria-label="Detalhes da unidade geradora">
 		
 		<% if (usuarioDetalhesUnidade != null && "ADMIN".equalsIgnoreCase(usuarioDetalhesUnidade.getTipo().name())) { %>
-	        <a href="<%= request.getContextPath() %>/pages/admin/gerenciarUnidades.jsp" class="btn btn-back" style="margin-bottom: 20px;">&larr; Voltar</a>
+	        <a href="<%= request.getContextPath() %>/pages/admin/gerenciarUnidades.jsp" class="btn btn-back" style="margin-bottom: 20px;">&larr;
+ Voltar</a>
 	    <% } else { %>
-	        <a href="<%= request.getContextPath() %>/pages/usuario/dashboard.jsp" class="btn btn-back" style="margin-bottom: 20px;">&larr; Voltar</a>
+	        <a href="<%= request.getContextPath() %>/pages/usuario/dashboard.jsp" class="btn btn-back" style="margin-bottom: 20px;">&larr;
+ Voltar</a>
 	    <% } %>
 
 		<h1>
@@ -234,23 +286,36 @@ tbody tr:hover {
 					<div class="info-label">Potência Instalada (kW)</div>
 					<div class="info-value"><%=String.format("%.2f", unidade.getPotenciaInstalada())%></div>
 					<div class="info-label">Eficiência Média (%)</div>
-					<div class="info-value"><%=String.format("%.1f", unidade.getEficienciaMedia() * 100)%></div>
+					<div class="info-value"><%=String.format("%.1f", unidade.getEficienciaMedia())%></div>
 					<div class="info-label">Preço por kWh (R$)</div>
 					<div class="info-value"><%=String.format("%.2f", unidade.getPrecoPorKWh())%></div>
 					<div class="info-label">Quantidade Mínima Aceita (kWh)</div>
-					<div class="info-value"><%=(unidade.getQuantidadeMinimaAceita() > 0) ? String.format("%.2f", unidade.getQuantidadeMinimaAceita())
+					<div class="info-value"><%=(unidade.getQuantidadeMinimaAceita() > 0) ?
+ String.format("%.2f", unidade.getQuantidadeMinimaAceita())
 		: "Não definido"%></div>
 					<div class="info-label">Regra de Exceções</div>
 					<div class="info-value">
-						<%=(unidade.getRegraDeExcecoes() != null && !unidade.getRegraDeExcecoes().isBlank()) ? unidade.getRegraDeExcecoes()
+						<%=(unidade.getRegraDeExcecoes() != null && !unidade.getRegraDeExcecoes().isBlank()) ?
+ unidade.getRegraDeExcecoes()
 				: "Não definida"%></div>
-				<div class="info-label">Quantidade Máxima Comerciável (%)</div>
-				<div class="info-value"><%=String.format("%.2f", unidade.getQuantidadeMaximaComerciavel())%></div>
-
+				<div class="progress-container">
+                    <div class="progress-label"><strong>Capacidade de Contrato</strong></div>
+                    <div class="progress-bar-wrapper">
+                        <%
+                            double porcentagem = (unidade.getQuantidadeMaximaComerciavel() > 0) ? (capacidadeContratada / unidade.getQuantidadeMaximaComerciavel()) * 100 : 0;
+                            String porcentagemFormatada = String.format("%.2f", porcentagem).replace(",", ".");
+                        %>
+                        <div class="progress-bar-fill" style="width: <%= porcentagemFormatada %>%;"></div>
+                        <span class="progress-bar-text">
+                            <%= String.format("%.2f", capacidadeContratada) %>/<%= String.format("%.2f", unidade.getQuantidadeMaximaComerciavel()) %> kWh
+                        </span>
+                    </div>
+                </div>
 				</div>
 				<div class="info">
 					<div class="info-label">Dono da Unidade</div>
-					<div class="info-value"><%=unidade.getCpfCnpjUsuario() != null ? unidade.getCpfCnpjUsuario() : "-"%></div>
+					<div class="info-value"><%=unidade.getCpfCnpjUsuario() != null ?
+ unidade.getCpfCnpjUsuario() : "-"%></div>
 					<div class="info-label">Total de Medições</div>
 					<div class="info-value"><%=(medições != null ? medições.size() : 0)%></div>
 				</div>
@@ -269,7 +334,7 @@ tbody tr:hover {
 						<form
 							action="<%=request.getContextPath()%>/UnidadeGeradoraController"
 							method="post" style="display: inline;"
-							onsubmit="return confirm('Confirma exclusão desta unidade?');">
+ onsubmit="return confirm('Confirma exclusão desta unidade?');">
 							<input type="hidden" name="action" value="deletar" /> <input
 								type="hidden" name="id" value="<%=unidade.getId()%>" />
 							<button type="submit" class="btn btn-delete">Excluir</button>
@@ -301,12 +366,12 @@ tbody tr:hover {
 			<p>Não há medições registradas para esta unidade.</p>
 			<%
 			} else {
-			double totalGerada = 0, totalConsumidaLocal = 0, totalInjetada = 0;
-			for (Medicao m : medições) {
+double totalGerada = 0, totalConsumidaLocal = 0, totalInjetada = 0;
+for (Medicao m : medições) {
 				totalGerada += m.getEnergiaGerada();
 				totalConsumidaLocal += m.getEnergiaConsumidaLocalmente();
 				totalInjetada += m.getEnergiaInjetadaNaRede();
-			}
+}
 			%>
 			<div class="summary">
 				<div class="summary-item">
@@ -351,7 +416,8 @@ tbody tr:hover {
 							<td><a
 								href="<%=request.getContextPath()%>/pages/medicao/editarMedicao.jsp?medicaoId=<%=m.getId()%>"
 								class="btn btn-edit"
-								style="padding: 5px 10px; font-size: 0.85rem;">Editar</a>
+								style="padding: 5px 10px;
+font-size: 0.85rem;">Editar</a>
 								<form action="<%=request.getContextPath()%>/MedicaoController"
 									method="post" style="display: inline;"
 									onsubmit="return confirm('Deseja realmente deletar esta medição?');">
@@ -360,7 +426,8 @@ tbody tr:hover {
 										type="hidden" name="unidadeGeradoraId"
 										value="<%=unidade.getId()%>" />
 									<button type="submit" class="btn btn-delete"
-										style="padding: 5px 10px; font-size: 0.85rem;">Deletar</button>
+										style="padding: 5px 10px;
+font-size: 0.85rem;">Deletar</button>
 								</form></td>
 							<%
 							}
@@ -381,4 +448,3 @@ tbody tr:hover {
 	</main>
 </body>
 </html>
-

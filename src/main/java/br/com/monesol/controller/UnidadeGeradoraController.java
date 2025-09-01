@@ -130,6 +130,13 @@ public class UnidadeGeradoraController extends HttpServlet {
             double quantidadeMaxima = Double.parseDouble(request.getParameter("quantidadeMaximaComerciavel"));
             String regra = request.getParameter("regraDeExcecoes");
 
+            // Validação de regra de negócio: quantidade mínima não pode ser maior que a quantidade máxima
+            if (quantidadeMinima > quantidadeMaxima) {
+                request.getSession().setAttribute("mensagemErro", "Quantidade mínima de contrato não pode ser maior que a quantidade máxima comerciável.");
+                response.sendRedirect(request.getContextPath() + "/pages/unidadeGeradora/cadastrarUnidade.jsp");
+                return;
+            }
+
             UnidadeGeradora unidade = new UnidadeGeradora();
             unidade.setLocalizacao(localizacao);
             unidade.setPotenciaInstalada(potencia);
@@ -190,6 +197,13 @@ public class UnidadeGeradoraController extends HttpServlet {
             double quantidadeMinima = (qtdMinimaStr != null && !qtdMinimaStr.isEmpty()) ? Double.parseDouble(qtdMinimaStr) : 0.0;
             double quantidadeMaxima = Double.parseDouble(request.getParameter("quantidadeMaximaComerciavel"));
             String regra = request.getParameter("regraDeExcecoes");
+
+            // Validação de regra de negócio: quantidade mínima não pode ser maior que a quantidade máxima
+            if (quantidadeMinima > quantidadeMaxima) {
+                request.getSession().setAttribute("mensagemErro", "Quantidade mínima de contrato não pode ser maior que a quantidade máxima comerciável.");
+                response.sendRedirect(request.getContextPath() + "/pages/unidadeGeradora/editarUnidade.jsp?id=" + id);
+                return;
+            }
 
             existente.setLocalizacao(localizacao);
             existente.setPotenciaInstalada(potencia);

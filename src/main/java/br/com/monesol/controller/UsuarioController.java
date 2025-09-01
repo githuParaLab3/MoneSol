@@ -429,18 +429,18 @@ public class UsuarioController extends HttpServlet {
         try {
             String cpfCnpjRaw = request.getParameter("cpfCnpj");
             String senha = request.getParameter("senha");
+            
+            HttpSession session = request.getSession();
 
             if (cpfCnpjRaw == null || cpfCnpjRaw.trim().isEmpty()) {
-                request.setAttribute("erroLogin", "CPF/CNPJ é obrigatório");
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/usuario/login.jsp");
-                dispatcher.forward(request, response);
+                session.setAttribute("mensagemErro", "CPF/CNPJ é obrigatório");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
                 return;
             }
 
             if (senha == null || senha.trim().isEmpty()) {
-                request.setAttribute("erroLogin", "Senha é obrigatória");
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/usuario/login.jsp");
-                dispatcher.forward(request, response);
+                session.setAttribute("mensagemErro", "Senha é obrigatória");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
                 return;
             }
 
@@ -448,7 +448,6 @@ public class UsuarioController extends HttpServlet {
             Usuario usuario = usuarioDAO.buscarPorCpfCnpj(cpfCnpj);
 
             if (usuario != null && usuario.getSenha().equals(senha)) {
-                HttpSession session = request.getSession();
                 session.setAttribute("usuarioLogado", usuario);
                 
                 if(usuario.getTipo() == TipoUsuario.ADMIN) {
@@ -458,15 +457,14 @@ public class UsuarioController extends HttpServlet {
                 }
                
             } else {
-                request.setAttribute("erroLogin", "CPF/CNPJ ou senha inválidos");
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/usuario/login.jsp");
-                dispatcher.forward(request, response);
+                session.setAttribute("mensagemErro", "CPF/CNPJ ou senha inválidos");
+                response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
             }
 
         } catch (Exception e) {
-            request.setAttribute("erroLogin", "Erro interno: " + e.getMessage());
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/usuario/login.jsp");
-            dispatcher.forward(request, response);
+            HttpSession session = request.getSession();
+            session.setAttribute("mensagemErro", "Erro interno: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
         }
     }
 

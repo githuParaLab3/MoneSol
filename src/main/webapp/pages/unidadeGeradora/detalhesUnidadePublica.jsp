@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java"%>
 <%@ page import="br.com.monesol.model.*"%>
-<%@ page import="br.com.monesol.dao.MedicaoDAO"%>
+<%@ page import="br.com.monesol.dao.ContratoDAO"%>
 <%@ page import="java.util.List"%>
 <%@ page import="java.time.format.DateTimeFormatter"%>
 <%
@@ -17,14 +17,13 @@
         return;
     }
 
-    boolean podeEditar = "ADMIN".equalsIgnoreCase(usuarioDetalhesUnidade.getTipo().name()) 
-        || (unidade.getCpfCnpjUsuario() != null && unidade.getCpfCnpjUsuario().equals(usuarioDetalhesUnidade.getCpfCnpj()));
-
+    // A lógica de edição/exclusão foi removida
   
-    MedicaoDAO medicaoDAO = new MedicaoDAO();
-    List<Medicao> medições = null;
+    ContratoDAO contratoDAO = new ContratoDAO();
+
+    double capacidadeContratada = 0.0;
     try {
-        medições = medicaoDAO.listarPorUnidade(unidade.getId());
+        capacidadeContratada = contratoDAO.calcularCapacidadeContratada(unidade.getId());
     } catch (Exception e) {
         e.printStackTrace();
     }
@@ -254,6 +253,43 @@ tbody tr:hover {
 		flex-direction: column;
 	}
 }
+/* Estilos para a barra de progresso */
+.progress-container {
+    margin: 15px 0;
+}
+
+.progress-label {
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.progress-bar-wrapper {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    height: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #f7c600;
+    transition: width 0.4s ease;
+}
+
+.progress-bar-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #212121;
+    font-weight: bold;
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
 </style>
 </head>
 <body>
@@ -281,7 +317,7 @@ tbody tr:hover {
 					<div class="info-value"><%= String.format("%.2f", unidade.getPotenciaInstalada()) %></div>
 
 					<div class="info-label">Eficiência Média (%)</div>
-					<div class="info-value"><%= String.format("%.1f", unidade.getEficienciaMedia() * 100) %></div>
+					<div class="info-value"><%= String.format("%.1f", unidade.getEficienciaMedia()) %></div>
 
 					<div class="info-label">Preço por kWh (R$)</div>
 					<div class="info-value"><%= String.format("%.2f", unidade.getPrecoPorKWh()) %></div>
@@ -303,134 +339,30 @@ tbody tr:hover {
 				</div>
 				<div class="info">
 
-					<div class="info-label">Total de Medições</div>
-					<div class="info-value"><%= (medições != null ? medições.size() : 0) %></div>
-				</div>
-				<div class="info" style="flex: 0 0 200px;">
-					<% if (podeEditar) { %>
-					<div class="actions">
-						<form
-							action="<%= request.getContextPath() %>/pages/unidadeGeradora/editarUnidade.jsp"
-							method="get" style="width: 100%;">
-							<input type="hidden" name="id" value="<%= unidade.getId() %>" />
-							<button type="submit" class="btn btn-edit">Editar
-								Unidade</button>
-						</form>
-
-						<form
-							action="<%= request.getContextPath() %>/UnidadeGeradoraController"
-							method="post" style="width: 100%;"
-							onsubmit="return confirm('Confirma exclusão desta unidade?');">
-							<input type="hidden" name="action" value="deletar" /> <input
-								type="hidden" name="id" value="<%= unidade.getId() %>" />
-							<button type="submit" class="btn btn-delete">Excluir</button>
-						</form>
-					</div>
-					<% } %>
+					<div class="info-label">Dono da Unidade</div>
+					<div class="info-value"><%=unidade.getCpfCnpjUsuario() != null ?
+ unidade.getCpfCnpjUsuario() : "-"%></div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label"><strong>Capacidade de Contrato</strong></div>
+                        <div class="progress-bar-wrapper">
+                            <%
+                                double porcentagem = (unidade.getQuantidadeMaximaComerciavel() > 0) ? (capacidadeContratada / unidade.getQuantidadeMaximaComerciavel()) * 100 : 0;
+                                String porcentagemFormatada = String.format("%.2f", porcentagem).replace(",", ".");
+                            %>
+                            <div class="progress-bar-fill" style="width: <%= porcentagemFormatada %>%;"></div>
+                            <span class="progress-bar-text">
+                                <%= String.format("%.2f", capacidadeContratada) %>/<%= String.format("%.2f", unidade.getQuantidadeMaximaComerciavel()) %> kWh
+                            </span>
+                        </div>
+                    </div>
 				</div>
 			</div>
 		</div>
-
-		<% if (podeEditar) { %>
-		<button id="btnToggleForm" class="btn btn-edit"
-			style="margin-bottom: 20px;">+ Adicionar Medição</button>
-
-		<div id="formMedicao" class="card"
-			style="display: none; max-width: 480px; margin-bottom: 30px;">
-			<h2>Adicionar Nova Medição</h2>
-			<form action="<%= request.getContextPath() %>/MedicaoController"
-				method="post">
-				<input type="hidden" name="action" value="adicionar" /> <input
-					type="hidden" name="unidadeGeradoraId"
-					value="<%= unidade.getId() %>" /> <label for="dataMedicao">Data
-					e Hora da Medição:</label><br /> <input type="datetime-local"
-					id="dataMedicao" name="dataMedicao" required
-					style="width: 100%; margin-bottom: 15px; padding: 8px;" /> <label
-					for="energiaGerada">Energia Gerada (kWh):</label><br /> <input
-					type="number" step="0.01" min="0" id="energiaGerada"
-					name="energiaGerada" required
-					style="width: 100%; margin-bottom: 15px; padding: 8px;" /> <label
-					for="energiaConsumidaLocalmente">Energia Consumida
-					Localmente (kWh):</label><br /> <input type="number" step="0.01" min="0"
-					id="energiaConsumidaLocalmente" name="energiaConsumidaLocalmente"
-					required style="width: 100%; margin-bottom: 15px; padding: 8px;" />
-
-				<label for="energiaInjetadaNaRede">Energia Injetada na Rede
-					(kWh):</label><br /> <input type="number" step="0.01" min="0"
-					id="energiaInjetadaNaRede" name="energiaInjetadaNaRede" required
-					style="width: 100%; margin-bottom: 15px; padding: 8px;" />
-
-				<button type="submit" class="btn btn-edit" style="width: 100%;">Adicionar
-					Medição</button>
-			</form>
-		</div>
-
-		<script>
-        document.getElementById('btnToggleForm').addEventListener('click', function() {
-            const form = document.getElementById('formMedicao');
-            if (form.style.display === 'none' || form.style.display === '') {
-                form.style.display = 'block';
-                this.textContent = '− Fechar Formulário';
-            } else {
-                form.style.display = 'none';
-                this.textContent = '+ Adicionar Medição';
-            }
-        });
-    </script>
-		<% } %>
 
 		<div class="card" aria-labelledby="medicoes-title">
 			<h2 id="medicoes-title">Medições Recentes</h2>
-			<% if (medições == null || medições.isEmpty()) { %>
 			<p>Não há medições registradas para esta unidade.</p>
-			<% } else { 
-            double totalGerada = 0;
-            double totalConsumidaLocal = 0;
-            double totalInjetada = 0;
-            for (Medicao m : medições) {
-                totalGerada += m.getEnergiaGerada();
-                totalConsumidaLocal += m.getEnergiaConsumidaLocalmente();
-                totalInjetada += m.getEnergiaInjetadaNaRede();
-            }
-        %>
-			<div class="summary" aria-label="Resumo das medições">
-				<div class="summary-item">
-					Total Gerado: <strong><%= String.format("%.2f", totalGerada) %>
-						kWh</strong>
-				</div>
-				<div class="summary-item">
-					Consumido Localmente: <strong><%= String.format("%.2f", totalConsumidaLocal) %>
-						kWh</strong>
-				</div>
-				<div class="summary-item">
-					Injetado na Rede: <strong><%= String.format("%.2f", totalInjetada) %>
-						kWh</strong>
-				</div>
-			</div>
-
-			<div class="table-wrapper">
-				<table aria-label="Tabela de medições da unidade">
-					<thead>
-						<tr>
-							<th>Data / Hora</th>
-							<th>Energia Gerada (kWh)</th>
-							<th>Consumida Localmente (kWh)</th>
-							<th>Injetada na Rede (kWh)</th>
-						</tr>
-					</thead>
-					<tbody>
-						<% for (Medicao m : medições) { %>
-						<tr>
-							<td><%= m.getDataMedicao().format(dtf) %></td>
-							<td><%= String.format("%.2f", m.getEnergiaGerada()) %></td>
-							<td><%= String.format("%.2f", m.getEnergiaConsumidaLocalmente()) %></td>
-							<td><%= String.format("%.2f", m.getEnergiaInjetadaNaRede()) %></td>
-						</tr>
-						<% } %>
-					</tbody>
-				</table>
-			</div>
-			<% } %>
 		</div>
 
 		<% if (!unidade.getCpfCnpjUsuario().equals(usuarioDetalhesUnidade.getCpfCnpj())) { %>

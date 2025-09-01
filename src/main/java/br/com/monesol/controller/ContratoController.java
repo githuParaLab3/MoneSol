@@ -187,6 +187,10 @@ public class ContratoController extends HttpServlet {
                 return;
             }
 
+            // CALCULAR CAPACIDADE PREENCHIDA E PASSAR PARA A JSP
+            double capacidadeContratada = contratoDAO.calcularCapacidadeContratada(unidadeId);
+            request.setAttribute("capacidadeContratada", capacidadeContratada);
+            
             LocalDate hoje = LocalDate.now();
             LocalDate dataFim = hoje.plusMonths(12);
             
@@ -270,6 +274,19 @@ public class ContratoController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/pages/unidadeGeradora/listaUnidadesDisponiveis.jsp");
                 return;
             }
+            
+            // LÓGICA DE VERIFICAÇÃO DE CAPACIDADE MÁXIMA
+            double capacidadeContratadaAtual = contratoDAO.calcularCapacidadeContratada(idUnidade);
+            double capacidadeTotal = capacidadeContratadaAtual + qtdContratada;
+
+            if (capacidadeTotal > unidade.getQuantidadeMaximaComerciavel()) {
+                request.getSession().setAttribute("mensagemErro",
+                    "A quantidade solicitada (" + qtdContratada + " kWh) excede a capacidade disponível desta unidade (" +
+                    (unidade.getQuantidadeMaximaComerciavel() - capacidadeContratadaAtual) + " kWh).");
+                response.sendRedirect(request.getContextPath() + "/ContratoController?action=formCadastrar&unidadeGeradoraId=" + idUnidade);
+                return;
+            }
+
 
             if (vigenciaFim.isBefore(vigenciaInicio)) {
                 request.getSession().setAttribute("mensagemErro", 

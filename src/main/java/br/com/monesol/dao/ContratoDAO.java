@@ -200,5 +200,28 @@ public class ContratoDAO {
         }
         return lista;
     }
-}
+    
+    /**
+     * Calcula a quantidade total contratada para uma unidade geradora específica.
+     *
+     * @param idUnidade O ID da Unidade Geradora.
+     * @return A soma da quantidade contratada de todos os contratos existentes para a unidade.
+     * @throws SQLException Se ocorrer um erro de acesso ao banco de dados.
+     */
+    public double calcularCapacidadeContratada(int idUnidade) throws SQLException {
+        String sql = "SELECT SUM(quantidadeContratada) FROM Contrato WHERE unidadeGeradora = ?";
+        double capacidadeContratada = 0.0;
 
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idUnidade);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                capacidadeContratada = rs.getDouble(1);
+            }
+        }
+        return capacidadeContratada;
+    }
+}

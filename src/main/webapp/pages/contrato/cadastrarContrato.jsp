@@ -4,36 +4,42 @@
 <%@ page import="javax.servlet.http.HttpSession"%>
 <%@ page import="java.time.LocalDate"%>
 <%@ page import="java.time.format.DateTimeFormatter"%>
+<%@ page import="br.com.monesol.dao.ContratoDAO"%>
 
 <%
     HttpSession sessionCadastrarContrato = request.getSession(false);
-    Usuario usuarioLogado = (sessionCadastrarContrato != null) ? (Usuario) sessionCadastrarContrato.getAttribute("usuarioLogado") : null;
-    if (usuarioLogado == null) {
+Usuario usuarioLogado = (sessionCadastrarContrato != null) ? (Usuario) sessionCadastrarContrato.getAttribute("usuarioLogado") : null;
+if (usuarioLogado == null) {
         response.sendRedirect("../login.jsp");
         return;
-    }
+}
     String cpfCnpj = usuarioLogado.getCpfCnpj();
 
     if (cpfCnpj == null) {
-        response.sendRedirect("../login.jsp"); 
-        return;
+        response.sendRedirect("../login.jsp");
+return;
     }
 
     UnidadeGeradora unidade = (UnidadeGeradora) request.getAttribute("unidade");
     LocalDate dataInicio = (LocalDate) request.getAttribute("dataInicio");
     LocalDate dataFim = (LocalDate) request.getAttribute("dataFim");
-    
-    if (unidade == null) {
+if (unidade == null) {
         String unidadeIdStr = request.getParameter("unidadeGeradoraId");
-        if (unidadeIdStr != null && !unidadeIdStr.isEmpty()) {
+if (unidadeIdStr != null && !unidadeIdStr.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/ContratoController?action=formCadastrar&unidadeGeradoraId=" + unidadeIdStr);
-        } else {
+} else {
             response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-        }
+}
         return;
     }
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+%>
+    
+<%
+    // Obter a capacidade contratada do Request Scope
+    double capacidadeContratada = (Double) request.getAttribute("capacidadeContratada");
+    double capacidadeDisponivel = unidade.getQuantidadeMaximaComerciavel() - capacidadeContratada;
 %>
 
 <!DOCTYPE html>
@@ -47,11 +53,11 @@
 	max-width: 600px;
 	margin: 40px auto 60px;
 	background: #fff;
-	border-radius: 12px;
+border-radius: 12px;
 	padding: 30px 35px;
 	box-shadow: 0 10px 25px rgba(247, 198, 0, 0.25);
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	color: #212121;
+color: #212121;
 }
 
 h1 {
@@ -78,7 +84,7 @@ label {
 input[type="text"], input[type="number"], input[type="date"], textarea {
 	border: 1.8px solid #f7c600;
 	border-radius: 8px;
-	padding: 10px 14px;
+padding: 10px 14px;
 	font-size: 1rem;
 	color: #212121;
 	background-color: #f9f6d8;
@@ -106,7 +112,7 @@ input[type="number"] {
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button
 	{
 	-webkit-appearance: none;
-	margin: 0;
+margin: 0;
 }
 
 button[type="submit"] {
@@ -118,7 +124,7 @@ button[type="submit"] {
 	border: none;
 	border-radius: 30px;
 	cursor: pointer;
-	transition: background-color 0.3s ease;
+transition: background-color 0.3s ease;
 	user-select: none;
 	margin-top: 15px;
 }
@@ -131,7 +137,45 @@ button[type="submit"]:hover {
 	.container {
 		margin: 20px 15px 40px;
 		padding: 25px 20px;
-	}
+}
+}
+
+/* Estilos para a barra de progresso */
+.progress-container {
+    margin: 15px 0;
+}
+
+.progress-label {
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.progress-bar-wrapper {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    height: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #f7c600;
+    transition: width 0.4s ease;
+}
+
+.progress-bar-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #212121;
+    font-weight: bold;
+    font-size: 1.1rem;
+    white-space: nowrap;
 }
 </style>
 </head>
@@ -143,7 +187,7 @@ button[type="submit"]:hover {
 		<a
 			href="<%=request.getContextPath()%>/pages/unidadeGeradora/listaUnidadesDisponiveis.jsp"
 			style="display: inline-block; background: transparent; color: #d49f00; border: 2px solid #d49f00; border-radius: 30px; padding: 10px 22px; font-weight: 700; text-decoration: none; cursor: pointer; transition: background-color 0.3s ease; user-select: none;"
-			onmouseover="this.style.backgroundColor='#d49f00'; this.style.color='#212121';"
+onmouseover="this.style.backgroundColor='#d49f00'; this.style.color='#212121';"
 			onmouseout="this.style.backgroundColor='transparent'; this.style.color='#d49f00';"
 			aria-label="Voltar para Marketplace"> ← Desistir da
 			Contratação </a>
@@ -175,13 +219,29 @@ button[type="submit"]:hover {
 			<input type="number" id="reajustePeriodico" name="reajustePeriodico" 
 			       min="1" value="12" required /> 
 			
-			<label for="quantidadeContratada">Quantidade Contratada (kWh):</label> 
+			<label for="quantidadeContratada">Quantidade Contratada (kWh): 
+			    (Mínimo aceito: <%= String.format("%.2f", unidade.getQuantidadeMinimaAceita()) %> kWh)
+            </label> 
 			<input type="number" id="quantidadeContratada" name="quantidadeContratada"
-				   step="0.01" min="<%= unidade.getQuantidadeMinimaAceita() %>" required /> 
+				   
+step="0.01" min="<%= unidade.getQuantidadeMinimaAceita() %>" max="<%= capacidadeDisponivel %>" required /> 
 			
-			<small style="color: #555; font-size: 0.9rem;">
-				Mínimo aceito: <%= unidade.getQuantidadeMinimaAceita() %> kWh
-			</small>
+			<div class="progress-container">
+                <div class="progress-label">Disponibilidade de Capacidade</div>
+                <div class="progress-bar-wrapper">
+                    <% 
+                        double porcentagem = (unidade.getQuantidadeMaximaComerciavel() > 0) ? (capacidadeContratada / unidade.getQuantidadeMaximaComerciavel()) * 100 : 0; 
+                        String porcentagemFormatada = String.format("%.2f", porcentagem).replace(",", ".");
+                    %>
+                    <div class="progress-bar-fill" style="width: <%= porcentagemFormatada %>%;"></div>
+                    <span class="progress-bar-text">
+                        <%= String.format("%.2f", capacidadeContratada) %>/<%= String.format("%.2f", unidade.getQuantidadeMaximaComerciavel()) %> kWh
+                    </span>
+                </div>
+                <small style="color: #555; font-size: 0.9rem; margin-top: 5px; display: block;">
+                    Disponível: <%= String.format("%.2f", capacidadeDisponivel) %> kWh
+                </small>
+            </div>
 
 			<button type="submit">Fechar Contrato</button>
 		</form>
