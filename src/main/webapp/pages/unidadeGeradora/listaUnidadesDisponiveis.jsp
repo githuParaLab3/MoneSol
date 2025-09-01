@@ -1,4 +1,5 @@
-<%@ page contentType="text/html; charset=UTF-8"%>
+<%-- MUDANÇA 1: Adicionado pageEncoding="UTF-8" para garantir que o ficheiro seja lido e processado como UTF-8 --%>
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
 <%@ page import="java.util.List"%>
 <%@ page import="br.com.monesol.dao.UnidadeGeradoraDAO"%>
 <%@ page import="br.com.monesol.model.UnidadeGeradora"%>
@@ -26,192 +27,187 @@ h1 {
 	margin-bottom: 30px;
 }
 
+/* --- PAINEL DE FILTROS --- */
+.filter-panel {
+    background-color: #fff;
+    border: 2px solid #ffd600;
+    border-radius: 12px;
+    padding: 20px 25px;
+    margin-bottom: 40px;
+    box-shadow: 0 6px 15px rgba(255, 214, 0, 0.2);
+}
+
+.filter-panel summary {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #212121;
+    cursor: pointer;
+    list-style: none; /* Remove a seta padrão */
+}
+
+.filter-panel summary::-webkit-details-marker {
+    display: none; /* Remove a seta no Chrome/Safari */
+}
+
+.filter-panel summary::before {
+    content: '▶'; /* Seta customizada */
+    margin-right: 10px;
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.filter-panel[open] > summary::before {
+    transform: rotate(90deg);
+}
+
 .search-form {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0; 
-    flex-wrap: wrap;
-    max-width: 600px;
-    margin: 0 auto;
+    margin-top: 20px;
 }
 
 .search-input {
-    flex: 1;
+    width: 100%;
     padding: 12px 20px;
     border: 2px solid #ffd600;
-    border-right: none; 
-    border-radius: 30px 0 0 30px;
+    border-radius: 30px;
     font-size: 1rem;
     outline: none;
     box-sizing: border-box;
     transition: all 0.3s ease;
     margin-bottom: 20px;
 }
-
 .search-input:focus {
     border-color: #ffb300;
     box-shadow: 0 0 10px rgba(255, 214, 0, 0.5);
 }
 
+.advanced-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.filter-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #555;
+}
+.filter-group input[type="number"] {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+    align-items: center;
+}
+
 .search-button {
-    padding: 12px 24px;
-    border: 2px solid #ffd600;
-    border-left: none; 
-    border-radius: 0 30px 30px 0;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 30px;
     background-color: #212121;
     color: #ffd600;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-bottom: 50px;
 }
-
 .search-button:hover {
     background-color: #000;
-    color: #fff700;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 
-/* Mobile */
-@media (max-width: 480px) {
-    .search-form {
-        flex-direction: column;
-        width: 100%;
-    }
-    .search-input, .search-button {
-        width: 100%;
-        border-radius: 30px;
-        border-right: 2px solid #ffd600;
-        margin: 5px 0;
-    }
-    .search-button {
-        border-left: 2px solid #ffd600;
-    }
+.clear-button {
+    padding: 10px 24px;
+    border: 2px solid #ccc;
+    border-radius: 30px;
+    background-color: transparent;
+    color: #555;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.clear-button:hover {
+    background-color: #f0f0f0;
+    border-color: #aaa;
 }
 
-.units-list {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-	gap: 20px;
-}
 
-.unit-card {
-	background: #fff;
-	border: 2px solid #ffd600;
-	border-radius: 12px;
-	padding: 20px 25px;
-	box-shadow: 0 6px 15px rgba(255, 214, 0, 0.2);
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	color: #212121;
-}
-
-.unit-card:hover {
-	transform: translateY(-5px);
-	box-shadow: 0 10px 30px rgba(255, 214, 0, 0.4);
-	border-color: #ffeb3b;
-}
-
-.unit-title {
-	font-weight: 700;
-	font-size: 1.25rem;
-	margin-bottom: 12px;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-}
-
-.unit-info {
-	font-size: 0.95rem;
-	margin-bottom: 8px;
-	color: #555;
-}
-
-.unit-info strong {
-	color: #212121;
-}
-
-.btn-contratar {
-	margin-top: auto;
-	background-color: #212121;
-	color: #ffd600;
-	border: none;
-	padding: 10px 16px;
-	border-radius: 30px;
-	font-weight: 700;
-	cursor: pointer;
-	align-self: flex-start;
-	transition: background-color 0.3s ease;
-	text-align: center;
-	text-decoration: none;
-	display: inline-block;
-}
-
-.btn-contratar:hover {
-	background-color: #000;
-	color: #fff700;
-}
-
-.link-detalhes {
-	color: inherit;
-	text-decoration: none;
-	cursor: pointer;
-}
-
-.link-detalhes:hover {
-	text-decoration: underline;
-}
-
-@media (max-width: 480px) {
-	.units-list {
-		grid-template-columns: 1fr;
-	}
-	.search-box {
-		flex-direction: column;
-		align-items: stretch;
-	}
-	.search-input, .search-button {
-		border-radius: 30px;
-		width: 100%;
-		border-left: 2px solid #ffd600;
-	}
-	.search-button {
-		margin-top: 8px;
-		border-left: 2px solid #ffd600;
-	}
-}
+/* --- ESTILOS DOS CARDS (sem alteração) --- */
+.units-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.unit-card { background: #fff; border: 2px solid #ffd600; border-radius: 12px; padding: 20px 25px; box-shadow: 0 6px 15px rgba(255, 214, 0, 0.2); transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; justify-content: flex-start; color: #212121; }
+.unit-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(255, 214, 0, 0.4); border-color: #ffeb3b; }
+.unit-title { font-weight: 700; font-size: 1.25rem; margin-bottom: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.unit-info { font-size: 0.95rem; margin-bottom: 8px; color: #555; }
+.unit-info strong { color: #212121; }
+.btn-contratar { margin-top: auto; background-color: #212121; color: #ffd600; border: none; padding: 10px 16px; border-radius: 30px; font-weight: 700; cursor: pointer; align-self: flex-start; transition: background-color 0.3s ease; text-align: center; text-decoration: none; display: inline-block; }
+.btn-contratar:hover { background-color: #000; color: #fff700; }
+.link-detalhes { color: inherit; text-decoration: none; cursor: pointer; }
+.link-detalhes:hover { text-decoration: underline; }
 
 </style>
 </head>
 <body>
+    <%-- MUDANÇA 2: Garante que os dados enviados via formulário sejam lidos como UTF-8 --%>
+    <% request.setCharacterEncoding("UTF-8"); %>
+
 	<jsp:include page="/pages/outros/mensagens.jsp" />
 	<jsp:include page="/pages/usuario/header.jsp" />
 
 	<div class="container">
 		<h1>Marketplace - Unidades Geradoras Disponíveis</h1>
 
-		<div class="search-box">
-    <form method="get" class="search-form">
-        <input type="text" name="q" class="search-input"
-            placeholder="Pesquisar por localização..."
-            value="<%= request.getParameter("q") != null ? request.getParameter("q") : "" %>" />
-        <button type="submit" class="search-button">Pesquisar</button>
-    </form>
-</div>
+        <!-- PAINEL DE FILTROS EXPANDIDO -->
+		<details class="filter-panel" open>
+            <summary>Filtros de Pesquisa</summary>
+            <form method="get" class="search-form">
+                <input type="text" name="q" class="search-input"
+                    placeholder="Pesquisar por localização, regras..."
+                    value="<%= request.getParameter("q") != null ? request.getParameter("q") : "" %>" />
+                
+                <div class="advanced-filters">
+                    <div class="filter-group">
+                        <label for="potenciaMin">Potência Mínima (kW)</label>
+                        <input type="number" id="potenciaMin" name="potenciaMin" min="0" step="0.1"
+                               value="<%= request.getParameter("potenciaMin") != null ? request.getParameter("potenciaMin") : "" %>" />
+                    </div>
+                    <div class="filter-group">
+                        <label for="precoMax">Preço Máximo (R$/kWh)</label>
+                        <input type="number" id="precoMax" name="precoMax" min="0" step="0.01"
+                               value="<%= request.getParameter("precoMax") != null ? request.getParameter("precoMax") : "" %>" />
+                    </div>
+                    <div class="filter-group">
+                        <label for="eficienciaMin">Eficiência Mínima (%)</label>
+                        <input type="number" id="eficienciaMin" name="eficienciaMin" min="0" max="100" step="0.1"
+                               value="<%= request.getParameter("eficienciaMin") != null ? request.getParameter("eficienciaMin") : "" %>" />
+                    </div>
+                </div>
 
+                <div class="filter-actions">
+                    <button type="submit" class="search-button">Filtrar</button>
+                    <a href="listaUnidadesDisponiveis.jsp" class="clear-button">Limpar Filtros</a>
+                </div>
+            </form>
+        </details>
 
 		<%
             UnidadeGeradoraDAO unidadeDAO = new UnidadeGeradoraDAO();
             List<UnidadeGeradora> listaUnidades = null;
+
             try {
+                // 1. Pega todas as unidades do banco
                 listaUnidades = unidadeDAO.listarTodas();
 
+                // 2. Aplica os filtros um por um
+                
+                // Filtro de texto genérico (q)
                 String q = request.getParameter("q");
                 if (q != null && !q.trim().isEmpty()) {
                     String termo = q.toLowerCase();
@@ -220,6 +216,34 @@ h1 {
                           (unidade.getRegraDeExcecoes() != null && unidade.getRegraDeExcecoes().toLowerCase().contains(termo)))
                     );
                 }
+
+                // Filtro de Potência Mínima
+                String potenciaMinStr = request.getParameter("potenciaMin");
+                if (potenciaMinStr != null && !potenciaMinStr.trim().isEmpty()) {
+                    try {
+                        double potenciaMin = Double.parseDouble(potenciaMinStr);
+                        listaUnidades.removeIf(unidade -> unidade.getPotenciaInstalada() < potenciaMin);
+                    } catch (NumberFormatException e) { /* Ignora valor inválido */ }
+                }
+
+                // Filtro de Preço Máximo
+                String precoMaxStr = request.getParameter("precoMax");
+                if (precoMaxStr != null && !precoMaxStr.trim().isEmpty()) {
+                    try {
+                        double precoMax = Double.parseDouble(precoMaxStr);
+                        listaUnidades.removeIf(unidade -> unidade.getPrecoPorKWh() > precoMax);
+                    } catch (NumberFormatException e) { /* Ignora valor inválido */ }
+                }
+
+                // Filtro de Eficiência Mínima
+                String eficienciaMinStr = request.getParameter("eficienciaMin");
+                if (eficienciaMinStr != null && !eficienciaMinStr.trim().isEmpty()) {
+                    try {
+                        double eficienciaMin = Double.parseDouble(eficienciaMinStr);
+                        listaUnidades.removeIf(unidade -> unidade.getEficienciaMedia() < eficienciaMin);
+                    } catch (NumberFormatException e) { /* Ignora valor inválido */ }
+                }
+
             } catch (Exception e) {
                 out.println("<p style='color:red; text-align:center;'>Erro ao carregar unidades geradoras: " + e.getMessage() + "</p>");
             }
@@ -271,8 +295,7 @@ h1 {
 			<% } %>
 		</ul>
 		<% } else { %>
-		<p style="text-align: center; color: #777;">Nenhuma unidade
-			encontrada.</p>
+		<p style="text-align: center; color: #777; margin-top: 40px; font-size: 1.1rem;">Nenhuma unidade encontrada com os filtros aplicados.</p>
 		<% } %>
 	</div>
 </body>
