@@ -10,54 +10,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<title>Contato - MoneSol</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background:#fff8e1;
-        color:#212121;
-        min-height:100vh;
-        display:flex;
-        flex-direction:column;
-    }
-    main {
-        max-width:900px;
-        margin:50px auto 80px;
-        padding:0 20px;
-    }
-    h1,h2 { font-weight:900; color:#212121; user-select:none; }
-    h1 { font-size:2.4rem; margin-bottom:30px; text-align:center; }
-    h2 { font-size:1.8rem; margin-top:40px; margin-bottom:18px; border-bottom:3px solid #f7c600; padding-bottom:6px; }
-    p { color:#424242; font-size:1.15rem; line-height:1.7; margin-bottom:18px; max-width:720px; margin-left:auto; margin-right:auto; }
-    ul.contact-list { max-width:720px; margin:0 auto 30px; padding-left:1.25rem; color:#555; font-weight:600; font-size:1.1rem; line-height:1.5; }
-    ul.contact-list li { margin-bottom:10px; list-style-type:disc; }
-    .contact-section {
-        max-width:720px;
-        margin:0 auto;
-        padding:30px;
-        border:1.5px solid #f7c600;
-        border-radius:12px;
-        box-shadow:0 4px 15px rgba(247,198,0,0.2);
-        background:#fffde7;
-    }
-    .contact-section a {
-        color:#212121;
-        text-decoration:none;
-        font-weight:700;
-    }
-    .contact-section a:hover { text-decoration:underline; }
-    @media (max-width:600px) {
-        main { margin:30px 15px 60px; }
-        h1 { font-size:2rem; }
-        h2 { font-size:1.5rem; }
-        p, ul.contact-list { font-size:1.05rem; }
-    }
-</style>
+    <meta charset="UTF-8" />
+    <title>Contato - MoneSol</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/outros.css" />
 </head>
-<body>
+<body class="pagina-contato">
 
 <jsp:include page="/pages/usuario/header.jsp" />
 

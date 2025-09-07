@@ -16,8 +16,6 @@
         out.println("<p>Unidade não encontrada.</p>");
         return;
     }
-
-    // A lógica de edição/exclusão foi removida
   
     ContratoDAO contratoDAO = new ContratoDAO();
 
@@ -34,314 +32,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<title>Detalhes da Unidade Geradora - MoneSol</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
-
-body {
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	background: #fff8e1;
-	color: #2e2e2e;
-	min-height: 100vh;
-}
-
-main {
-	max-width: 1000px;
-	margin: 30px auto;
-	padding: 0 20px 60px;
-}
-
-h1 {
-	font-size: 2.4rem;
-	font-weight: 900;
-	color: #212121;
-	margin-bottom: 15px;
-	text-align: center;
-}
-
-.sub {
-	font-size: 0.95rem;
-	color: #555;
-	margin-bottom: 30px;
-	text-align: center;
-}
-
-.card {
-	background: #ffffff;
-	border-radius: 12px;
-	border: 1.5px solid #f7c600;
-	padding: 25px 30px;
-	margin-bottom: 30px;
-	box-shadow: 0 8px 25px rgba(247, 198, 0, 0.25);
-}
-
-.flex {
-	display: flex;
-	gap: 30px;
-	flex-wrap: wrap;
-}
-
-.info {
-	flex: 1 1 280px;
-}
-
-.info-label {
-	font-weight: 700;
-	margin-bottom: 5px;
-	display: block;
-	color: #555;
-}
-
-.info-value {
-	background: #f9f6d8;
-	padding: 12px 14px;
-	border-radius: 8px;
-	margin-bottom: 12px;
-	font-size: 1rem;
-}
-
-.actions {
-	margin-top: 10px;
-	display: flex;
-	gap: 12px;
-	flex-wrap: wrap;
-	flex-direction: column;
-}
-
-.btn {
-	padding: 10px 22px;
-	border: none;
-	border-radius: 30px;
-	font-weight: 700;
-	cursor: pointer;
-	user-select: none;
-	font-size: 0.95rem;
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	transition: background 0.25s ease;
-	width: 100%;
-	justify-content: center;
-}
-
-.btn-edit {
-	background: #212121;
-	color: #ffd600;
-}
-
-.btn-edit:hover {
-	background: #000;
-}
-
-.btn-delete {
-	background: #d32f2f;
-	color: #fff;
-}
-
-.btn-delete:hover {
-	background: #b71c1c;
-}
-
-.btn-contract {
-	background-color: #f7c600;
-	color: #212121;
-	font-size: 1.25rem;
-	padding: 14px 30px;
-	max-width: 320px;
-	margin: 0 auto;
-	display: block;
-	border: 3px solid #212121;
-	font-weight: 900;
-	transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.btn-contract:hover {
-	background-color: #e0b500;
-	color: #000;
-}
-
-.btn-back {
-	background: transparent;
-	color: #212121;
-	border: 2px solid #212121;
-	border-radius: 30px;
-	padding: 8px 18px;
-	text-decoration: none;
-	font-weight: 700;
-	transition: background-color 0.25s ease, color 0.25s ease;
-	display: inline-block;
-	margin-bottom: 20px;
-}
-
-.btn-back:hover {
-	background: #212121;
-	color: #ffd600;
-}
-
-.table-wrapper {
-	overflow-x: auto;
-}
-
-table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-top: 15px;
-	font-size: 0.95rem;
-}
-
-thead {
-	background: #f7c600;
-}
-
-th, td {
-	padding: 12px 14px;
-	text-align: left;
-	border-bottom: 1px solid #f0e38f;
-}
-
-th {
-	font-weight: 700;
-	color: #212121;
-}
-
-tbody tr:hover {
-	background: #fff8c4;
-}
-
-.small {
-	font-size: 0.85rem;
-	color: #666;
-}
-
-.badge {
-	background: #ffd600;
-	padding: 4px 12px;
-	border-radius: 50px;
-	font-weight: 700;
-	font-size: 0.75rem;
-	display: inline-block;
-	margin-right: 6px;
-}
-
-.summary {
-	display: flex;
-	gap: 20px;
-	flex-wrap: wrap;
-	margin-top: 10px;
-}
-
-.summary-item {
-	flex: 1 1 180px;
-	background: #fffde7;
-	border: 1px solid #f7c600;
-	border-radius: 10px;
-	padding: 12px 16px;
-	font-weight: 600;
-}
-
-@media ( max-width : 900px) {
-	.flex {
-		flex-direction: column;
-	}
-	.actions {
-		flex-direction: column;
-	}
-}
-/* Estilos para a barra de progresso */
-.progress-container {
-    margin: 15px 0;
-}
-
-.progress-label {
-    font-weight: 700;
-    color: #555;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.progress-bar-wrapper {
-    width: 100%;
-    background-color: #e0e0e0;
-    border-radius: 10px;
-    height: 30px;
-    position: relative;
-    overflow: hidden;
-}
-
-.progress-bar-fill {
-    height: 100%;
-    background-color: #f7c600;
-    transition: width 0.4s ease;
-}
-
-.progress-bar-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #212121;
-    font-weight: bold;
-    font-size: 1.1rem;
-    white-space: nowrap;
-}
-</style>
+    <meta charset="UTF-8" />
+    <title>Detalhes da Unidade Geradora - MoneSol</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/detalhes.css" />
 </head>
-<body>
+<body class="pagina-detalhes-unidade">
 
-	<jsp:include page="/pages/outros/mensagens.jsp" />
+    <jsp:include page="/pages/outros/mensagens.jsp" />
+    <jsp:include page="/pages/usuario/header.jsp" />
 
-	<jsp:include page="/pages/usuario/header.jsp" />
-
-	<main aria-label="Detalhes da unidade geradora">
-		<a href="javascript:history.back()" class="btn btn-back" aria-label="Voltar para a página anterior">
+    <main aria-label="Detalhes da unidade geradora">
+        <a href="javascript:history.back()" class="btn btn-back" aria-label="Voltar para a página anterior">
             &larr; Voltar ao Marketplace
         </a>
 
-		<h1>
-			Unidade Geradora #<%= unidade.getId() %></h1>
-		<div class="sub">Detalhes da unidade e medições recentes</div>
+        <h1>Unidade Geradora #<%= unidade.getId() %></h1>
+        <div class="sub">Detalhes da unidade e medições recentes</div>
 
-		<div class="card">
-			<div class="flex">
-				<div class="info">
-					<div class="info-label">Localização</div>
-					<div class="info-value"><%= unidade.getLocalizacao() %></div>
+        <div class="card">
+            <div class="flex">
+                <div class="info">
+                    <div class="info-label">Localização</div>
+                    <div class="info-value"><%= unidade.getLocalizacao() %></div>
 
-					<div class="info-label">Potência Instalada (kW)</div>
-					<div class="info-value"><%= String.format("%.2f", unidade.getPotenciaInstalada()) %></div>
+                    <div class="info-label">Potência Instalada (kW)</div>
+                    <div class="info-value"><%= String.format("%.2f", unidade.getPotenciaInstalada()) %></div>
 
-					<div class="info-label">Eficiência Média (%)</div>
-					<div class="info-value"><%= String.format("%.1f", unidade.getEficienciaMedia()) %></div>
+                    <div class="info-label">Eficiência Média (%)</div>
+                    <div class="info-value"><%= String.format("%.1f", unidade.getEficienciaMedia()) %></div>
 
-					<div class="info-label">Preço por kWh (R$)</div>
-					<div class="info-value"><%= String.format("%.2f", unidade.getPrecoPorKWh()) %></div>
-					
-					<div class="info-label">Quantidade Máxima Comerciável (%)</div>
-					<div class="info-value"><%=String.format("%.2f", unidade.getQuantidadeMaximaComerciavel())%></div>
+                    <div class="info-label">Preço por kWh (R$)</div>
+                    <div class="info-value"><%= String.format("%.2f", unidade.getPrecoPorKWh()) %></div>
+                    
+                    <div class="info-label">Quantidade Máxima Comerciável (%)</div>
+                    <div class="info-value"><%=String.format("%.2f", unidade.getQuantidadeMaximaComerciavel())%></div>
 
-					<div class="info-label">Quantidade Mínima Aceita (kWh)</div>
-					<div class="info-value">
-						<%= unidade.getQuantidadeMinimaAceita() > 0 ? String.format("%.2f", unidade.getQuantidadeMinimaAceita()) : "-" %>
-					</div>
-					<div class="info-label">Regra de Exceções</div>
-					<div class="info-value">
-						<%= (unidade.getRegraDeExcecoes() != null && !unidade.getRegraDeExcecoes().isBlank())
-         ? unidade.getRegraDeExcecoes()
-         : "Não definida" %>
-					</div>
-
-				</div>
-				<div class="info">
-
-					<div class="info-label">Dono da Unidade</div>
-					<div class="info-value"><%=unidade.getCpfCnpjUsuario() != null ?
- unidade.getCpfCnpjUsuario() : "-"%></div>
+                    <div class="info-label">Quantidade Mínima Aceita (kWh)</div>
+                    <div class="info-value">
+                        <%= unidade.getQuantidadeMinimaAceita() > 0 ? String.format("%.2f", unidade.getQuantidadeMinimaAceita()) : "-" %>
+                    </div>
+                    <div class="info-label">Regra de Exceções</div>
+                    <div class="info-value">
+                        <%= (unidade.getRegraDeExcecoes() != null && !unidade.getRegraDeExcecoes().isBlank())
+                                ? unidade.getRegraDeExcecoes()
+                                : "Não definida" %>
+                    </div>
+                </div>
+                <div class="info">
+                    <div class="info-label">Dono da Unidade</div>
+                    <div class="info-value"><%=unidade.getCpfCnpjUsuario() != null ?
+                            unidade.getCpfCnpjUsuario() : "-"%></div>
                     
                     <div class="progress-container">
                         <div class="progress-label"><strong>Capacidade de Contrato</strong></div>
@@ -356,27 +97,25 @@ tbody tr:hover {
                             </span>
                         </div>
                     </div>
-				</div>
-			</div>
-		</div>
+                </div>
+            </div>
+        </div>
 
-		<div class="card" aria-labelledby="medicoes-title">
-			<h2 id="medicoes-title">Medições Recentes</h2>
-			<p>Não há medições registradas para esta unidade.</p>
-		</div>
+        <div class="card" aria-labelledby="medicoes-title">
+            <h2 id="medicoes-title">Medições Recentes</h2>
+            <p>Não há medições registradas para esta unidade.</p>
+        </div>
 
-		<% if (!unidade.getCpfCnpjUsuario().equals(usuarioDetalhesUnidade.getCpfCnpj())) { %>
-		<form
-			action="<%= request.getContextPath() %>/pages/contrato/cadastrarContrato.jsp"
-			method="get" style="text-align: center; margin-top: 30px;">
-			<input type="hidden" name="unidadeGeradoraId"
-				value="<%= unidade.getId() %>" />
-			<button type="submit" class="btn btn-contract">Firmar
-				Contrato</button>
-		</form>
-		<% } %>
-
-	</main>
-
+        <% if (!unidade.getCpfCnpjUsuario().equals(usuarioDetalhesUnidade.getCpfCnpj())) { %>
+        <form
+            action="<%= request.getContextPath() %>/pages/contrato/cadastrarContrato.jsp"
+            method="get" style="text-align: center; margin-top: 30px;">
+            <input type="hidden" name="unidadeGeradoraId"
+                value="<%= unidade.getId() %>" />
+            <button type="submit" class="btn btn-contract">Firmar
+                Contrato</button>
+        </form>
+        <% } %>
+    </main>
 </body>
 </html>

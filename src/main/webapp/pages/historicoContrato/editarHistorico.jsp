@@ -31,94 +31,15 @@
     <meta charset="UTF-8" />
     <title>Editar Histórico - MoneSol</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #fff8e1;
-            color: #2e2e2e;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-        main {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #fff;
-            border: 1.5px solid #f7c600;
-            border-radius: 12px;
-            padding: 30px 25px;
-            box-shadow: 0 8px 25px rgba(247, 198, 0, 0.25);
-            position: relative;
-        }
-        h1 {
-            font-size: 2rem;
-            font-weight: 900;
-            color: #212121;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        label {
-            display: block;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: #555;
-        }
-        input[type="text"],
-        input[type="datetime-local"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px 14px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border: 1px solid #f7c600;
-            background: #f9f6d8;
-            font-size: 1rem;
-            color: #212121;
-            box-sizing: border-box;
-        }
-        textarea { resize: vertical; height: 100px; }
-        button {
-            background: #212121;
-            color: #ffd600;
-            font-weight: 700;
-            border: none;
-            border-radius: 30px;
-            padding: 12px 28px;
-            font-size: 1rem;
-            cursor: pointer;
-            user-select: none;
-            width: 100%;
-            transition: background 0.25s ease;
-        }
-        button:hover {
-            background: #000;
-        }
-        .btn-back {
-            position: absolute;
-            top: 20px;
-            left: 25px;
-            text-decoration: none;
-            color: #212121;
-            border: 2px solid #212121;
-            border-radius: 30px;
-            padding: 10px 26px;
-            font-weight: 700;
-            transition: background 0.25s ease, color 0.25s ease;
-            user-select: none;
-            z-index: 10; 
-        }
-        .btn-back:hover {
-            background: #212121;
-            color: #ffd600;
-        }
-    </style>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/forms.css" />
+
 </head>
 <body>
+<jsp:include page="/pages/outros/mensagens.jsp" />
+
 
 <main aria-label="Editar Histórico de Ocorrência">
-
-	<button type="button" class="btn-voltar" aria-label="Voltar" onclick="window.history.back();">&larr; Voltar</button>
+    <a href="javascript:history.back()" class="btn-back" aria-label="Voltar">&#8592; Voltar</a>
 
     <h1>Editar Histórico #<%= historico.getId() %></h1>
 
@@ -146,7 +67,6 @@
 
         <button type="submit">Salvar Alterações</button>
     </form>
-
 </main>
 
 </body>

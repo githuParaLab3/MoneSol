@@ -17,80 +17,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Admin Dashboard - MoneSol</title>
-<link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/monesol.css" />
-<style>
-    :root {
-        --yellow:#ffd600;
-        --dark:#212121;
-        --bg:#fffde7;
-        --radius:12px;
-    }
-    * { box-sizing:border-box; }
-    body {
-        background: var(--bg);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        color: #333;
-    }
-    a { text-decoration: none; color: inherit; }
-    .container {
-        max-width: 1000px;
-        margin: 40px auto;
-        padding: 0 20px;
-    }
-    .section {
-        background: #ffffff;
-        border: 1px solid var(--yellow);
-        border-radius: var(--radius);
-        padding: 25px 30px;
-        margin-bottom: 40px;
-        box-shadow: 0 5px 20px rgba(255, 214, 0, 0.2);
-    }
-    h2 {
-        margin: 0 0 15px;
-        font-size: 1.5rem;
-        color: var(--dark);
-        border-bottom: 2px solid var(--yellow);
-        padding-bottom: 8px;
-    }
-    .edit-button {
-        background: var(--yellow);
-        border: none;
-        padding: 8px 16px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        color: var(--dark);
-        transition: background 0.2s ease;
-    }
-    .edit-button:hover { background: #ffeb3b; }
-    .cards {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .card {
-        background:#fff;
-        border:1.5px solid var(--yellow);
-        border-radius:var(--radius);
-        padding:25px;
-        width:220px;
-        text-align:center;
-        box-shadow:0 5px 20px rgba(255,214,0,0.2);
-        cursor:pointer;
-        transition: transform 0.2s ease;
-    }
-    .card:hover { transform: translateY(-3px); }
-    .card h2 { font-size:1.3rem; margin-bottom:10px; color:var(--dark); }
-    .card p { font-size:0.95rem; margin-bottom:10px; }
-    .btn { display:block; margin:0 auto; padding:10px 15px; background:var(--dark); color:var(--yellow); text-decoration:none; border-radius:30px; font-weight:700; }
-    .btn:hover { background:#000; }
-</style>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard.css" />
 </head>
 <body>
-<jsp:include page="/pages/outros/mensagens.jsp" />
 
+<jsp:include page="/pages/outros/mensagens.jsp" />
 <jsp:include page="/pages/usuario/header.jsp" />
 
 <div class="container">

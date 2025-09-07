@@ -5,84 +5,10 @@
     <meta charset="UTF-8" />
     <title>O que oferecemos - MoneSol</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #fff8e1;
-            color: #212121;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        main {
-            max-width: 1000px;
-            margin: 50px auto 80px;
-            padding: 0 20px;
-        }
-        h1 {
-            font-weight: 900;
-            font-size: 2.6rem;
-            margin-bottom: 40px;
-            color: #212121;
-            text-align: center;
-            user-select: none;
-        }
-        h2 {
-            font-size: 1.8rem;
-            color: #f7c600;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            border-bottom: 3px solid #f7c600;
-            padding-bottom: 6px;
-            user-select: none;
-        }
-        p {
-            color: #424242;
-            font-weight: 600;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            user-select: text;
-        }
-        ul {
-            list-style: disc inside;
-            margin-left: 20px;
-            color: #424242;
-            font-weight: 600;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            max-width: 900px;
-        }
-        ul li {
-            margin-bottom: 10px;
-        }
-        .beneficios {
-            background: #fffde7;
-            border: 2px solid #f7c600;
-            border-radius: 14px;
-            padding: 25px 30px;
-            box-shadow: 0 6px 22px rgba(247, 198, 0, 0.28);
-            margin-bottom: 40px;
-        }
-        @media (max-width: 700px) {
-            main {
-                margin: 30px 15px 60px;
-            }
-            h1 {
-                font-size: 2.2rem;
-            }
-            h2 {
-                font-size: 1.5rem;
-            }
-            p, ul {
-                font-size: 1.05rem;
-            }
-        }
-    </style>
+    <%-- O CSS interno foi removido e substituído por este link --%>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/outros.css" />
 </head>
-<body>
+<body class="pagina-oferecemos">
     <jsp:include page="/pages/usuario/header.jsp" />
 
     <main role="main" aria-labelledby="oferecemos-title">

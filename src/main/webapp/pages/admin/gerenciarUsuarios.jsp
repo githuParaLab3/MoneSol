@@ -20,22 +20,7 @@
 <meta charset="UTF-8" />
 <title>Gerenciar Usuários - Admin MoneSol</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff8e1; color: #212121; margin: 0; padding: 0; }
-    .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
-    h1 { text-align: center; font-size: 2.4rem; font-weight: 900; margin-bottom: 15px; color: #212121; }
-    .top-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
-    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 20px rgba(247,198,0,0.2); }
-    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffd600; }
-    th { background: #ffd600; color: #212121; font-weight: 700; }
-    tr:nth-child(even) { background: #fff9d1; }
-    tr:hover { background: #fff3a0; }
-    .btn { padding: 8px 16px; font-size: 0.9rem; border-radius: 20px; border: 1.5px solid #212121; font-weight: 700; cursor: pointer; background: transparent; transition: all 0.2s ease; text-decoration: none; }
-    .btn:hover { background: #212121; color: #ffd600; border-color: #ffd600; }
-    .btn-create { background: #212121; color: #ffd600; border-color: #212121; }
-    .btn-create:hover { background: #000; color: #ffeb3b; }
-    .actions { display: flex; gap: 5px; }
-</style>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/adminGerenciamento.css" />
 </head>
 <body>
 

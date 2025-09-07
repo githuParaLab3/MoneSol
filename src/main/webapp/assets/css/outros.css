@@ -1,0 +1,187 @@
+/* ==========================================================================
+   ESTILOS GERAIS E BASE (Comuns a todas as páginas)
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff8e1;
+    color: #212121;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    margin: 50px auto 80px;
+    padding: 0 20px;
+}
+
+h1, h2 {
+    font-weight: 900;
+    color: #212121;
+    user-select: none;
+}
+
+h2 {
+    font-size: 1.8rem;
+    border-bottom: 3px solid #f7c600;
+    padding-bottom: 6px;
+}
+
+p {
+    color: #424242;
+    line-height: 1.6;
+}
+
+
+/* ==========================================================================
+   ESTILOS ESPECÍFICOS - PÁGINA "O QUE OFERECEMOS"
+   ========================================================================== */
+.pagina-oferecemos main {
+    max-width: 1000px;
+}
+
+.pagina-oferecemos h1 {
+    font-size: 2.6rem;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.pagina-oferecemos h2 {
+    color: #f7c600;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.pagina-oferecemos p {
+    font-weight: 600;
+    margin-bottom: 20px;
+    user-select: text;
+}
+
+.pagina-oferecemos ul {
+    list-style: disc inside;
+    margin-left: 20px;
+    color: #424242;
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    max-width: 900px;
+}
+
+.pagina-oferecemos ul li {
+    margin-bottom: 10px;
+}
+
+.pagina-oferecemos .beneficios {
+    background: #fffde7;
+    border: 2px solid #f7c600;
+    border-radius: 14px;
+    padding: 25px 30px;
+    box-shadow: 0 6px 22px rgba(247, 198, 0, 0.28);
+    margin-bottom: 40px;
+}
+
+
+/* ==========================================================================
+   ESTILOS ESPECÍFICOS - PÁGINA "CONTATO"
+   ========================================================================== */
+.pagina-contato main {
+    max-width: 900px;
+}
+
+.pagina-contato h1 {
+    font-size: 2.4rem;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.pagina-contato h2 {
+    margin-top: 40px;
+    margin-bottom: 18px;
+}
+
+.pagina-contato p {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    margin-bottom: 18px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pagina-contato ul.contact-list {
+    max-width: 720px;
+    margin: 0 auto 30px;
+    padding-left: 1.25rem;
+    color: #555;
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.pagina-contato ul.contact-list li {
+    margin-bottom: 10px;
+    list-style-type: disc;
+}
+
+.pagina-contato .contact-section {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 30px;
+    border: 1.5px solid #f7c600;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(247, 198, 0, 0.2);
+    background: #fffde7;
+}
+
+.pagina-contato .contact-section a {
+    color: #212121;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.pagina-contato .contact-section a:hover {
+    text-decoration: underline;
+}
+
+
+/* ==========================================================================
+   MEDIA QUERIES (Responsividade)
+   ========================================================================== */
+/* Estilos para telas menores, como a de "O que oferecemos" */
+@media (max-width: 700px) {
+    .pagina-oferecemos main {
+        margin: 30px 15px 60px;
+    }
+    .pagina-oferecemos h1 {
+        font-size: 2.2rem;
+    }
+    .pagina-oferecemos h2 {
+        font-size: 1.5rem;
+    }
+    .pagina-oferecemos p, .pagina-oferecemos ul {
+        font-size: 1.05rem;
+    }
+}
+
+/* Estilos para telas menores, como a de "Contato" */
+@media (max-width: 600px) {
+    .pagina-contato main {
+        margin: 30px 15px 60px;
+    }
+    .pagina-contato h1 {
+        font-size: 2rem;
+    }
+    .pagina-contato h2 {
+        font-size: 1.5rem;
+    }
+    .pagina-contato p, .pagina-contato ul.contact-list {
+        font-size: 1.05rem;
+    }
+}

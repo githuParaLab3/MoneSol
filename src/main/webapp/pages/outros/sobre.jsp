@@ -205,34 +205,6 @@
 
         </section>
     </main>
-
-    <script>
-        
-        document.querySelectorAll('.faq-question').forEach(question => {
-            question.addEventListener('click', () => {
-                const item = question.parentElement;
-                const answer = question.nextElementSibling;
-                const expanded = question.getAttribute('aria-expanded') === 'true';
-
-                if (expanded) {
-                    item.classList.remove('open');
-                    question.setAttribute('aria-expanded', 'false');
-                    answer.setAttribute('hidden', '');
-                } else {
-                    item.classList.add('open');
-                    question.setAttribute('aria-expanded', 'true');
-                    answer.removeAttribute('hidden');
-                }
-            });
-        });
-        document.querySelectorAll('.faq-item').forEach(item => {
-            item.addEventListener('keydown', e => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    item.querySelector('.faq-question').click();
-                }
-            });
-        });
-    </script>
+<script src="${pageContext.request.contextPath}/assets/js/sobre.js"></script>
 </body>
 </html>

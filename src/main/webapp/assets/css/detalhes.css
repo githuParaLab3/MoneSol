@@ -1,0 +1,268 @@
+/* ==========================================================================
+   ESTILOS GERAIS E BASE (Comuns às páginas de detalhes)
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff8e1;
+    color: #2e2e2e;
+    min-height: 100vh;
+}
+
+main {
+    margin: 30px auto;
+    padding: 0 20px 60px;
+}
+
+h1, h2, h3 {
+    color: #212121;
+}
+
+h1 {
+    font-size: 2.4rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1.5px solid #f7c600;
+    padding: 25px 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 25px rgba(247, 198, 0, 0.25);
+}
+
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.25s ease, color 0.25s ease;
+    text-decoration: none;
+    text-align: center;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   ESTILOS ESPECÍFICOS - PÁGINA "DETALHES DA UNIDADE"
+   ========================================================================== */
+.pagina-detalhes-unidade main {
+    max-width: 1000px;
+}
+
+.pagina-detalhes-unidade .sub {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.pagina-detalhes-unidade .flex {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.pagina-detalhes-unidade .info {
+    flex: 1 1 280px;
+}
+
+.pagina-detalhes-unidade .info-label {
+    font-weight: 700;
+    margin-bottom: 5px;
+    display: block;
+    color: #555;
+}
+
+.pagina-detalhes-unidade .info-value {
+    background: #f9f6d8;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 1rem;
+}
+
+.pagina-detalhes-unidade .actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pagina-detalhes-unidade .btn-edit { background: #212121; color: #ffd600; }
+.pagina-detalhes-unidade .btn-edit:hover { background: #000; }
+.pagina-detalhes-unidade .btn-delete { background: #d32f2f; color: #fff; }
+.pagina-detalhes-unidade .btn-delete:hover { background: #b71c1c; }
+
+.pagina-detalhes-unidade .btn-contract {
+    background-color: #f7c600;
+    color: #212121;
+    font-size: 1.25rem;
+    padding: 14px 30px;
+    max-width: 320px;
+    margin: 0 auto;
+    display: block;
+    border: 3px solid #212121;
+    font-weight: 900;
+}
+.pagina-detalhes-unidade .btn-contract:hover { background-color: #e0b500; color: #000; }
+
+.pagina-detalhes-unidade .btn-back {
+    background: transparent;
+    color: #212121;
+    border: 2px solid #212121;
+    margin-bottom: 20px;
+}
+.pagina-detalhes-unidade .btn-back:hover { background: #212121; color: #ffd600; }
+
+.pagina-detalhes-unidade .table-wrapper { overflow-x: auto; }
+.pagina-detalhes-unidade table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 0.95rem;
+}
+.pagina-detalhes-unidade thead { background: #f7c600; }
+.pagina-detalhes-unidade th, .pagina-detalhes-unidade td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #f0e38f;
+}
+.pagina-detalhes-unidade th { font-weight: 700; color: #212121; }
+.pagina-detalhes-unidade tbody tr:hover { background: #fff8c4; }
+
+.pagina-detalhes-unidade .summary { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+.pagina-detalhes-unidade .summary-item {
+    flex: 1 1 180px;
+    background: #fffde7;
+    border: 1px solid #f7c600;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-weight: 600;
+}
+
+.progress-container { margin: 15px 0; }
+.progress-label { font-weight: 700; color: #555; margin-bottom: 8px; display: block; }
+.progress-bar-wrapper { width: 100%; background-color: #e0e0e0; border-radius: 10px; height: 30px; position: relative; overflow: hidden; }
+.progress-bar-fill { height: 100%; background-color: #f7c600; transition: width 0.4s ease; }
+.progress-bar-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #212121; font-weight: bold; font-size: 1.1rem; white-space: nowrap; }
+
+/* ==========================================================================
+   ESTILOS ESPECÍFICOS - PÁGINA "DETALHES DO CONTRATO"
+   ========================================================================== */
+.pagina-detalhes-contrato main {
+    max-width: 800px;
+}
+
+.pagina-detalhes-contrato h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f7c600;
+    padding-bottom: 8px;
+}
+
+.pagina-detalhes-contrato h3 {
+    font-size: 1.4rem;
+    margin-top: 30px;
+    margin-bottom: 12px;
+    color: #555;
+}
+
+.pagina-detalhes-contrato .info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pagina-detalhes-contrato .info-label {
+    font-weight: 700;
+    color: #555;
+    flex: 0 0 180px;
+    min-width: 120px;
+}
+
+.pagina-detalhes-contrato .info-value {
+    background: #f9f6d8;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 1rem;
+    flex: 1 1 auto;
+    word-wrap: break-word;
+}
+
+.pagina-detalhes-contrato .btn {
+    color: #212121;
+    border: 2px solid #212121;
+    background: transparent;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.pagina-detalhes-contrato .btn:hover { background: #212121; color: #ffd600; border-color: #ffd600; }
+.pagina-detalhes-contrato .btn-delete { background: #d32f2f; color: #fff; border-color: #d32f2f; }
+.pagina-detalhes-contrato .btn-delete:hover { background: #b71c1c; border-color: #b71c1c; color: #fff; }
+
+.pagina-detalhes-contrato td .btn {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin: 3px;
+    border-radius: 20px;
+    border: 1.5px solid #212121;
+}
+
+.pagina-detalhes-contrato table.documentos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+.pagina-detalhes-contrato table.documentos th, .pagina-detalhes-contrato table.documentos td {
+    border: 1px solid #f7c600;
+    padding: 10px 12px;
+    text-align: left;
+}
+.pagina-detalhes-contrato table.documentos th { background: #f7c600; color: #212121; font-weight: 700; }
+.pagina-detalhes-contrato table.documentos tr:nth-child(even) { background: #fff9d1; }
+.pagina-detalhes-contrato a.arquivo-link { color: #212121; text-decoration: none; font-weight: 700; }
+.pagina-detalhes-contrato a.arquivo-link:hover { text-decoration: underline; color: #f7c600; }
+
+
+/* ==========================================================================
+   MEDIA QUERIES (Responsividade)
+   ========================================================================== */
+@media (max-width: 900px) {
+    .pagina-detalhes-unidade .flex,
+    .pagina-detalhes-unidade .actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 520px) {
+    .pagina-detalhes-contrato .info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .pagina-detalhes-contrato .info-label {
+        flex: none;
+        width: 100%;
+        margin-bottom: 6px;
+    }
+    .pagina-detalhes-contrato .info-value {
+        width: 100%;
+    }
+}
