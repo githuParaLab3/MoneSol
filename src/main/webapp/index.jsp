@@ -9,11 +9,13 @@
 <style>
     
     * {
-        margin: 0; padding: 0; box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #fff8e1; 
+        background: #fff8e1;
         color: #333;
         min-height: 100vh;
         margin: 0;
@@ -22,7 +24,7 @@
 
     
     header {
-        background: #FFD600; 
+        background: #FFD600;
         padding: 15px 40px;
         display: flex;
         align-items: center;
@@ -35,7 +37,7 @@
     header h1 {
         font-weight: 900;
         font-size: 2.4rem;
-        color: #212121; 
+        color: #212121;
         user-select: none;
         cursor: default;
         letter-spacing: 2px;
@@ -55,7 +57,7 @@
         user-select: none;
     }
     nav a:hover, nav a:focus {
-        background: #ffea00; 
+        background: #ffea00;
         outline: none;
     }
 
@@ -165,7 +167,7 @@
 
   
     .features {
-        background: #fffde7; 
+        background: #fffde7;
         border-radius: 15px;
         padding: 40px 30px;
         max-width: 1000px;
@@ -236,6 +238,7 @@
     .testimonial-author {
         font-weight: 700;
         color: #212121;
+      
         margin-top: 5px;
     }
 
@@ -250,6 +253,7 @@
     }
     .final-cta h3 {
         font-size: 2.4rem;
+      
         font-weight: 900;
         color: #212121;
         margin-bottom: 25px;
@@ -262,6 +266,7 @@
         border-radius: 50px;
         font-size: 1.3rem;
         cursor: pointer;
+     
         border: none;
         box-shadow: 0 6px 15px rgba(33,33,33,0.5);
         transition: background-color 0.3s ease;
@@ -327,13 +332,38 @@
 
 <jsp:include page="/pages/outros/mensagens.jsp" />
 
-<% if (usuarioLogado != null) { %>
+<% if (usuarioLogado != null) {
+    String tipo = usuarioLogado.getTipo().toString();
+    String heroTitle = "";
+    String heroParagraph = "";
+    String heroButtonText = "";
+    String heroButtonLink = "";
+
+    if ("DONO_GERADORA".equals(tipo)) {
+        heroTitle = "Olá, " + usuarioLogado.getNome() + "!";
+        heroParagraph = "Acompanhe o desempenho de suas unidades geradoras e gerencie seus contratos de forma eficiente.";
+        heroButtonText = "Ver Resumo das Unidades";
+        heroButtonLink = "pages/usuario/dashboard.jsp";
+    } else if ("CONSUMIDOR_PARCEIRO".equals(tipo)) {
+        heroTitle = "Bem-vindo(a), " + usuarioLogado.getNome() + "!";
+        heroParagraph = "Encontre a melhor solução para sua necessidade de energia solar e gerencie seus contratos de forma simples e transparente.";
+        heroButtonText = "Explorar o Marketplace";
+        heroButtonLink = "pages/unidadeGeradora/listaUnidadesDisponiveis.jsp";
+    } else if ("ADMIN".equals(tipo)) {
+        heroTitle = "Painel Administrativo, " + usuarioLogado.getNome() + "!";
+        heroParagraph = "Acesse o painel completo para gerenciar todos os usuários, unidades geradoras e contratos do sistema.";
+        heroButtonText = "Acessar Painel de Controle";
+        heroButtonLink = "pages/admin/dashboardAdmin.jsp";
+    }
+%>
 
     <section class="hero" role="banner" aria-label="Área do usuário logado">
         <div class="hero-text">
-            <h2>Bem-vindo, <%= usuarioLogado.getNome() %>!</h2>
-            <p>Acesse seu dashboard para acompanhar seus contratos, medições e unidades geradoras.</p>
-            <button class="btn-hero" onclick="window.location.href='pages/usuario/dashboard.jsp'">Ir para Dashboard</button>
+            <h2><%= heroTitle %></h2>
+            <p><%= heroParagraph %></p>
+            <button class="btn-hero" onclick="window.location.href='<%= heroButtonLink %>'">
+                <%= heroButtonText %>
+            </button>
         </div>
         <div class="hero-image">
             <img src="assets/images/paineisSolares.webp" alt="Painéis solares instalados em telhado" />
@@ -343,7 +373,8 @@
     <section class="about" aria-labelledby="about-title">
         <h3 id="about-title">Sobre a MoneSol</h3>
         <p>
-            A MoneSol é líder em soluções tecnológicas para gestão e comercialização de energia gerada por sistemas fotovoltaicos. Nossa plataforma conecta consumidores, parceiros e geradores, promovendo eficiência, transparência e sustentabilidade no mercado de energia solar.
+            A MoneSol é líder em soluções tecnológicas para gestão e comercialização de energia gerada por sistemas fotovoltaicos.
+            Nossa plataforma conecta consumidores, parceiros e geradores, promovendo eficiência, transparência e sustentabilidade no mercado de energia solar.
         </p>
     </section>
 
@@ -361,7 +392,8 @@
     <section class="testimonials" aria-label="Depoimentos de clientes e parceiros">
         <h3>O que nossos clientes dizem</h3>
         <div class="testimonial-item">
-            “A MoneSol transformou a forma como gerencio a energia da minha unidade geradora. Fácil, transparente e eficiente.”
+            “A MoneSol transformou a forma como gerencio a energia da 
+            minha unidade geradora. Fácil, transparente e eficiente.”
             <div class="testimonial-author">– João Silva, Proprietário Parceiro</div>
         </div>
         <div class="testimonial-item">
@@ -372,14 +404,17 @@
 
     <section class="final-cta" aria-label="Chamada final para ações do usuário">
         <h3>Pronto para gerenciar sua energia solar com a MoneSol?</h3>
-        <button onclick="window.location.href='pages/usuario/dashboard.jsp'">Acessar Dashboard</button>
+        <button onclick="window.location.href='<%= heroButtonLink %>'">
+            <%= heroButtonText %>
+        </button>
     </section>
 
 <% } else { %>
 
     <section class="hero" role="banner" aria-label="Imagem e slogan do sistema MoneSol">
         <div class="hero-text">
-            <h2>Energia Solar Sustentável para um Futuro Melhor</h2>
+            <h2>Energia Solar Sustentável para um 
+            Futuro Melhor</h2>
             <p>Transforme a forma como você gerencia e comercializa energia solar. Com a MoneSol, tenha controle total, contratos flexíveis e alocação automática da energia.</p>
             <button class="btn-hero" onclick="window.location.href='pages/usuario/cadastro.jsp'">Comece Agora</button>
         </div>
@@ -391,7 +426,8 @@
     <section class="about" aria-labelledby="about-title">
         <h3 id="about-title">Sobre a MoneSol</h3>
         <p>
-            A MoneSol é líder em soluções tecnológicas para gestão e comercialização de energia gerada por sistemas fotovoltaicos. Nossa plataforma conecta consumidores, parceiros e geradores, promovendo eficiência, transparência e sustentabilidade no mercado de energia solar.
+            A MoneSol é líder em soluções tecnológicas para gestão e comercialização de energia gerada por sistemas fotovoltaicos.
+            Nossa plataforma conecta consumidores, parceiros e geradores, promovendo eficiência, transparência e sustentabilidade no mercado de energia solar.
         </p>
     </section>
 
@@ -409,7 +445,8 @@
     <section class="testimonials" aria-label="Depoimentos de clientes e parceiros">
         <h3>O que nossos clientes dizem</h3>
         <div class="testimonial-item">
-            “A MoneSol transformou a forma como gerencio a energia da minha unidade geradora. Fácil, transparente e eficiente.”
+            “A MoneSol transformou a forma como gerencio a energia da 
+            minha unidade geradora. Fácil, transparente e eficiente.”
             <div class="testimonial-author">– João Silva, Proprietário Parceiro</div>
         </div>
         <div class="testimonial-item">

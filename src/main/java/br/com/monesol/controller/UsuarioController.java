@@ -309,13 +309,6 @@ public class UsuarioController extends HttpServlet {
 	            return;
 	        }
 	
-	        if (isAdmin && isSelfDelete) {
-	            session.setAttribute("mensagemErro", "Você não pode excluir sua própria conta de administrador.");
-	            response.sendRedirect(request.getContextPath() + "/pages/admin/gerenciarUsuarios.jsp");
-	            return;
-	        }
-	        
-	        // **NOVA VERIFICAÇÃO DE CONTRATOS**
 	        ContratoDAO contratoDAO = new ContratoDAO();
 	        List<Contrato> contratosConsumidor = contratoDAO.listarPorUsuario(cpfCnpjParaExcluir);
 	        List<Contrato> contratosDono = contratoDAO.listarPorDonoGeradora(cpfCnpjParaExcluir);
@@ -356,7 +349,6 @@ public class UsuarioController extends HttpServlet {
 		            response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
 		        }
 	    	} else {
-	    		// Se a sessão for nula, redireciona para o login
 	    		response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
 	    	}
 	    }
@@ -451,12 +443,7 @@ public class UsuarioController extends HttpServlet {
                 session.setAttribute("usuarioLogado", usuario);
                 session.setAttribute("mensagemSucesso", "Login realizado com sucesso! Bem-vindo(a), " + usuario.getNome() + "!");
                 
-                if(usuario.getTipo() == TipoUsuario.ADMIN) {
-                	 response.sendRedirect(request.getContextPath() + "/pages/admin/dashboardAdmin.jsp");
-                } else {
-                	response.sendRedirect(request.getContextPath() + "/pages/usuario/dashboard.jsp");
-                }
-               
+                response.sendRedirect(request.getContextPath() + "/index.jsp");
             } else {
                 session.setAttribute("mensagemErro", "CPF/CNPJ ou senha inválidos");
                 response.sendRedirect(request.getContextPath() + "/pages/usuario/login.jsp");
