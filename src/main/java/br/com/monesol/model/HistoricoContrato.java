@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 public class HistoricoContrato {
 	public enum TipoHistorico {
         ALOCACAO,
-        MANUTENCAO,
-        RELATORIO,
         ALTERACAO_CONTRATUAL,
         OUTRO
     }
